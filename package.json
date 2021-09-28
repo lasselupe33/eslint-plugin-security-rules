@@ -1,0 +1,36 @@
+{
+  "private": true,
+  "root": true,
+  "license": "MIT",
+  "keywords": [
+    "eslint",
+    "eslintplugin"
+  ],
+  "workspaces": {
+    "packages": [
+      "packages/**"
+    ]
+  },
+  "scripts": {
+    "rules": "yarn workspace eslint-plugin-security-rules",
+    "eslint:files": "eslint",
+    "eslint": "yarn eslint:files 'packages/*/src/**/*.{ts,tsx}'",
+    "prepare": "husky install"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^13.2.0",
+    "@commitlint/config-conventional": "^13.2.0",
+    "@typescript-eslint/eslint-plugin": "^4.32.0",
+    "@typescript-eslint/parser": "^4.32.0",
+    "eslint": "^7.32.0",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-comment-length": "^0.3.4",
+    "eslint-plugin-import": "^2.24.2",
+    "eslint-plugin-prettier": "^4.0.0",
+    "eslint-plugin-security-rules": ">=0.0.0",
+    "husky": "^7.0.2",
+    "lint-staged": "^11.1.2",
+    "prettier": "^2.4.1",
+    "typescript": "^4.4.3"
+  }
+}
