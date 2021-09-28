@@ -17,6 +17,10 @@
     "eslint": "yarn eslint:files 'packages/*/src/**/*.{ts,tsx}'",
     "prepare": "husky install"
   },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:lasselupe33/eslint-plugin-security-rules.git"
+  },
   "devDependencies": {
     "@commitlint/cli": "^13.2.0",
     "@commitlint/config-conventional": "^13.2.0",

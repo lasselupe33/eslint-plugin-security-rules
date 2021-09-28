@@ -13,7 +13,12 @@
   "scripts": {
     "build": "rm -rf ./lib && tsc",
     "watch": "yarn build --watch",
-    "prepublish": "yarn build"
+    "prepublish": "cp ../../LICENSE ./LICENSE && cp ../../README.md ./README.md && yarn build",
+    "postpublish": "rm LICENSE; rm README.md"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:lasselupe33/eslint-plugin-security-rules.git"
   },
   "license": "MIT",
   "devDependencies": {
