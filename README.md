@@ -21,3 +21,6 @@ Add the following to your `.eslintrc` configuration:
 ## Rules
 
 ...
+
+<!-- yarn rules watch -->
+<!-- yarn eslint -->
