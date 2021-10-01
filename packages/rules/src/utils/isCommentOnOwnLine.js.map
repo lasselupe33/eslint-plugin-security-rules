@@ -1,1 +1,0 @@
-{"version":3,"file":"isCommentOnOwnLine.js","sourceRoot":"","sources":["isCommentOnOwnLine.ts"],"names":[],"mappings":"AAGA,MAAM,UAAU,kBAAkB,CAChC,UAAsB,EACtB,OAAgB;IAEhB,MAAM,aAAa,GAAG,UAAU,CAAC,cAAc,CAAC,OAAO,CAAC,CAAC;IAEzD,OAAO,aAAa,EAAE,GAAG,CAAC,GAAG,CAAC,IAAI,KAAK,OAAO,CAAC,GAAG,EAAE,KAAK,CAAC,IAAI,CAAC;AACjE,CAAC"}
