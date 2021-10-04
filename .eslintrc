@@ -10,8 +10,7 @@
     "plugin:prettier/recommended",
     "plugin:import/recommended",
     "plugin:import/typescript",
-    "plugin:comment-length/recommended",
-    "plugin:security-rules/recommended"
+    "plugin:comment-length/recommended"
   ],
   "plugins": [
     "import"
@@ -22,7 +21,9 @@
     "import/no-extraneous-dependencies": [
       "error",
       {
-        "devDependencies": false,
+        "devDependencies": [
+          "**/tests/**/*.ts"
+        ],
         "optionalDependencies": false,
         "peerDependencies": false,
         "bundledDependencies": false

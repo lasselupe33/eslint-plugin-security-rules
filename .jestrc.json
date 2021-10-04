@@ -1,0 +1,10 @@
+{
+  "roots": ["<rootDir>/src"],
+  "coverageDirectory": "<rootDir>/.coverage",
+  "testMatch": ["**/tests/rules/**/*.ts(x)?"],
+
+  "testEnvironment": "node",
+  "transform": {
+    "\\.tsx?$": ["babel-jest", { "configFile": "./.babelrc.json" }]
+  }
+}

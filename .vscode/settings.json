@@ -20,5 +20,11 @@
     "editor.codeActionsOnSave": {
       "source.fixAll.eslint": true
     }
+  },
+  "jest.jestCommandLine": "yarn test",
+  "jest.autoRun": { 
+    "watch": false, 
+    "onStartup": ["all-tests"],
+    "onSave": "test-file"
   }
 }
