@@ -1,5 +1,5 @@
 {
-  "packages/rules/**/*.{ts,tsx}": [
+  "src/**/*.{ts,tsx}": [
     "yarn eslint:files"
   ]
 }

@@ -1,5 +1,7 @@
 {
   "compilerOptions": {
+    "rootDir": "./src",
+    "outDir": "./lib",
     "lib": [
       "dom",
       "esnext"
@@ -21,9 +23,7 @@
     "exactOptionalPropertyTypes": true,
     "target": "ESNext",
   },
-  "include": [
-    "packages/**/*"
-  ],
+  "include": ["src/**/*"],
   "exclude": [
     "**/lib",
     "**/node_modules"
