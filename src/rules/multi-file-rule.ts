@@ -49,7 +49,10 @@ function createRule(context: Rule.RuleContext): Rule.RuleListener {
           );
 
           if (typeof importDeclaration === "string") {
-            loadDifferentFile(path.join(context.getCwd()), importDeclaration);
+            loadDifferentFile(
+              path.dirname(context.getFilename()),
+              importDeclaration
+            );
           }
         }
       }
@@ -59,9 +62,9 @@ function createRule(context: Rule.RuleContext): Rule.RuleListener {
     //   for (const declaration of node.declarations) {
     //     if (
     //       declaration.init?.type !== "AwaitExpression" ||
-    //       declaration.init.argument.type !== "CallExpression" ||
-    //       declaration.init.argument.callee.type !== "Identifier"
-    //     ) {
+    // declaration.init.argument.type !== "CallExpression"
+    // || declaration.init.argument.callee.type !==
+    // "Identifier" ) {
     //       continue;
     //     }
 
@@ -78,15 +81,15 @@ function createRule(context: Rule.RuleContext): Rule.RuleListener {
     //       rootDeclaration.references[0]?.from.set;
 
     //     if (intermediateDeclarations) {
-    //       // Go through all alterations to determine if variable is safe
-    //       for (const entry of intermediateDeclarations.values()) {
-    //         // Is it safe???
+    // // Go through all alterations to determine if
+    // variable is safe for (const entry of
+    // intermediateDeclarations.values()) { // Is it safe???
     //         // console.log(entry.name);
     //       }
     //     }
 
-    //     const value = declaration.init.argument.callee.name;
-    //     console.log(value);
+    // const value = declaration.init.argument.callee.name;
+    // console.log(value);
     //   }
     // },
   };
@@ -111,15 +114,16 @@ function getImportValue(
 
 function loadDifferentFile(baseDir: string, filename: string) {
   if (baseDir === "<input>") {
+    console.warn(
+      "Multi-file parsing is not supported when piping input into ESLint"
+    );
     return;
   }
 
   const linter = new Linter();
 
   const code = readFileSync(
-    require.resolve(
-      path.join(baseDir, "./src/tests/files/multi-file-rule", filename)
-    ),
+    require.resolve(path.join(baseDir, `${filename}.ts`)),
     "utf-8"
   );
 

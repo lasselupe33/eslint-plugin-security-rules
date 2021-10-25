@@ -16,7 +16,8 @@
     "watch": "yarn build --watch",
     "prepublishOnly": "yarn build && cp -r ./docs ./lib/docs",
     "eslint:files": "eslint",
-    "eslint": "yarn eslint:files 'src/**/*.{ts,tsx}'",
+    "eslint:plugin": "yarn eslint:files 'src/**/*.{ts,tsx}'",
+    "eslint:dummy": "yarn eslint:files 'dummy/**/*.{ts,tsx}'",
     "prepare": "husky install",
     "test": "jest --cache --config=.jestrc.json"
   },
@@ -49,7 +50,8 @@
     "jest": "^27.3.1",
     "lint-staged": "^11.2.4",
     "prettier": "^2.4.1",
-    "typescript": "^4.4.4"
+    "typescript": "^4.4.4",
+    "eslint-plugin-security-rules": "link:./"
   },
   "peerDependencies": {
     "eslint": ">=8.0.0"

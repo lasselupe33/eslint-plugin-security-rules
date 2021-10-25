@@ -11,7 +11,8 @@
     "plugin:prettier/recommended",
     "plugin:import/recommended",
     "plugin:import/typescript",
-    "plugin:comment-length/recommended"
+    "plugin:comment-length/recommended",
+    "plugin:security-rules/recommended"
   ],
   "plugins": [
     "import"

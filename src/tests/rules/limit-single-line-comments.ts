@@ -26,8 +26,8 @@ ruleTester.run("limit-single-line-comments", limitSingleLineCommentsRule, {
   invalid: [
     // {
     //   code: fs.readFileSync(
-    //     require.resolve(path.join(filesRoot, "too-long")),
-    //     "utf8"
+    // require.resolve(path.join(filesRoot, "too-long")),
+    // "utf8"
     //   ),
     //   errors: [{}],
     // },
