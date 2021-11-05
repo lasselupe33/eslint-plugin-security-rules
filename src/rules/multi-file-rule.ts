@@ -12,6 +12,7 @@ import {
   VariableDeclarator,
 } from "estree";
 
+import { get, set } from "../utils/cache";
 import { getAssignmentType } from "../utils/getAssignmentType";
 import { getFunctionScopeByName } from "../utils/getFunctionScopeByName";
 
@@ -24,6 +25,8 @@ export const multiFileRule: Rule.RuleModule = {
 };
 
 function createRule(context: Rule.RuleContext): Rule.RuleListener {
+  set(context.getFilename(), context.getSourceCode());
+
   return {
     AssignmentExpression: (node) => {
       if (
@@ -43,6 +46,10 @@ function createRule(context: Rule.RuleContext): Rule.RuleListener {
             startVariable,
             { filename: context.getFilename() }
           );
+          context.report({
+            message: "oh no",
+            loc: node.loc ?? { line: 1, column: 1 },
+          });
 
           // while (next !== null) {
           //   curr = next;
@@ -135,7 +142,7 @@ function traceVariable(
     return;
   }
 
-  // console.log(variable.name, scopes.length);
+  console.log(variable.name, scopes.length);
 
   const assignmentType = getAssignmentType(rootScope, variable);
 
@@ -150,8 +157,6 @@ function traceVariable(
       const variableToFollow = functionArguments?.[parameterIndex];
 
       if (variableToFollow?.type !== "Identifier") {
-        console.log(scopes.length);
-        // console.log("here??", variableToFollow);
         return;
       }
 
@@ -251,47 +256,58 @@ function traceIntoNextFile(
   }
 
   try {
-    const linter = new Linter();
-    const fileName = require.resolve(path.join(baseDir, `${filename}.ts`));
+    const filePath = require.resolve(path.join(baseDir, `${filename}.ts`));
+    const sourceCode = getSourceCode(filePath);
 
-    const code = readFileSync(fileName, "utf-8");
-
-    // @ts-expect-error tmpp
-    linter.defineParser("test", { parseForESLint });
-    // linter.defineRule("tmp-rule", {
-    //   meta: {
-    //     type: "layout",
-    //     fixable: "code",
-    //   },
-    //   create: createRule,
-    // });
-
-    linter.verify(
-      code,
-      {
-        parser: "test",
-      },
-      { filename: fileName }
-    );
-
-    const scope = getFunctionScopeByName(
-      linter.getSourceCode(),
-      functionToFollow
-    );
+    const scope = getFunctionScopeByName(sourceCode, functionToFollow);
 
     if (!scope) {
       return;
     }
 
     traceVariable(
-      linter.getSourceCode(),
+      sourceCode,
       [{ scope }],
       scope?.variables[scope.variables.length - 1],
       {
-        filename: fileName,
+        filename: filePath,
       }
     );
   } catch (err) {
     console.warn(err);
   }
+}
+
+function getSourceCode(path: string): SourceCode {
+  const cachedSource = get<SourceCode>(path);
+
+  if (cachedSource) {
+    return cachedSource;
+  }
+
+  const linter = new Linter();
+  const code = readFileSync(path, "utf-8");
+
+  // @ts-expect-error tmpp
+  linter.defineParser("test", { parseForESLint });
+  // linter.defineRule("tmp-rule", {
+  //   meta: {
+  //     type: "layout",
+  //     fixable: "code",
+  //   },
+  //   create: createRule,
+  // });
+
+  linter.verify(
+    code,
+    {
+      parser: "test",
+    },
+    { filename: path }
+  );
+
+  const sourceCode = linter.getSourceCode();
+  set(path, sourceCode);
+
+  return sourceCode;
 }
