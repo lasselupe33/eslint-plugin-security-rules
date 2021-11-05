@@ -39,7 +39,7 @@ function createRule(context: Rule.RuleContext): Rule.RuleListener {
 
           traceVariable(
             context.getSourceCode(),
-            [context.getScope()],
+            [{ scope: context.getScope() }],
             startVariable,
             { filename: context.getFilename() }
           );
@@ -109,15 +109,17 @@ function createRule(context: Rule.RuleContext): Rule.RuleListener {
 
 function traceVariable(
   sourceCode: SourceCode,
-  scopes: Scope.Scope[],
+  scopes: {
+    scope: Scope.Scope;
+    functionArguments?: (Expression | SpreadElement)[];
+  }[],
   variableOrVariableName: Scope.Variable | string | null | undefined,
   traceContext: {
     filename: string;
-    functionArguments?: (Expression | SpreadElement)[];
   }
 ): void {
-  const rootScope = scopes[0];
-  const scope = scopes[scopes.length - 1];
+  const rootScope = scopes[0]?.scope;
+  const { scope, functionArguments } = scopes[scopes.length - 1] ?? {};
 
   if (!rootScope || !scope) {
     return;
@@ -133,7 +135,7 @@ function traceVariable(
     return;
   }
 
-  console.log(variable.name);
+  // console.log(variable.name, scopes.length);
 
   const assignmentType = getAssignmentType(rootScope, variable);
 
@@ -145,9 +147,11 @@ function traceVariable(
         (it) => it.type === "Identifier" && it.name === boundVar.name
       );
 
-      const variableToFollow = traceContext.functionArguments?.[parameterIndex];
+      const variableToFollow = functionArguments?.[parameterIndex];
 
       if (variableToFollow?.type !== "Identifier") {
+        console.log(scopes.length);
+        // console.log("here??", variableToFollow);
         return;
       }
 
@@ -158,7 +162,7 @@ function traceVariable(
         variableToFollow.name,
         traceContext
       );
-      break;
+      return;
     }
 
     case "variable": {
@@ -174,7 +178,7 @@ function traceVariable(
         findVariable(scope, nextVariable),
         traceContext
       );
-      break;
+      return;
     }
 
     case "function": {
@@ -193,13 +197,19 @@ function traceVariable(
 
         const returnVariable =
           nextScope.variables[nextScope.variables.length - 1];
-        traceVariable(sourceCode, [...scopes, nextScope], returnVariable, {
-          ...traceContext,
-          functionArguments: callExpression.arguments,
-        });
+
+        traceVariable(
+          sourceCode,
+          [
+            ...scopes,
+            { scope: nextScope, functionArguments: callExpression.arguments },
+          ],
+          returnVariable,
+          traceContext
+        );
       }
 
-      break;
+      return;
     }
 
     case "import": {
@@ -217,7 +227,7 @@ function traceVariable(
           importName
         );
       }
-      break;
+      return;
     }
   }
 }
@@ -240,44 +250,48 @@ function traceIntoNextFile(
     return;
   }
 
-  const linter = new Linter();
-  const fileName = require.resolve(path.join(baseDir, `${filename}.ts`));
+  try {
+    const linter = new Linter();
+    const fileName = require.resolve(path.join(baseDir, `${filename}.ts`));
 
-  const code = readFileSync(fileName, "utf-8");
+    const code = readFileSync(fileName, "utf-8");
 
-  // @ts-expect-error tmpp
-  linter.defineParser("test", { parseForESLint });
-  // linter.defineRule("tmp-rule", {
-  //   meta: {
-  //     type: "layout",
-  //     fixable: "code",
-  //   },
-  //   create: createRule,
-  // });
+    // @ts-expect-error tmpp
+    linter.defineParser("test", { parseForESLint });
+    // linter.defineRule("tmp-rule", {
+    //   meta: {
+    //     type: "layout",
+    //     fixable: "code",
+    //   },
+    //   create: createRule,
+    // });
 
-  linter.verify(
-    code,
-    {
-      parser: "test",
-    },
-    { filename: fileName }
-  );
+    linter.verify(
+      code,
+      {
+        parser: "test",
+      },
+      { filename: fileName }
+    );
 
-  const scope = getFunctionScopeByName(
-    linter.getSourceCode(),
-    functionToFollow
-  );
+    const scope = getFunctionScopeByName(
+      linter.getSourceCode(),
+      functionToFollow
+    );
 
-  if (!scope) {
-    return;
-  }
-
-  traceVariable(
-    linter.getSourceCode(),
-    [scope],
-    scope?.variables[scope.variables.length - 1],
-    {
-      filename: fileName,
+    if (!scope) {
+      return;
     }
-  );
+
+    traceVariable(
+      linter.getSourceCode(),
+      [{ scope }],
+      scope?.variables[scope.variables.length - 1],
+      {
+        filename: fileName,
+      }
+    );
+  } catch (err) {
+    console.warn(err);
+  }
 }
