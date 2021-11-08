@@ -1,55 +1,45 @@
 import path from "path";
 
-import { parseForESLint } from "@typescript-eslint/parser";
-import { Linter } from "eslint";
-import fs from "fs-extra";
-
-import { multiFileRule } from "../../src/rules/multi-file-rule";
+import { ESLint } from "eslint";
 
 export async function performanceTest(
   entrypoint: string,
   warmupIterations: number,
   iterations: number
 ): Promise<void> {
-  const linter = new Linter();
+  const eslint = new ESLint({
+    baseConfig: {
+      parser: "@typescript-eslint/parser",
+      plugins: ["security-rules"],
+      rules: {
+        "security-rules/multi-file-rule": "warn",
+      },
+    },
+    cache: false,
+    useEslintrc: false,
+  });
   const fileName = require.resolve(path.join(process.cwd(), entrypoint));
 
-  const code = await fs.readFile(fileName, "utf-8");
-
-  // @ts-expect-error tmpp
-  linter.defineParser("test", { parseForESLint });
-  linter.defineRule("tmp-rule", multiFileRule);
-
-  for (let i = 0; i < warmupIterations; i++) {
-    linter.verify(
-      code,
-      {
-        parser: "test",
-        rules: {
-          "tmp-rule": "warn",
-        },
-      },
-      { filename: fileName }
-    );
-  }
-
-  const startedAt = performance.now();
-  for (let i = 0; i < iterations; i++) {
-    linter.verify(
-      code,
-      {
-        parser: "test",
-        rules: {
-          "tmp-rule": "warn",
-        },
-      },
-      { filename: fileName }
-    );
-  }
-  const endedAt = performance.now();
-  const runtimeMs = endedAt - startedAt;
+  let startedAt = performance.now();
+  await eslint.lintFiles([fileName]);
+  let endedAt = performance.now();
+  let runtimeMs = endedAt - startedAt;
 
   console.log();
+  console.log(`Cold run finished in ${runtimeMs.toFixed(3)}ms.`);
+
+  for (let i = 0; i < warmupIterations; i++) {
+    await eslint.lintFiles([fileName]);
+  }
+
+  startedAt = performance.now();
+  for (let i = 0; i < iterations; i++) {
+    await eslint.lintFiles([fileName]);
+  }
+  endedAt = performance.now();
+  runtimeMs = endedAt - startedAt;
+
+  console.log("--------");
   console.log(`Finished ${iterations} iterations in ${runtimeMs.toFixed(3)}ms`);
   console.log(`    Avg. ${(runtimeMs / iterations).toFixed(3)}ms.`);
   console.log();

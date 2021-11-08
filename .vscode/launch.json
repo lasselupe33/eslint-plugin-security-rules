@@ -1,6 +1,12 @@
 {
   "configurations": [
     {
+      "command": "yarn perf",
+      "name": "Run npm start",
+      "request": "launch",
+      "type": "node-terminal"
+    },
+    {
       "type": "node",
       "name": "vscode-jest-tests",
       "request": "launch",

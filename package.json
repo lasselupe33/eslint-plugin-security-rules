@@ -15,11 +15,12 @@
     "build": "rm -rf ./lib && tsc --project ./tsconfig.build.json",
     "watch": "yarn build --watch",
     "prepublishOnly": "yarn build && cp -r ./docs ./lib/docs",
-    "eslint:files": "eslint",
+    "eslint:files": "eslint --cache --cache-location ./node_modules/.cache/eslint",
     "eslint:plugin": "yarn eslint:files 'src/**/*.{ts,tsx}'",
     "eslint:dummy": "yarn eslint:files 'dummy/**/*.{ts,tsx}'",
     "prepare": "husky install",
-    "test": "jest --cache --config=.jestrc.json"
+    "test": "jest --cache --config=.jestrc.json",
+    "perf": "node --inspect -r ts-node/register ./dummy/perf/performanceTest.ts 1000 10000 ./dummy/generated-large-400/entrypoint.ts"
   },
   "repository": {
     "type": "git",

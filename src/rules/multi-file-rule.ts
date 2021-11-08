@@ -16,6 +16,8 @@ import { get, set } from "../utils/cache";
 import { getAssignmentType } from "../utils/getAssignmentType";
 import { getFunctionScopeByName } from "../utils/getFunctionScopeByName";
 
+const ENABLE_CACHE = true;
+
 export const multiFileRule: Rule.RuleModule = {
   meta: {
     type: "layout",
@@ -25,7 +27,9 @@ export const multiFileRule: Rule.RuleModule = {
 };
 
 function createRule(context: Rule.RuleContext): Rule.RuleListener {
-  set(context.getFilename(), context.getSourceCode());
+  if (ENABLE_CACHE) {
+    set(context.getFilename(), context.getSourceCode());
+  }
 
   return {
     AssignmentExpression: (node) => {
@@ -142,7 +146,7 @@ function traceVariable(
     return;
   }
 
-  console.log(variable.name, scopes.length);
+  // console.log(variable.name, scopes.length);
 
   const assignmentType = getAssignmentType(rootScope, variable);
 
@@ -307,7 +311,10 @@ function getSourceCode(path: string): SourceCode {
   );
 
   const sourceCode = linter.getSourceCode();
-  set(path, sourceCode);
+
+  if (ENABLE_CACHE) {
+    set(path, sourceCode);
+  }
 
   return sourceCode;
 }
