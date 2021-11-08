@@ -15,12 +15,12 @@
     "build": "rm -rf ./lib && tsc --project ./tsconfig.build.json",
     "watch": "yarn build --watch",
     "prepublishOnly": "yarn build && cp -r ./docs ./lib/docs",
-    "eslint:files": "eslint --cache --cache-location ./node_modules/.cache/eslint",
+    "eslint:files": "eslint",
     "eslint:plugin": "yarn eslint:files 'src/**/*.{ts,tsx}'",
     "eslint:dummy": "yarn eslint:files 'dummy/**/*.{ts,tsx}'",
     "prepare": "husky install",
     "test": "jest --cache --config=.jestrc.json",
-    "perf": "node --inspect -r ts-node/register ./dummy/perf/performanceTest.ts 1000 10000 ./dummy/generated-large-400/entrypoint.ts"
+    "perf": "node --inspect -r ts-node/register ./perf/performanceTest.ts 1000 10000 ./perf/generated-large-400/entrypoint.ts"
   },
   "repository": {
     "type": "git",
@@ -38,6 +38,7 @@
     "@types/estree": "^0.0.50",
     "@types/fs-extra": "^9.0.13",
     "@types/jest": "^27.0.2",
+    "@types/jquery": "^3.5.8",
     "@types/node": "^16.11.6",
     "@typescript-eslint/eslint-plugin": "^5.3.0",
     "@typescript-eslint/parser": "^5.3.0",
@@ -60,6 +61,10 @@
     "eslint": ">=8.0.0"
   },
   "dependencies": {
-    "eslint-utils": "^3.0.0"
+    "@npmcli/arborist": "^4.0.4",
+    "@npmcli/metavuln-calculator": "^2.0.0",
+    "axios": "^0.24.0",
+    "eslint-utils": "^3.0.0",
+    "jquery": "3.3.1"
   }
 }

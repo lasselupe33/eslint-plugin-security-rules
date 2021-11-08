@@ -12,11 +12,12 @@ import {
   VariableDeclarator,
 } from "estree";
 
-import { get, set } from "../utils/cache";
+import { createCache } from "../utils/cache";
 import { getAssignmentType } from "../utils/getAssignmentType";
 import { getFunctionScopeByName } from "../utils/getFunctionScopeByName";
 
 const ENABLE_CACHE = true;
+const cache = createCache<SourceCode>({ useFileSystem: false });
 
 export const multiFileRule: Rule.RuleModule = {
   meta: {
@@ -28,7 +29,7 @@ export const multiFileRule: Rule.RuleModule = {
 
 function createRule(context: Rule.RuleContext): Rule.RuleListener {
   if (ENABLE_CACHE) {
-    set(context.getFilename(), context.getSourceCode());
+    cache.set(context.getFilename(), context.getSourceCode());
   }
 
   return {
@@ -283,7 +284,7 @@ function traceIntoNextFile(
 }
 
 function getSourceCode(path: string): SourceCode {
-  const cachedSource = get<SourceCode>(path);
+  const cachedSource = cache.get(path);
 
   if (cachedSource) {
     return cachedSource;
@@ -313,7 +314,7 @@ function getSourceCode(path: string): SourceCode {
   const sourceCode = linter.getSourceCode();
 
   if (ENABLE_CACHE) {
-    set(path, sourceCode);
+    cache.set(path, sourceCode);
   }
 
   return sourceCode;

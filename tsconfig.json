@@ -21,7 +21,7 @@
     "exactOptionalPropertyTypes": true,
     "target": "ESNext",
   },
-  "include": ["src/**/*", "dummy/**/*"],
+  "include": ["src/**/*", "dummy/**/*", "perf/**/*"],
   "exclude": [
     "**/lib",
     "**/node_modules"

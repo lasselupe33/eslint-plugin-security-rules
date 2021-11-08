@@ -1,3 +1,5 @@
+import jQuery from "jquery";
+
 import { fetchData } from "./api";
 
 async function init() {

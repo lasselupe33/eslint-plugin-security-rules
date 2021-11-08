@@ -1,36 +1,66 @@
-const memCache = new Map<string, unknown>();
+import path from "path";
 
-export function del(filePath: string): void {
-  const key = convertPathToKey(filePath);
+import fs from "fs-extra";
 
-  memCache.delete(key);
-}
+const CACHE_PATH = path.join(
+  path.dirname(require.resolve("eslint-plugin-security-rules")),
+  ".cache"
+);
 
-export function set(filePath: string, obj: unknown): void {
-  const key = convertPathToKey(filePath);
+type Options = {
+  useFileSystem?: boolean;
+};
 
-  memCache.set(key, obj);
-}
+export function createCache<T>({ useFileSystem }: Options = {}) {
+  const memCache = new Map<string, T>();
 
-export function get<T>(filePath: string): T | undefined {
-  const key = convertPathToKey(filePath);
-
-  try {
-    const memCached = memCache.get(key) as T | undefined;
-
-    if (memCached) {
-      return memCached;
-    }
-
-    return undefined;
-  } catch (err) {
-    console.warn(err);
-
-    return undefined;
+  if (useFileSystem) {
+    fs.mkdirpSync(CACHE_PATH);
   }
+
+  return {
+    del: (input: string): void => {
+      const key = convertInputToKey(input);
+      memCache.delete(key);
+
+      if (useFileSystem) {
+        fs.unlink(path.join(CACHE_PATH, key));
+      }
+    },
+    set: (input: string, value: T): void => {
+      const key = convertInputToKey(input);
+      memCache.set(key, value);
+
+      if (useFileSystem) {
+        try {
+          fs.writeFile(path.join(CACHE_PATH, key), JSON.stringify(value), {
+            encoding: "utf-8",
+          });
+        } catch (err) {
+          // Silently fail
+        }
+      }
+    },
+    get: (input: string): T | undefined => {
+      const key = convertInputToKey(input);
+      const cachedVal = memCache.get(key);
+
+      if (cachedVal) {
+        return cachedVal;
+      } else if (useFileSystem) {
+        try {
+          return JSON.parse(
+            fs.readFileSync(path.join(CACHE_PATH, key), "utf-8")
+          ) as T;
+        } catch (err) {
+          // Silently fail..
+          return undefined;
+        }
+      }
+    },
+  };
 }
 
-function convertPathToKey(path: string): string {
-  // return encodeURIComponent(path);
-  return path;
+function convertInputToKey(input: string): string {
+  return encodeURIComponent(input);
 }
