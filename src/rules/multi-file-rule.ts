@@ -147,34 +147,10 @@ function traceVariable(
     return;
   }
 
-  // console.log(variable.name, scopes.length);
-
-  const assignmentType = getAssignmentType(rootScope, variable);
+  const assignmentType = getAssignmentType(scope, variable);
+  console.log(variable.name, assignmentType, scopes.length);
 
   switch (assignmentType) {
-    case "parameter": {
-      const boundVar = variable;
-      const functionScopeBlock = scope.block as FunctionDeclaration;
-      const parameterIndex = functionScopeBlock.params.findIndex(
-        (it) => it.type === "Identifier" && it.name === boundVar.name
-      );
-
-      const variableToFollow = functionArguments?.[parameterIndex];
-
-      if (variableToFollow?.type !== "Identifier") {
-        return;
-      }
-
-      const nextScopes = scopes.slice(0, -1);
-      traceVariable(
-        sourceCode,
-        nextScopes,
-        variableToFollow.name,
-        traceContext
-      );
-      return;
-    }
-
     case "variable": {
       const nextVariable = variable?.defs[0]?.node.init;
 
@@ -222,21 +198,69 @@ function traceVariable(
       return;
     }
 
+    case "parameter": {
+      const boundVar = variable;
+      const functionScopeBlock = scope.block as FunctionDeclaration;
+      const parameterIndex = functionScopeBlock.params.findIndex(
+        (it) => it.type === "Identifier" && it.name === boundVar.name
+      );
+
+      const variableToFollow = functionArguments?.[parameterIndex];
+
+      if (variableToFollow?.type !== "Identifier") {
+        return;
+      }
+
+      const nextScopes = scopes.slice(0, -1);
+      traceVariable(
+        sourceCode,
+        nextScopes,
+        variableToFollow.name,
+        traceContext
+      );
+      return;
+    }
+
     case "import": {
       const importName = variable.defs[0]?.node?.init?.argument?.callee?.name;
-      const importRef = rootScope.references.find(
+      const importRef = scope.references.find(
         (it) => it.identifier.name === importName
       );
 
       const importPath = getImportValue(importRef);
 
-      if (typeof importPath === "string") {
-        traceIntoNextFile(
-          path.dirname(traceContext.filename),
-          importPath,
-          importName
-        );
+      if (typeof importPath !== "string" || typeof importName !== "string") {
+        return;
       }
+
+      const nextFile = getSourceCodeOfFile(
+        path.dirname(traceContext.filename),
+        importPath
+      );
+
+      if (!nextFile?.sourceCode) {
+        return;
+      }
+
+      // @TODO determine if import is function, variable or something else.
+      // For now we assume that the import will always be a function.
+      // (Hence the code below matches the "function" case)
+
+      const nextScope = getFunctionScopeByName(nextFile.sourceCode, importName);
+
+      if (!nextScope) {
+        return;
+      }
+
+      traceVariable(
+        nextFile.sourceCode,
+        [...scopes, { scope: nextScope }],
+        nextScope.variables[nextScope.variables.length - 1],
+        {
+          filename: nextFile.resolvedPath,
+        }
+      );
+
       return;
     }
   }
@@ -248,11 +272,10 @@ function getImportValue(ref?: Scope.Reference | null) {
     : null;
 }
 
-function traceIntoNextFile(
+function getSourceCodeOfFile(
   baseDir: string,
-  filename: string,
-  functionToFollow: string
-) {
+  filename: string
+): undefined | { sourceCode: SourceCode | undefined; resolvedPath: string } {
   if (baseDir === "<input>") {
     console.warn(
       "Multi-file parsing is not supported when piping input into ESLint"
@@ -264,20 +287,7 @@ function traceIntoNextFile(
     const filePath = require.resolve(path.join(baseDir, `${filename}.ts`));
     const sourceCode = getSourceCode(filePath);
 
-    const scope = getFunctionScopeByName(sourceCode, functionToFollow);
-
-    if (!scope) {
-      return;
-    }
-
-    traceVariable(
-      sourceCode,
-      [{ scope }],
-      scope?.variables[scope.variables.length - 1],
-      {
-        filename: filePath,
-      }
-    );
+    return { sourceCode, resolvedPath: filePath };
   } catch (err) {
     console.warn(err);
   }
@@ -304,7 +314,7 @@ function getSourceCode(path: string): SourceCode {
   // });
 
   linter.verify(
-    code,
+    cachedSource ?? code,
     {
       parser: "test",
     },

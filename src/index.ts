@@ -11,7 +11,7 @@ export const configs = {
     plugins: ["security-rules"],
     rules: {
       "security-rules/multi-file-rule": ["warn"],
-      "security-rules/dependencies-rule": ["warn"],
+      // "security-rules/dependencies-rule": ["warn"],
     },
   },
 };

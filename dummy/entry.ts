@@ -7,9 +7,9 @@ async function init() {
 
   const tmp = html;
   const cleaned = helloWorld(tmp, "not-used");
-  const tmp2 = cleaned;
+  const output = cleaned;
 
-  document.body.innerHTML = tmp2;
+  document.body.innerHTML = output;
 }
 
 init();

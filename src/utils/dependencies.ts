@@ -61,3 +61,5 @@ function convertTreeToBulkRequest(tree: ArboristTree): BulkAdvisoryRequest {
 
   return request;
 }
+
+// fetchMetaVulnerabilieties().then(console.log);
