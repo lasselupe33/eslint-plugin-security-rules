@@ -23,6 +23,7 @@ export const multiFileRule: Rule.RuleModule = {
   meta: {
     type: "layout",
     fixable: "code",
+    hasSuggestions: true,
   },
   create: createRule,
 };
@@ -54,6 +55,20 @@ function createRule(context: Rule.RuleContext): Rule.RuleListener {
           context.report({
             message: "oh no",
             loc: node.loc ?? { line: 1, column: 1 },
+            suggest: [
+              {
+                desc: "suggestion a",
+                fix: (fixer) => {
+                  return fixer.insertTextAfter(node, "a");
+                },
+              },
+              {
+                desc: "suggestion b",
+                fix: (fixer) => {
+                  return fixer.insertTextAfter(node, "b");
+                },
+              },
+            ],
           });
 
           // while (next !== null) {
