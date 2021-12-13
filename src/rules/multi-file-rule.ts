@@ -64,73 +64,16 @@ function createRule(context: Rule.RuleContext): Rule.RuleListener {
               },
               {
                 desc: "suggestion b",
-                fix: (fixer) => {
-                  return fixer.insertTextAfter(node, "b");
+                fix: function* fix(fixer) {
+                  yield fixer.insertTextAfter(node, "b");
+                  yield fixer.insertTextAfter(node, "c");
                 },
               },
             ],
           });
-
-          // while (next !== null) {
-          //   curr = next;
-          // }
-
-          // const declarationName =
-          //   curr.defs[0]?.node?.init?.argument?.callee?.name;
-
-          // const ref = context
-          //   .getScope()
-          // .references.find((it) => it.identifier.name ===
-          // declarationName);
-
-          // const importDeclaration = getImportValue(
-          //   ref?.resolved?.defs[0]?.parent
-          // );
-
-          // if (typeof importDeclaration === "string") {
-          //   loadDifferentFile(
-          //     path.dirname(context.getFilename()),
-          //     importDeclaration
-          //   );
-          // }
         }
       }
     },
-
-    // VariableDeclaration: (node) => {
-    //   for (const declaration of node.declarations) {
-    //     if (
-    //       declaration.init?.type !== "AwaitExpression" ||
-    // declaration.init.argument.type !== "CallExpression"
-    // || declaration.init.argument.callee.type !==
-    // "Identifier" ) {
-    //       continue;
-    //     }
-
-    //     const rootDeclaration = findVariable(
-    //       context.getScope(),
-    //       declaration.init.argument.callee
-    //     );
-
-    //     if (!rootDeclaration) {
-    //       return;
-    //     }
-
-    //     const intermediateDeclarations =
-    //       rootDeclaration.references[0]?.from.set;
-
-    //     if (intermediateDeclarations) {
-    // // Go through all alterations to determine if
-    // variable is safe for (const entry of
-    // intermediateDeclarations.values()) { // Is it safe???
-    //         // console.log(entry.name);
-    //       }
-    //     }
-
-    // const value = declaration.init.argument.callee.name;
-    // console.log(value);
-    //   }
-    // },
   };
 }
 
