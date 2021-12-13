@@ -15,9 +15,10 @@ import {
 import { createCache } from "../utils/cache";
 import { getAssignmentType } from "../utils/getAssignmentType";
 import { getFunctionScopeByName } from "../utils/getFunctionScopeByName";
+import { loadParser } from "../utils/loadParser";
 
 const ENABLE_CACHE = true;
-const cache = createCache<SourceCode>({ useFileSystem: false });
+const cache = createCache<SourceCode>();
 
 export const multiFileRule: Rule.RuleModule = {
   meta: {
@@ -106,7 +107,7 @@ function traceVariable(
   }
 
   const assignmentType = getAssignmentType(scope, variable);
-  console.log(variable.name, assignmentType, scopes.length);
+  // console.log(variable.name, assignmentType, scopes.length);
 
   switch (assignmentType) {
     case "variable": {
@@ -260,9 +261,11 @@ function getSourceCode(path: string): SourceCode {
 
   const linter = new Linter();
   const code = readFileSync(path, "utf-8");
+  const parserModule = (loadParser(path) || {
+    parseForESLint,
+  }) as Linter.ParserModule;
 
-  // @ts-expect-error tmpp
-  linter.defineParser("test", { parseForESLint });
+  linter.defineParser("test", parserModule);
   // linter.defineRule("tmp-rule", {
   //   meta: {
   //     type: "layout",

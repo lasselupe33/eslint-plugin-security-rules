@@ -6,7 +6,7 @@ import { Rule } from "eslint";
 import { createCache } from "../utils/cache";
 import { fetchMetaVulnerabilieties } from "../utils/dependencies";
 
-const cache = createCache({ useFileSystem: true });
+const cache = createCache({ useFileSystem: true, scope: "dependencies" });
 
 let isFetchingData = false;
 

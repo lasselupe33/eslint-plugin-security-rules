@@ -7,15 +7,20 @@ const CACHE_PATH = path.join(
   ".cache"
 );
 
-type Options = {
-  useFileSystem?: boolean;
-};
+type Options =
+  | Record<string, never>
+  | {
+      useFileSystem?: boolean;
+      scope: string;
+    };
 
-export function createCache<T>({ useFileSystem }: Options = {}) {
+export function createCache<T>({ useFileSystem, scope }: Options = {}) {
   const memCache = new Map<string, T>();
+  let fileSystemPath = "";
 
   if (useFileSystem) {
-    fs.mkdirpSync(CACHE_PATH);
+    fileSystemPath = path.join(CACHE_PATH, scope);
+    fs.mkdirpSync(fileSystemPath);
   }
 
   return {
@@ -24,7 +29,7 @@ export function createCache<T>({ useFileSystem }: Options = {}) {
       memCache.delete(key);
 
       if (useFileSystem) {
-        fs.unlink(path.join(CACHE_PATH, key));
+        fs.unlink(path.join(fileSystemPath, key));
       }
     },
     set: (input: string, value: T): void => {
@@ -33,7 +38,7 @@ export function createCache<T>({ useFileSystem }: Options = {}) {
 
       if (useFileSystem) {
         try {
-          fs.writeFile(path.join(CACHE_PATH, key), JSON.stringify(value), {
+          fs.writeFile(path.join(fileSystemPath, key), JSON.stringify(value), {
             encoding: "utf-8",
           });
         } catch (err) {
@@ -50,7 +55,7 @@ export function createCache<T>({ useFileSystem }: Options = {}) {
       } else if (useFileSystem) {
         try {
           return JSON.parse(
-            fs.readFileSync(path.join(CACHE_PATH, key), "utf-8")
+            fs.readFileSync(path.join(fileSystemPath, key), "utf-8")
           ) as T;
         } catch (err) {
           // Silently fail..
