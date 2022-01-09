@@ -1,7 +1,6 @@
 import { readFileSync } from "fs";
 import path from "path";
 
-import { parseForESLint } from "@typescript-eslint/parser";
 import { Linter, Rule, Scope, SourceCode } from "eslint";
 import { findVariable } from "eslint-utils";
 import {
@@ -15,7 +14,6 @@ import {
 import { createCache } from "../utils/cache";
 import { getAssignmentType } from "../utils/getAssignmentType";
 import { getFunctionScopeByName } from "../utils/getFunctionScopeByName";
-import { loadParser } from "../utils/loadParser";
 
 const ENABLE_CACHE = true;
 const cache = createCache<SourceCode>();
@@ -51,7 +49,8 @@ function createRule(context: Rule.RuleContext): Rule.RuleListener {
             context.getSourceCode(),
             [{ scope: context.getScope() }],
             startVariable,
-            { filename: context.getFilename() }
+            { filename: context.getFilename() },
+            context.parserPath
           );
           context.report({
             message: "oh no",
@@ -87,7 +86,8 @@ function traceVariable(
   variableOrVariableName: Scope.Variable | string | null | undefined,
   traceContext: {
     filename: string;
-  }
+  },
+  parserPath: string
 ): void {
   const rootScope = scopes[0]?.scope;
   const { scope, functionArguments } = scopes[scopes.length - 1] ?? {};
@@ -121,7 +121,8 @@ function traceVariable(
         sourceCode,
         scopes,
         findVariable(scope, nextVariable),
-        traceContext
+        traceContext,
+        parserPath
       );
       return;
     }
@@ -150,7 +151,8 @@ function traceVariable(
             { scope: nextScope, functionArguments: callExpression.arguments },
           ],
           returnVariable,
-          traceContext
+          traceContext,
+          parserPath
         );
       }
 
@@ -175,7 +177,8 @@ function traceVariable(
         sourceCode,
         nextScopes,
         variableToFollow.name,
-        traceContext
+        traceContext,
+        parserPath
       );
       return;
     }
@@ -194,7 +197,8 @@ function traceVariable(
 
       const nextFile = getSourceCodeOfFile(
         path.dirname(traceContext.filename),
-        importPath
+        importPath,
+        parserPath
       );
 
       if (!nextFile?.sourceCode) {
@@ -217,7 +221,8 @@ function traceVariable(
         nextScope.variables[nextScope.variables.length - 1],
         {
           filename: nextFile.resolvedPath,
-        }
+        },
+        parserPath
       );
 
       return;
@@ -233,7 +238,8 @@ function getImportValue(ref?: Scope.Reference | null) {
 
 function getSourceCodeOfFile(
   baseDir: string,
-  filename: string
+  filename: string,
+  parserPath: string
 ): undefined | { sourceCode: SourceCode | undefined; resolvedPath: string } {
   if (baseDir === "<input>") {
     console.warn(
@@ -244,7 +250,7 @@ function getSourceCodeOfFile(
 
   try {
     const filePath = require.resolve(path.join(baseDir, `${filename}.ts`));
-    const sourceCode = getSourceCode(filePath);
+    const sourceCode = getSourceCode(filePath, parserPath);
 
     return { sourceCode, resolvedPath: filePath };
   } catch (err) {
@@ -252,7 +258,7 @@ function getSourceCodeOfFile(
   }
 }
 
-function getSourceCode(path: string): SourceCode {
+function getSourceCode(path: string, parserPath: string): SourceCode {
   const cachedSource = cache.get(path);
 
   if (cachedSource) {
@@ -261,11 +267,9 @@ function getSourceCode(path: string): SourceCode {
 
   const linter = new Linter();
   const code = readFileSync(path, "utf-8");
-  const parserModule = (loadParser(path) || {
-    parseForESLint,
-  }) as Linter.ParserModule;
 
-  linter.defineParser("test", parserModule);
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  linter.defineParser("test", require(parserPath));
   // linter.defineRule("tmp-rule", {
   //   meta: {
   //     type: "layout",
