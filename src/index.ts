@@ -1,17 +1,18 @@
-import { dependenciesRule } from "./rules/dependencies-rule";
-import { multiFileRule } from "./rules/multi-file-rule";
+import { noDomXSSRule } from "./rules/browser/xss/no-dom-xss";
 
 export const rules = {
-  "multi-file-rule": multiFileRule,
-  "dependencies-rule": dependenciesRule,
+  "browser/no-dom-xss": noDomXSSRule,
 };
 
 export const configs = {
   recommended: {
+    extends: ["plugin:security-rules/browser"],
+    plugins: ["security-rules"],
+  },
+  browser: {
     plugins: ["security-rules"],
     rules: {
-      "security-rules/multi-file-rule": ["warn"],
-      // "security-rules/dependencies-rule": ["warn"],
+      "security-rules/browser/no-dom-xss": ["error"],
     },
   },
 };

@@ -1,10 +1,10 @@
 {
   "roots": ["<rootDir>/src"],
+  "modulePathIgnorePatterns": ["/lib/"],
   "coverageDirectory": "<rootDir>/.coverage",
-  "testMatch": ["**/tests/rules/**/*.ts(x)?"],
 
   "testEnvironment": "node",
   "transform": {
-    "\\.tsx?$": ["babel-jest", { "configFile": "./.babelrc.json" }]
+    "\\.tsx?$": ["@swc-node/jest", { "sourcemap": "inline" }]
   }
 }

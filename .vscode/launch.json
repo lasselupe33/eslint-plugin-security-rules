@@ -20,6 +20,20 @@
         "--watch",
         "--runInBand"
       ]
+    },
+    {
+      "type": "node",
+      "name": "vscode-eslint-debug",
+      "request": "launch",
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "disableOptimisticBPs": true,
+      "cwd": "${workspaceFolder}",
+      "runtimeExecutable": "yarn",
+      "args": [
+        "eslint:files",
+        "./dummy/debug.ts"
+      ]
     }
   ]
 }

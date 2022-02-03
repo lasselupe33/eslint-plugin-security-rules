@@ -1,6 +1,7 @@
 // @ts-expect-error Arborist unfortunately does not expose any TS typings..
 // See https://www.npmjs.com/package/@npmcli/arborist for docs.
 import Arborist from "@npmcli/arborist";
+import axios from "axios";
 
 const BULK_ADVISORY_API =
   "https://registry.npmjs.org/-/npm/v1/security/advisories/bulk";
@@ -38,12 +39,12 @@ export async function fetchMetaVulnerabilieties(): Promise<BulkAdvisoryResponse>
   const tree: ArboristTree = await arb.loadActual();
 
   const bulkRequest = convertTreeToBulkRequest(tree);
-  // const advisoriesResponse = await axios.post<BulkAdvisoryResponse>(
-  //   BULK_ADVISORY_API,
-  //   bulkRequest
-  // );
+  const advisoriesResponse = await axios.post<BulkAdvisoryResponse>(
+    BULK_ADVISORY_API,
+    bulkRequest
+  );
 
-  return {};
+  return advisoriesResponse.data;
 }
 
 function convertTreeToBulkRequest(tree: ArboristTree): BulkAdvisoryRequest {

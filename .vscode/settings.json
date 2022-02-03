@@ -1,6 +1,7 @@
 {
   "typescript.tsdk": "node_modules/typescript/lib",
   "editor.formatOnSave": false,
+  "eslint.debug": true,
   "[typescript]": {
     "editor.codeActionsOnSave": {
       "source.fixAll.eslint": true
