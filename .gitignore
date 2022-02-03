@@ -12,3 +12,6 @@ dummy/
 
 # Ignore logfiles
 *.log
+
+# Ignore Oli's notes
+Notes.md
