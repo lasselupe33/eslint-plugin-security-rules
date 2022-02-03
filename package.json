@@ -20,7 +20,7 @@
     "eslint:dummy": "yarn eslint:files 'dummy/**/*.{ts,tsx}'",
     "prepare": "husky install",
     "test": "jest --cache --config=.jestrc.json",
-    "perf": "node --inspect -r ts-node/register ./perf/performanceTest.ts 1000 10000 ./perf/generated-large-400/entrypoint.ts"
+    "type-check": "tsc --noEmit"
   },
   "repository": {
     "type": "git",
