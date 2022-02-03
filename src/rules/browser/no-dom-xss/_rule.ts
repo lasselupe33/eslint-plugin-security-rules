@@ -1,4 +1,4 @@
-import { TSESLint, TSESTree, ESLintUtils } from "@typescript-eslint/utils";
+import { TSESLint, TSESTree } from "@typescript-eslint/utils";
 
 import { isIdentifier, isMemberExpression } from "../../../utils/guards";
 import { resolveDocsRoute } from "../../../utils/resolveDocsRoute";
@@ -30,25 +30,14 @@ export const noDomXSSRule: TSESLint.RuleModule<MessageIds> = {
       description: "Relevant assertion methods must be used on fastify routes",
       recommended: "error",
       url: resolveDocsRoute(__dirname),
-      requiresTypeChecking: true,
     },
     schema: {},
   },
   create: (context) => {
-    const parserServices = ESLintUtils.getParserServices(context);
-    const checker = parserServices.program.getTypeChecker();
-
     return {
       AssignmentExpression: (node) => {
         const sinkType = isSink(node.left, ASSIGNMENT_EXPRESSION_SINKS);
-
-        // const orgNode = parserServices.esTreeNodeToTSNodeMap.get(
-        //   node.left.object
-        // );
-        // console.log(
-        //   "test",
-        //   checker.getTypeAtLocation(orgNode).symbol.escapedName
-        // );
+        console.log("");
 
         if (sinkType) {
           context.report({
@@ -91,16 +80,11 @@ function isSink<Sink extends RawSink>(
   ) {
     currentIdentifier = expression.property.name;
 
-    const remainingMatches = matchIn
-      .filter(
-        (sink) =>
-          sink.identifier[sink.identifier.length - 1]?.name ===
-          currentIdentifier
-      )
-      .map((sink) => ({
-        ...sink,
-        identifier: sink.identifier.slice(0, -1),
-      }));
+    const remainingMatches = findMatchingSinks(
+      expression,
+      expression.property.name,
+      ASSIGNMENT_EXPRESSION_SINKS
+    );
 
     return isSink(expression.object, remainingMatches);
   }
