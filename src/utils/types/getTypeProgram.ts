@@ -4,14 +4,16 @@ import {
   ESLintUtils,
 } from "@typescript-eslint/utils";
 
-export type TypeProgram = {
-  parserServices: ParserServices;
-  checker: ReturnType<ParserServices["program"]["getTypeChecker"]>;
-};
+export type TypeProgram =
+  | {
+      parserServices: ParserServices;
+      checker: ReturnType<ParserServices["program"]["getTypeChecker"]>;
+    }
+  | undefined;
 
 export function getTypeProgram(
   context: TSESLint.RuleContext<string, unknown[]>
-): TypeProgram | undefined {
+): TypeProgram {
   try {
     const parserServices = ESLintUtils.getParserServices(context);
 

@@ -12,11 +12,10 @@ export const configs = {
     overrides: [
       {
         files: ["*.ts", "*.tsx"],
-        parserOptions: {
-          project: "./tsconfig.json",
-          tsconfigRootDir: process.cwd(),
-          createDefaultProgram: true,
-        },
+        // parserOptions: {
+        //   project: "./tsconfig.json",
+        //   tsconfigRootDir: process.cwd(),
+        // },
       },
     ],
   },

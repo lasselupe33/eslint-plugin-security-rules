@@ -2,6 +2,11 @@ import { TSESLint, TSESTree } from "@typescript-eslint/utils";
 
 import { isIdentifier, isMemberExpression } from "../../../utils/guards";
 import { resolveDocsRoute } from "../../../utils/resolveDocsRoute";
+import { getNodeType } from "../../../utils/types/getNodeType";
+import {
+  getTypeProgram,
+  TypeProgram,
+} from "../../../utils/types/getTypeProgram";
 
 import { ASSIGNMENT_EXPRESSION_SINKS, RawSink, SinkTypes } from "./sinks";
 
@@ -34,10 +39,15 @@ export const noDomXSSRule: TSESLint.RuleModule<MessageIds> = {
     schema: {},
   },
   create: (context) => {
+    const typeProgram = getTypeProgram(context);
+
     return {
       AssignmentExpression: (node) => {
-        const sinkType = isSink(node.left, ASSIGNMENT_EXPRESSION_SINKS);
-        console.log("");
+        const sinkType = isSink(
+          typeProgram,
+          node.left,
+          ASSIGNMENT_EXPRESSION_SINKS
+        );
 
         if (sinkType) {
           context.report({
@@ -49,28 +59,23 @@ export const noDomXSSRule: TSESLint.RuleModule<MessageIds> = {
           });
         }
       },
-      CallExpression: (node) => {},
-      NewExpression: (node) => {},
+      // CallExpression: (node) => {},
+      // NewExpression: (node) => {},
     };
   },
 };
 
 function isSink<Sink extends RawSink>(
+  typeProgram: TypeProgram,
   expression: TSESTree.Expression,
   matchIn: Sink[]
 ): SinkTypes | undefined {
-  let currentIdentifier = "";
-
   if (isIdentifier(expression)) {
-    currentIdentifier = expression.name;
-
-    const sink = matchIn.find(
-      (sink) =>
-        (sink.identifier.length === 0 &&
-          (currentIdentifier === "globalThis" ||
-            currentIdentifier === "window")) ||
-        (sink.identifier.length === 1 &&
-          sink.identifier[0]?.name === currentIdentifier)
+    const sink = findConclusionSink(
+      typeProgram,
+      expression,
+      expression.name,
+      matchIn
     );
 
     return sink?.type;
@@ -78,28 +83,26 @@ function isSink<Sink extends RawSink>(
     isMemberExpression(expression) &&
     isIdentifier(expression.property)
   ) {
-    currentIdentifier = expression.property.name;
-
     const remainingMatches = findMatchingSinks(
+      typeProgram,
       expression,
       expression.property.name,
-      ASSIGNMENT_EXPRESSION_SINKS
+      matchIn
     );
 
-    return isSink(expression.object, remainingMatches);
+    return isSink(typeProgram, expression.object, remainingMatches);
   }
 }
 
 function findMatchingSinks<Sink extends RawSink>(
+  typeProgram: TypeProgram,
   node: TSESTree.Expression,
   currentIdentifierName: string,
   matchIn: Sink[]
 ) {
   return matchIn
-    .filter(
-      (sink) =>
-        sink.identifier[sink.identifier.length - 1]?.name ===
-        currentIdentifierName
+    .filter((sink) =>
+      isSinkRelevant(typeProgram, node, currentIdentifierName, sink)
     )
     .map((sink) => ({
       ...sink,
@@ -107,9 +110,10 @@ function findMatchingSinks<Sink extends RawSink>(
     }));
 }
 
-const GLOBALS = ["globalThis", "window"];
+const GLOBALS = ["globalThis", "window", "document"];
 
 function findConclusionSink<Sink extends RawSink>(
+  typeProgram: TypeProgram,
   node: TSESTree.Expression,
   currentIdentifierName: string,
   matchIn: Sink[]
@@ -119,6 +123,40 @@ function findConclusionSink<Sink extends RawSink>(
       (sink.identifier.length === 0 &&
         GLOBALS.includes(currentIdentifierName)) ||
       (sink.identifier.length === 1 &&
-        sink.identifier[0]?.name === currentIdentifierName)
+        isSinkRelevant(typeProgram, node, currentIdentifierName, sink))
   );
+}
+
+function isSinkRelevant<Sink extends RawSink>(
+  typeProgram: TypeProgram,
+  node: TSESTree.Expression,
+  currentIdentifierName: string,
+  sink: Sink
+): boolean {
+  const relevantSinkIdentifier = sink.identifier[sink.identifier.length - 1];
+
+  if (!relevantSinkIdentifier) {
+    return false;
+  }
+
+  // In case the current sink identifier should not be matched on its name,
+  // then we fall back to attempt to parse it based on its type information
+  if (relevantSinkIdentifier.name === "__irrelevant__") {
+    const type = getNodeType(typeProgram, node);
+
+    // In case we cannot extract type information then we should fall back
+    // to simply assuming the type matches (Prefer false positives over
+    // false negatives)
+    if (type === undefined) {
+      return true;
+    }
+
+    return type === relevantSinkIdentifier.type;
+  }
+
+  const isMatchBasedOnName = relevantSinkIdentifier?.isPrefix
+    ? relevantSinkIdentifier?.name.startsWith(currentIdentifierName)
+    : relevantSinkIdentifier?.name === currentIdentifierName;
+
+  return isMatchBasedOnName;
 }

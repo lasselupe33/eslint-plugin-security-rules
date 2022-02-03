@@ -49,7 +49,10 @@
       ],
       "extends": [
         "plugin:@typescript-eslint/recommended"
-      ]
+      ],
+      "parserOptions": {
+        "project": ["./tsconfig.json", "./dummy/tsconfig.json"]
+      }
     }
   ]
 }
