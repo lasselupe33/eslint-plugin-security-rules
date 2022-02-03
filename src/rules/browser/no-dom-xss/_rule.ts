@@ -1,18 +1,22 @@
-import { TSESLint, TSESTree } from "@typescript-eslint/utils";
+import { TSESLint, TSESTree, ESLintUtils } from "@typescript-eslint/utils";
 
-import { docsRoute } from "../../../constants";
-import {
-  isIdentifier,
-  isLiteral,
-  isMemberExpression,
-} from "../../../utils/guards";
+import { isIdentifier, isMemberExpression } from "../../../utils/guards";
+import { resolveDocsRoute } from "../../../utils/resolveDocsRoute";
 
 import { ASSIGNMENT_EXPRESSION_SINKS, RawSink, SinkTypes } from "./sinks";
+
+/**
+ * Blablabla
+ *
+ * 1. Implement detection
+ * 2. Implement fix/suggestions
+ * 3. Implement methods to reduce false positives
+ */
 
 // Notes: detect sinks, use multi-file determine flows to sources
 
 enum MessageIds {
-  TEST = "string",
+  TEST = "test",
 }
 
 export const noDomXSSRule: TSESLint.RuleModule<MessageIds> = {
@@ -25,15 +29,26 @@ export const noDomXSSRule: TSESLint.RuleModule<MessageIds> = {
     docs: {
       description: "Relevant assertion methods must be used on fastify routes",
       recommended: "error",
-      url: docsRoute(__dirname, __filename),
+      url: resolveDocsRoute(__dirname),
+      requiresTypeChecking: true,
     },
     schema: {},
   },
   create: (context) => {
-    console.log("???");
+    const parserServices = ESLintUtils.getParserServices(context);
+    const checker = parserServices.program.getTypeChecker();
+
     return {
       AssignmentExpression: (node) => {
         const sinkType = isSink(node.left, ASSIGNMENT_EXPRESSION_SINKS);
+
+        // const orgNode = parserServices.esTreeNodeToTSNodeMap.get(
+        //   node.left.object
+        // );
+        // console.log(
+        //   "test",
+        //   checker.getTypeAtLocation(orgNode).symbol.escapedName
+        // );
 
         if (sinkType) {
           context.report({
@@ -89,4 +104,37 @@ function isSink<Sink extends RawSink>(
 
     return isSink(expression.object, remainingMatches);
   }
+}
+
+function findMatchingSinks<Sink extends RawSink>(
+  node: TSESTree.Expression,
+  currentIdentifierName: string,
+  matchIn: Sink[]
+) {
+  return matchIn
+    .filter(
+      (sink) =>
+        sink.identifier[sink.identifier.length - 1]?.name ===
+        currentIdentifierName
+    )
+    .map((sink) => ({
+      ...sink,
+      identifier: sink.identifier.slice(0, -1),
+    }));
+}
+
+const GLOBALS = ["globalThis", "window"];
+
+function findConclusionSink<Sink extends RawSink>(
+  node: TSESTree.Expression,
+  currentIdentifierName: string,
+  matchIn: Sink[]
+) {
+  return matchIn.find(
+    (sink) =>
+      (sink.identifier.length === 0 &&
+        GLOBALS.includes(currentIdentifierName)) ||
+      (sink.identifier.length === 1 &&
+        sink.identifier[0]?.name === currentIdentifierName)
+  );
 }

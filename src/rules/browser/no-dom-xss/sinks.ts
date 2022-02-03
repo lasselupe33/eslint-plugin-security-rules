@@ -1,9 +1,8 @@
 export enum IdentifierTypes {
-  ANY_ELEMENT,
-  SCRIPT_ELEMENT,
-  BUTTON_ELEMENT,
-  INPUT_ELEMENT,
-  LEAF,
+  ANY_ELEMENT = "HTMLElement",
+  SCRIPT_ELEMENT = "HTMLScriptElement",
+  BUTTON_ELEMENT = "HTMLButtonElement",
+  INPUT_ELEMENT = "HTMLInputElement",
 }
 
 export enum SinkTypes {
@@ -14,7 +13,8 @@ export enum SinkTypes {
 
 type Identifier = {
   isPrefix?: boolean;
-  name: string | IdentifierTypes;
+  name: string | "__irrelevant__";
+  type?: IdentifierTypes;
 }[];
 
 export type RawSink = {
@@ -34,37 +34,52 @@ export type NewExpressionSink = RawSink & {
 export const ASSIGNMENT_EXPRESSION_SINKS: AssignmentExpressionSink[] = [
   {
     type: SinkTypes.DOCUMENT,
-    identifier: [{ name: IdentifierTypes.SCRIPT_ELEMENT }, { name: "src" }],
-  },
-  {
-    type: SinkTypes.DOCUMENT,
-    identifier: [{ name: IdentifierTypes.SCRIPT_ELEMENT }, { name: "text" }],
+    identifier: [
+      { name: "__irrelevant__", type: IdentifierTypes.SCRIPT_ELEMENT },
+      { name: "src" },
+    ],
   },
   {
     type: SinkTypes.DOCUMENT,
     identifier: [
-      { name: IdentifierTypes.SCRIPT_ELEMENT },
+      { name: "__irrelevant__", type: IdentifierTypes.SCRIPT_ELEMENT },
+      { name: "text" },
+    ],
+  },
+  {
+    type: SinkTypes.DOCUMENT,
+    identifier: [
+      { name: "__irrelevant__", type: IdentifierTypes.SCRIPT_ELEMENT },
       { name: "textContent" },
     ],
   },
 
   {
     type: SinkTypes.DOCUMENT,
-    identifier: [{ name: IdentifierTypes.BUTTON_ELEMENT }, { name: "value" }],
+    identifier: [
+      { name: "__irrelevant__", type: IdentifierTypes.BUTTON_ELEMENT },
+      { name: "value" },
+    ],
   },
 
   {
     type: SinkTypes.DOCUMENT,
-    identifier: [{ name: IdentifierTypes.ANY_ELEMENT }, { name: "innerHTML" }],
-  },
-  {
-    type: SinkTypes.DOCUMENT,
-    identifier: [{ name: IdentifierTypes.ANY_ELEMENT }, { name: "outerHTML" }],
+    identifier: [
+      { name: "__irrelevant__", type: IdentifierTypes.ANY_ELEMENT },
+      { name: "innerHTML" },
+    ],
   },
   {
     type: SinkTypes.DOCUMENT,
     identifier: [
-      { name: IdentifierTypes.ANY_ELEMENT },
+      { name: "__irrelevant__", type: IdentifierTypes.ANY_ELEMENT },
+      { name: "outerHTML" },
+    ],
+  },
+  {
+    type: SinkTypes.DOCUMENT,
+    identifier: [
+      { name: "__irrelevant__", type: IdentifierTypes.ANY_ELEMENT },
       { name: "on", isPrefix: true },
     ],
   },
@@ -134,7 +149,7 @@ export const CALL_EXPRESSION_SINKS: CallExpressionSink[] = [
   {
     type: SinkTypes.DOCUMENT,
     identifier: [
-      { name: IdentifierTypes.ANY_ELEMENT },
+      { name: "__irrelevant__", type: IdentifierTypes.ANY_ELEMENT },
       { name: "insertAdjecentHTML" },
     ],
     paramterIndex: 1,
@@ -143,7 +158,7 @@ export const CALL_EXPRESSION_SINKS: CallExpressionSink[] = [
   {
     type: SinkTypes.DOCUMENT,
     identifier: [
-      { name: IdentifierTypes.ANY_ELEMENT },
+      { name: "__irrelevant__", type: IdentifierTypes.ANY_ELEMENT },
       { name: "setAttribute" },
     ],
     paramterIndex: 1,
@@ -152,7 +167,7 @@ export const CALL_EXPRESSION_SINKS: CallExpressionSink[] = [
   {
     type: SinkTypes.DOCUMENT,
     identifier: [
-      { name: IdentifierTypes.ANY_ELEMENT },
+      { name: "__irrelevant__", type: IdentifierTypes.ANY_ELEMENT },
       { name: "setAttribute" },
     ],
     paramterIndex: 1,
@@ -161,7 +176,7 @@ export const CALL_EXPRESSION_SINKS: CallExpressionSink[] = [
   {
     type: SinkTypes.DOCUMENT,
     identifier: [
-      { name: IdentifierTypes.ANY_ELEMENT },
+      { name: "__irrelevant__", type: IdentifierTypes.ANY_ELEMENT },
       { name: "setAttribute" },
     ],
     paramterIndex: 1,
@@ -170,7 +185,7 @@ export const CALL_EXPRESSION_SINKS: CallExpressionSink[] = [
   {
     type: SinkTypes.DOCUMENT,
     identifier: [
-      { name: IdentifierTypes.SCRIPT_ELEMENT },
+      { name: "__irrelevant__", type: IdentifierTypes.SCRIPT_ELEMENT },
       { name: "setAttribute" },
     ],
     paramterIndex: 1,
@@ -179,7 +194,7 @@ export const CALL_EXPRESSION_SINKS: CallExpressionSink[] = [
   {
     type: SinkTypes.DOCUMENT,
     identifier: [
-      { name: IdentifierTypes.SCRIPT_ELEMENT },
+      { name: "__irrelevant__", type: IdentifierTypes.SCRIPT_ELEMENT },
       { name: "setAttribute" },
     ],
     paramterIndex: 1,
@@ -188,7 +203,7 @@ export const CALL_EXPRESSION_SINKS: CallExpressionSink[] = [
   {
     type: SinkTypes.DOCUMENT,
     identifier: [
-      { name: IdentifierTypes.INPUT_ELEMENT },
+      { name: "__irrelevant__", type: IdentifierTypes.INPUT_ELEMENT },
       { name: "setAttribute" },
     ],
     paramterIndex: 1,
