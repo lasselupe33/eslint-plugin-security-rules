@@ -43,6 +43,7 @@ export const noDomXSSRule: TSESLint.RuleModule<MessageIds> = {
 
     return {
       AssignmentExpression: (node) => {
+        console.log(node);
         const sinkType = isSink(
           typeProgram,
           node.left,
