@@ -1,5 +1,3 @@
-import { report } from "process";
-
 import { TSESLint, TSESTree, AST_NODE_TYPES } from "@typescript-eslint/utils";
 
 /**
@@ -7,6 +5,15 @@ import { TSESLint, TSESTree, AST_NODE_TYPES } from "@typescript-eslint/utils";
  *  [x] Detection
  *  [ ] Automatic fix / Suggestions
  *  [ ] Reduction of false positives
+ */
+
+/**
+ * There exists a wide array of secrets. These can be defined into the
+ * following:
+ * - secret: A generic secret or trusted data
+ * - id: a user name or other account information
+ * - password: a password or authorization key
+ * - certificate: a certificate
  */
 
 enum MessageIds {
@@ -27,6 +34,7 @@ export const noHcCredentials: TSESLint.RuleModule<MessageIds> = {
   },
 
   create: (context) => {
+    console.log(context);
     /**
      * Reports to ESLint
      * @param {TSESTree.Node} node The node to report
@@ -41,20 +49,25 @@ export const noHcCredentials: TSESLint.RuleModule<MessageIds> = {
     }
     /**
      * Checks whether a variable name is bad
-     * @param {string} name The name to check
+     * @param {string} testString The name to check
      * @returns {Boolean} Whether the name should be reported.
      */
-    function isBadName(name: string) {
-      return /^(pass(word)?)/.test(name);
+    function isPassword(testString: string) {
+      const reg = /^pass(wd|word|code|phrase)?/;
+      return reg.test(testString);
     }
-
     return {
       VariableDeclarator: (node) => {
-        if (!node.init || node.id.type !== "Identifier" || !node.id.name) {
+        if (
+          !node.init ||
+          node.id.type !== AST_NODE_TYPES.Identifier ||
+          !node.id.name
+        ) {
           return;
         }
 
-        if (isBadName(node.id.name)) {
+        if (isPassword(node.id.name)) {
+          //TODO: Reduce FP by removing common test PW
           report(node, node.id.name);
         }
       },
