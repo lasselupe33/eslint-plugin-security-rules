@@ -3,7 +3,7 @@ import { noHcCredentials } from "./rules/universal/no-hc-credentials/_rule";
 
 export const rules = {
   "browser/no-dom-xss": noDomXSSRule,
-  "univeresal/no-hc-credentials": noHcCredentials,
+  "universal/no-hc-credentials": noHcCredentials,
 };
 
 export const configs = {
