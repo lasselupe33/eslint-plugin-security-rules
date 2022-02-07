@@ -23,7 +23,10 @@ export function isSinkRelevant<Sink extends RawSink>(
   // In case the current sink identifier should not be matched on its name,
   // then we fall back to attempt to parse it based on its type information
   if (relevantSinkIdentifier.name === "__irrelevant__") {
-    const { typeName, baseTypeNames } = getNodeType(typeProgram, node);
+    const { typeName, baseTypeNames, returnTypeNames } = getNodeType(
+      typeProgram,
+      node
+    );
 
     // In case we cannot extract type information then we should fall back
     // to simply assuming the type matches (Prefer false positives over
@@ -34,7 +37,8 @@ export function isSinkRelevant<Sink extends RawSink>(
 
     return (
       typeName === relevantSinkIdentifier.type ||
-      baseTypeNames.includes(relevantSinkIdentifier.type as string)
+      baseTypeNames.includes(relevantSinkIdentifier.type as string) ||
+      returnTypeNames.includes(relevantSinkIdentifier.type as string)
     );
   }
 

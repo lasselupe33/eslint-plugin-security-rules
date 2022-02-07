@@ -1,6 +1,10 @@
 import { TSESTree } from "@typescript-eslint/utils";
 
-import { isIdentifier, isMemberExpression } from "../../../../utils/guards";
+import {
+  isCallExpression,
+  isIdentifier,
+  isMemberExpression,
+} from "../../../../utils/guards";
 import { TypeProgram } from "../../../../utils/types/getTypeProgram";
 import { RawSink, SinkTypes } from "../sinks";
 
@@ -45,5 +49,7 @@ export function isSink<Sink extends RawSink>(
     );
 
     return isSink(typeProgram, expression.object, remainingMatches);
+  } else if (isCallExpression(expression)) {
+    return isSink(typeProgram, expression.callee, matchIn);
   }
 }
