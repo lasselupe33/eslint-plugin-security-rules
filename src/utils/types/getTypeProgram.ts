@@ -3,11 +3,12 @@ import {
   ParserServices,
   ESLintUtils,
 } from "@typescript-eslint/utils";
+import type { TypeChecker } from "typescript/lib/typescript";
 
 export type TypeProgram =
   | {
       parserServices: ParserServices;
-      checker: ReturnType<ParserServices["program"]["getTypeChecker"]>;
+      checker: TypeChecker;
     }
   | undefined;
 
