@@ -1,24 +1,18 @@
-import { TSESLint, TSESTree } from "@typescript-eslint/utils";
+import { TSESLint } from "@typescript-eslint/utils";
 
-import { isIdentifier, isMemberExpression } from "../../../utils/guards";
 import { resolveDocsRoute } from "../../../utils/resolveDocsRoute";
-import { getNodeType } from "../../../utils/types/getNodeType";
-import {
-  getTypeProgram,
-  TypeProgram,
-} from "../../../utils/types/getTypeProgram";
+import { getTypeProgram } from "../../../utils/types/getTypeProgram";
 
-import { ASSIGNMENT_EXPRESSION_SINKS, RawSink, SinkTypes } from "./sinks";
+import { ASSIGNMENT_EXPRESSION_SINKS } from "./sinks";
+import { isSink } from "./utils/is-sink";
 
 /**
- * Blablabla
- *
- * 1. Implement detection
- * 2. Implement fix/suggestions
- * 3. Implement methods to reduce false positives
+ * Progress
+ *  [-] Detection
+ *  [ ] Automatic fix / Suggestions
+ *  [ ] Reduction of false positives
+ *  [ ] Extensive documentation
  */
-
-// Notes: detect sinks, use multi-file determine flows to sources
 
 enum MessageIds {
   TEST = "test",
@@ -64,102 +58,3 @@ export const noDomXSSRule: TSESLint.RuleModule<MessageIds> = {
     };
   },
 };
-
-function isSink<Sink extends RawSink>(
-  typeProgram: TypeProgram,
-  expression: TSESTree.Expression,
-  matchIn: Sink[]
-): SinkTypes | undefined {
-  if (isIdentifier(expression)) {
-    const sink = findConclusionSink(
-      typeProgram,
-      expression,
-      expression.name,
-      matchIn
-    );
-
-    return sink?.type;
-  } else if (
-    isMemberExpression(expression) &&
-    isIdentifier(expression.property)
-  ) {
-    const remainingMatches = findMatchingSinks(
-      typeProgram,
-      expression,
-      expression.property.name,
-      matchIn
-    );
-
-    return isSink(typeProgram, expression.object, remainingMatches);
-  }
-}
-
-function findMatchingSinks<Sink extends RawSink>(
-  typeProgram: TypeProgram,
-  node: TSESTree.Expression,
-  currentIdentifierName: string,
-  matchIn: Sink[]
-) {
-  return matchIn
-    .filter((sink) =>
-      isSinkRelevant(typeProgram, node, currentIdentifierName, sink)
-    )
-    .map((sink) => ({
-      ...sink,
-      identifier: sink.identifier.slice(0, -1),
-    }));
-}
-
-const GLOBALS = ["globalThis", "window", "document"];
-
-function findConclusionSink<Sink extends RawSink>(
-  typeProgram: TypeProgram,
-  node: TSESTree.Expression,
-  currentIdentifierName: string,
-  matchIn: Sink[]
-) {
-  return matchIn.find(
-    (sink) =>
-      (sink.identifier.length === 0 &&
-        GLOBALS.includes(currentIdentifierName)) ||
-      (sink.identifier.length === 1 &&
-        isSinkRelevant(typeProgram, node, currentIdentifierName, sink))
-  );
-}
-
-function isSinkRelevant<Sink extends RawSink>(
-  typeProgram: TypeProgram,
-  node: TSESTree.Expression,
-  currentIdentifierName: string,
-  sink: Sink
-): boolean {
-  const relevantSinkIdentifier = sink.identifier[sink.identifier.length - 1];
-
-  if (!relevantSinkIdentifier) {
-    return false;
-  }
-
-  // In case the current sink identifier should not be matched on its name,
-  // then we fall back to attempt to parse it based on its type information
-  if (relevantSinkIdentifier.name === "__irrelevant__") {
-    const { typeName, baseTypeNames } = getNodeType(typeProgram, node);
-
-    // In case we cannot extract type information then we should fall back
-    // to simply assuming the type matches (Prefer false positives over
-    // false negatives)
-    if (typeName === undefined) {
-      return true;
-    }
-
-    return (
-      typeName === relevantSinkIdentifier.type ||
-      baseTypeNames.includes(relevantSinkIdentifier.type as string)
-    );
-  }
-
-  const isMatchBasedOnName = relevantSinkIdentifier?.isPrefix
-    ? relevantSinkIdentifier?.name.startsWith(currentIdentifierName)
-    : relevantSinkIdentifier?.name === currentIdentifierName;
-
-  return isMatchBasedOnName;
-}

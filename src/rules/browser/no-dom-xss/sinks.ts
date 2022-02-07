@@ -1,8 +1,11 @@
 export enum IdentifierTypes {
   ANY_ELEMENT = "HTMLElement",
+  ANCHOR_ELEMENT = "HTMLAnchorElement",
   SCRIPT_ELEMENT = "HTMLScriptElement",
   BUTTON_ELEMENT = "HTMLButtonElement",
   INPUT_ELEMENT = "HTMLInputElement",
+
+  RANGE = "Range",
 }
 
 export enum SinkTypes {
@@ -36,13 +39,6 @@ export const ASSIGNMENT_EXPRESSION_SINKS: AssignmentExpressionSink[] = [
     type: SinkTypes.DOCUMENT,
     identifier: [
       { name: "__irrelevant__", type: IdentifierTypes.SCRIPT_ELEMENT },
-      { name: "src" },
-    ],
-  },
-  {
-    type: SinkTypes.DOCUMENT,
-    identifier: [
-      { name: "__irrelevant__", type: IdentifierTypes.SCRIPT_ELEMENT },
       { name: "text" },
     ],
   },
@@ -54,11 +50,33 @@ export const ASSIGNMENT_EXPRESSION_SINKS: AssignmentExpressionSink[] = [
     ],
   },
 
+  // {
+  //   type: SinkTypes.DOCUMENT,
+  //   identifier: [
+  //     { name: "__irrelevant__", type: IdentifierTypes.BUTTON_ELEMENT },
+  //     { name: "value" },
+  //   ],
+  // },
+  // {
+  //   type: SinkTypes.DOCUMENT,
+  //   identifier: [
+  //     { name: "__irrelevant__", type: IdentifierTypes.INPUT_ELEMENT },
+  //     { name: "value" },
+  //   ],
+  // },
+
   {
     type: SinkTypes.DOCUMENT,
     identifier: [
-      { name: "__irrelevant__", type: IdentifierTypes.BUTTON_ELEMENT },
-      { name: "value" },
+      { name: "__irrelevant__", type: IdentifierTypes.ANY_ELEMENT },
+      { name: "src" },
+    ],
+  },
+  {
+    type: SinkTypes.DOCUMENT,
+    identifier: [
+      { name: "__irrelevant__", type: IdentifierTypes.ANY_ELEMENT },
+      { name: "href" },
     ],
   },
 
@@ -76,13 +94,13 @@ export const ASSIGNMENT_EXPRESSION_SINKS: AssignmentExpressionSink[] = [
       { name: "outerHTML" },
     ],
   },
-  {
-    type: SinkTypes.DOCUMENT,
-    identifier: [
-      { name: "__irrelevant__", type: IdentifierTypes.ANY_ELEMENT },
-      { name: "on", isPrefix: true },
-    ],
-  },
+  // {
+  //   type: SinkTypes.DOCUMENT,
+  //   identifier: [
+  //     { name: "__irrelevant__", type: IdentifierTypes.ANY_ELEMENT },
+  //     { name: "on", isPrefix: true },
+  //   ],
+  // },
 
   { type: SinkTypes.LOCATION, identifier: [{ name: "location" }] },
   {
@@ -153,6 +171,14 @@ export const CALL_EXPRESSION_SINKS: CallExpressionSink[] = [
       { name: "insertAdjecentHTML" },
     ],
     paramterIndex: 1,
+  },
+  {
+    type: SinkTypes.DOCUMENT,
+    identifier: [
+      { name: "__irrelevant__", type: IdentifierTypes.RANGE },
+      { name: "createContextualFragment" },
+    ],
+    paramterIndex: 0,
   },
 
   {

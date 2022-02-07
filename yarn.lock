@@ -3435,7 +3435,7 @@ eslint-plugin-prettier@^4.0.0:
   dependencies:
     prettier-linter-helpers "^1.0.0"
 
-"eslint-plugin-security-rules@link:./.":
+"eslint-plugin-security-rules@link:.":
   version "0.0.0"
   uid ""
 
