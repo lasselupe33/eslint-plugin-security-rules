@@ -20,8 +20,8 @@ export function getNodeType(typeProgram: TypeProgram | undefined, node: Node) {
     returnTypeNames:
       signatures?.map(
         (signature) =>
-          typeProgram?.checker.getReturnTypeOfSignature(signature).symbol
-            .escapedName as unknown as string
+          typeProgram?.checker.getReturnTypeOfSignature(signature)?.symbol
+            ?.escapedName as unknown as string
       ) ?? [],
   };
 }
