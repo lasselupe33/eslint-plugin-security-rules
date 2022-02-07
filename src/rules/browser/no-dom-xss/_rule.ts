@@ -43,7 +43,6 @@ export const noDomXSSRule: TSESLint.RuleModule<MessageIds> = {
 
     return {
       AssignmentExpression: (node) => {
-        console.log(node);
         const sinkType = isSink(
           typeProgram,
           node.left,
@@ -143,16 +142,19 @@ function isSinkRelevant<Sink extends RawSink>(
   // In case the current sink identifier should not be matched on its name,
   // then we fall back to attempt to parse it based on its type information
   if (relevantSinkIdentifier.name === "__irrelevant__") {
-    const type = getNodeType(typeProgram, node);
+    const { typeName, baseTypeNames } = getNodeType(typeProgram, node);
 
     // In case we cannot extract type information then we should fall back
     // to simply assuming the type matches (Prefer false positives over
     // false negatives)
-    if (type === undefined) {
+    if (typeName === undefined) {
       return true;
     }
 
-    return type === relevantSinkIdentifier.type;
+    return (
+      typeName === relevantSinkIdentifier.type ||
+      baseTypeNames.includes(relevantSinkIdentifier.type as string)
+    );
   }
 
   const isMatchBasedOnName = relevantSinkIdentifier?.isPrefix
