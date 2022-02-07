@@ -52,3 +52,7 @@ export const isFunctionExpression = isNodeOfType(
 );
 export const isTSTypeReference = isNodeOfType(AST_NODE_TYPES.TSTypeReference);
 export const isTSTypeAnnotation = isNodeOfType(AST_NODE_TYPES.TSTypeAnnotation);
+
+// Custom guards
+
+export const isArrayPattern = isNodeOfType(AST_NODE_TYPES.ArrayPattern);
