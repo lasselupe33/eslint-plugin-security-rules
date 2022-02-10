@@ -16,6 +16,7 @@ import {
  *  [-] Detection
  *  [ ] Automatic fix / Suggestions
  *  [ ] Reduction of false positives
+ *  [ ] Fulfilling unit testing
  *  [ ] Extensive documentation
  */
 
