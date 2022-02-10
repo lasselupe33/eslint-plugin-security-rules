@@ -2,6 +2,7 @@
 // https://github.com/testing-library/eslint-plugin-testing-library/blob/main/lib/node-utils/is-node-of-type.ts
 
 import { AST_NODE_TYPES, TSESTree } from "@typescript-eslint/utils";
+import { Scope } from "@typescript-eslint/utils/dist/ts-eslint";
 
 const isNodeOfType =
   <NodeType extends AST_NODE_TYPES>(nodeType: NodeType) =>
@@ -22,6 +23,9 @@ export const isExpressionStatement = isNodeOfType(
 );
 export const isVariableDeclaration = isNodeOfType(
   AST_NODE_TYPES.VariableDeclaration
+);
+export const isVariableDeclarator = isNodeOfType(
+  AST_NODE_TYPES.VariableDeclarator
 );
 export const isAssignmentExpression = isNodeOfType(
   AST_NODE_TYPES.AssignmentExpression
@@ -50,9 +54,39 @@ export const isReturnStatement = isNodeOfType(AST_NODE_TYPES.ReturnStatement);
 export const isFunctionExpression = isNodeOfType(
   AST_NODE_TYPES.FunctionExpression
 );
+export const isFunctionDeclaration = isNodeOfType(
+  AST_NODE_TYPES.FunctionDeclaration
+);
 export const isTSTypeReference = isNodeOfType(AST_NODE_TYPES.TSTypeReference);
 export const isTSTypeAnnotation = isNodeOfType(AST_NODE_TYPES.TSTypeAnnotation);
 
 // Custom guards
 
 export const isArrayPattern = isNodeOfType(AST_NODE_TYPES.ArrayPattern);
+
+export const isParameter = (
+  def?: Scope.Definition | null
+): def is Scope.Definition & { type: typeof Scope.DefinitionType.Parameter } =>
+  def?.type === Scope.DefinitionType.Parameter;
+
+// Basic guards
+
+export function isPrimitive(
+  value: unknown
+): value is string | number | boolean | undefined | null {
+  return (
+    !value ||
+    typeof value === "string" ||
+    typeof value === "number" ||
+    typeof value === "bigint" ||
+    typeof value === "boolean"
+  );
+}
+
+export function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value != null && !Array.isArray(value);
+}
+
+export function isSymbol(value: unknown): value is symbol {
+  return typeof value === "symbol";
+}

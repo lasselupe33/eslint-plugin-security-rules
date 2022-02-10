@@ -1,6 +1,13 @@
 import { TSESLint } from "@typescript-eslint/utils";
+import {
+  findVariable,
+  getInnermostScope,
+} from "@typescript-eslint/utils/dist/ast-utils";
 
+import { isIdentifier } from "../../../utils/guards";
 import { resolveDocsRoute } from "../../../utils/resolveDocsRoute";
+import { traceVariable } from "../../../utils/tracing/_trace-variable";
+import { isTerminalNode } from "../../../utils/tracing/types";
 import { getTypeProgram } from "../../../utils/types/getTypeProgram";
 
 import {
@@ -13,9 +20,9 @@ import { isSink } from "./utils/is-sink";
 
 /**
  * Progress
- *  [-] Detection
+ *  [X] Detection
  *  [ ] Automatic fix / Suggestions
- *  [ ] Reduction of false positives
+ *  [-] Reduction of false positives
  *  [ ] Fulfilling unit testing
  *  [ ] Extensive documentation
  */
@@ -54,6 +61,31 @@ export const noDomXSSRule: TSESLint.RuleModule<MessageIds> = {
         );
 
         if (sinkType) {
+          if (isIdentifier(node.right)) {
+            const rootScope = getInnermostScope(context.getScope(), node.right);
+
+            traceVariable(
+              {
+                context,
+                rootScope: rootScope,
+                variable: findVariable(rootScope, node.right),
+              },
+              (node) => {
+                if (isTerminalNode(node)) {
+                  console.log(node.value, node.connection?.name);
+                } else {
+                  console.log(
+                    node.variable.name,
+                    node.variable.defs[0]?.type,
+                    node.connection?.name
+                  );
+                }
+
+                return true;
+              }
+            );
+          }
+
           context.report({
             node: node.right,
             messageId: MessageIds.TEST,
