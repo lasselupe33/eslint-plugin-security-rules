@@ -1,10 +1,6 @@
-import { CallExpressionArgument } from "@typescript-eslint/types/dist/ast-spec";
 import { RuleContext, Scope } from "@typescript-eslint/utils/dist/ts-eslint";
 
-export type ParameterToArgumentMap = Map<
-  string,
-  { argument: CallExpressionArgument | undefined; scope: Scope.Scope }
->;
+import { ParameterToArgumentMap } from "./parameter-to-argument";
 
 /**
  * Context available to all handlers when tracing a given node
@@ -33,6 +29,8 @@ export type VariableNode = {
 
 export type TraceNode = TerminalNode | VariableNode;
 
-export function isTerminalNode(node: TraceNode): node is TerminalNode {
-  return "value" in node;
+export function isTerminalNode(
+  node: TraceNode | undefined
+): node is TerminalNode {
+  return node != null && "value" in node;
 }

@@ -15,7 +15,8 @@ export type TraceContext = {
 
 export function traceVariable(
   ctx: TraceContext,
-  onNodeVisited: (node: TraceNode) => boolean
+  onNodeVisited: (node: TraceNode) => boolean,
+  onFinished: () => void
 ) {
   if (!ctx.variable) {
     return;
@@ -51,14 +52,16 @@ export function traceVariable(
     // In case we've encountered a parameter, then we cannot handle it simply be
     // tracing its references since we need to be context aware in this case.
     if (isParameter(variable.defs[0]) && parameterToArgumentMap) {
-      remainingVariables.push(
+      remainingVariables.unshift(
         ...visitParameter(handlingContext, variable.defs[0])
       );
       continue;
     }
 
-    for (const reference of getRelevantReferences(ctx, variable.references)) {
+    for (const reference of getRelevantReferences(variable.references)) {
       remainingVariables.push(...visitReference(handlingContext, reference));
     }
   }
+
+  onFinished();
 }

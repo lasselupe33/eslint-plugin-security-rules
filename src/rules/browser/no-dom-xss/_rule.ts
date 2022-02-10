@@ -7,6 +7,7 @@ import {
 import { isIdentifier } from "../../../utils/guards";
 import { resolveDocsRoute } from "../../../utils/resolveDocsRoute";
 import { traceVariable } from "../../../utils/tracing/_trace-variable";
+import { makeTraceDebugger } from "../../../utils/tracing/debug/print-trace";
 import { isTerminalNode } from "../../../utils/tracing/types";
 import { getTypeProgram } from "../../../utils/types/getTypeProgram";
 
@@ -70,19 +71,7 @@ export const noDomXSSRule: TSESLint.RuleModule<MessageIds> = {
                 rootScope: rootScope,
                 variable: findVariable(rootScope, node.right),
               },
-              (node) => {
-                if (isTerminalNode(node)) {
-                  console.log(node.value, node.connection?.name);
-                } else {
-                  console.log(
-                    node.variable.name,
-                    node.variable.defs[0]?.type,
-                    node.connection?.name
-                  );
-                }
-
-                return true;
-              }
+              ...makeTraceDebugger()
             );
           }
 

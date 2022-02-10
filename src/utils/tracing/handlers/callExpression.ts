@@ -11,6 +11,7 @@ import {
   isReturnStatement,
 } from "../../guards";
 import { getNodeName } from "../get-node-name";
+import { toParameterToArgumentKey } from "../parameter-to-argument";
 import { HandlingContext, TraceNode } from "../types";
 
 import { handleNode } from "./_handle-node";
@@ -58,10 +59,13 @@ export function handleCallExpression(
 
   // Extend map with the relevant argument to parameter mappings.
   functionDeclaration.params.map(getNodeName).forEach((name, index) => {
-    parameterToArgumentMap.set(`${calleeVariable.name}-${name}`, {
-      argument: callExpression.arguments[index],
-      scope: getInnermostScope(scope, callExpression),
-    });
+    parameterToArgumentMap.set(
+      toParameterToArgumentKey(calleeVariable.name, name, "set"),
+      {
+        argument: callExpression.arguments[index],
+        scope: getInnermostScope(scope, callExpression),
+      }
+    );
   });
 
   const returnStatements = functionDeclaration.body.body.filter(

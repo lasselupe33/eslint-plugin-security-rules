@@ -4,9 +4,11 @@ import { Scope } from "@typescript-eslint/utils/dist/ts-eslint";
 import { getFunctionName } from "../../ast";
 import { isFunctionDeclaration, isParameter } from "../../guards";
 import { getNodeName } from "../get-node-name";
+import { getRelevantReferences } from "../get-relevant-references";
+import { toParameterToArgumentKey } from "../parameter-to-argument";
 import { HandlingContext, TraceNode } from "../types";
 
-import { extractNextVariablesFromNode } from "./extract-next-variables-from-node";
+import { visitReference } from "./reference";
 
 export function visitParameter(
   ctx: HandlingContext,
@@ -19,7 +21,7 @@ export function visitParameter(
   const functionName = getFunctionName(parameter.node);
   const parameterName = getNodeName(parameter.name);
   const argument = ctx.parameterToArgumentMap?.get(
-    `${functionName}-${parameterName}`
+    toParameterToArgumentKey(functionName, parameterName, "get")
   );
 
   if (!argument) {
@@ -35,11 +37,13 @@ export function visitParameter(
     return [];
   }
 
-  const toFollow = relatedVariable.defs[0];
+  const relatedParameter = relatedVariable.defs[0];
 
-  if (isParameter(toFollow)) {
-    return visitParameter(ctx, toFollow);
+  if (isParameter(relatedParameter)) {
+    return visitParameter(ctx, relatedParameter);
   } else {
-    return extractNextVariablesFromNode(ctx, toFollow?.node);
+    const references = getRelevantReferences(relatedVariable.references);
+
+    return references.flatMap((reference) => visitReference(ctx, reference));
   }
 }
