@@ -56,3 +56,41 @@ export const isTSTypeAnnotation = isNodeOfType(AST_NODE_TYPES.TSTypeAnnotation);
 // Custom guards
 
 export const isArrayPattern = isNodeOfType(AST_NODE_TYPES.ArrayPattern);
+
+// Litterals
+
+export function isBigIntLiteral(
+  literal: TSESTree.Literal
+): literal is TSESTree.BigIntLiteral {
+  return typeof literal.value === "bigint";
+}
+
+export function isBooleanLiteral(
+  literal: TSESTree.Literal
+): literal is TSESTree.BooleanLiteral {
+  return typeof literal.value === "boolean";
+}
+
+export function isNullLiteral(
+  literal: TSESTree.Literal
+): literal is TSESTree.NullLiteral {
+  return typeof literal.value === null;
+}
+
+export function isNumberLiteral(
+  literal: TSESTree.Literal
+): literal is TSESTree.NumberLiteral {
+  return typeof literal.value === "number";
+}
+
+/*export function isRegExpLiteral(
+  literal: TSESTree.Literal
+): literal is TSESTree.RegExpLiteral {
+  return typeof
+}*/
+
+export function isStringLiteral(
+  literal: TSESTree.Literal
+): literal is TSESTree.StringLiteral {
+  return typeof literal.value === "string";
+}
