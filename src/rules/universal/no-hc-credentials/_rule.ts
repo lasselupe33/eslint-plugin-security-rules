@@ -5,6 +5,10 @@ import {
   isArrayPattern,
   isIdentifier,
   isLiteral,
+  isObjectExpression,
+  isObjectPattern,
+  isProperty,
+  isStringLiteral,
 } from "../../../utils/guards";
 
 /**
@@ -12,6 +16,7 @@ import {
  *  [-] Detection
  *  [ ] Automatic fix / Suggestions
  *  [ ] Reduction of false positives
+ *  [ ] Fulfilling unit testing
  *  [ ] Extensive documentation
  */
 
@@ -52,28 +57,41 @@ export const noHcCredentials: TSESLint.RuleModule<MessageIds> = {
 
     return {
       VariableDeclarator: (node) => {
-        // TODO: Was is a BindingName?
         if (!node.init) {
           return;
         }
 
-        if (isIdentifier(node.id)) {
-          if (isPasswordName(node.id.name)) {
-            report(node.id);
+        if (isObjectExpression(node.init)) {
+          for (const property of node.init.properties) {
+            console.log(property);
+            if (
+              isProperty(property) &&
+              isIdentifier(property.key) &&
+              isPasswordName(property.key.name) &&
+              isLiteral(property.value) &&
+              !isSafeValue(property.value)
+            ) {
+              report(property.value);
+            }
           }
-        }
-
-        if (isArrayPattern(node.id) && isArrayExpression(node.init)) {
+        } else if (isArrayPattern(node.id) && isArrayExpression(node.init)) {
           const table = retrieveNameAndValues(node.id, node.init);
           for (const pair of table) {
             console.log(pair);
           }
           table.forEach((pair) => {
-            if (isPasswordName(pair.id?.name)) {
-              report(pair.id);
+            if (isPasswordName(pair.id?.name) && !isSafeValue(pair.val)) {
+              report(pair.val);
             }
-            // TODO: Check value on rhs
           });
+        } else if (isIdentifier(node.id)) {
+          if (
+            isPasswordName(node.id.name) &&
+            isLiteral(node.init) &&
+            !isSafeValue(node.init)
+          ) {
+            report(node.init);
+          }
         }
       },
     };
@@ -107,26 +125,6 @@ function retrieveNameAndValues(
     }
   }
 
-  for (const element of nodeInit.elements) {
-    const innerArray = match[i];
-
-    if (isLiteral(element)) {
-      if (innerArray != null) {
-        innerArray.val = element;
-      } // No else - val is already null
-    }
-  }
-
-  nodeInit.elements.forEach((element, i) => {
-    const innerArray = match[i];
-
-    if (isLiteral(element)) {
-      if (innerArray != null) {
-        innerArray.val = element;
-      }
-    }
-  });
-
   const res = match.filter(
     (pair): pair is { id: TSESTree.Identifier; val: TSESTree.Literal } =>
       pair.id !== null || pair.val !== null
@@ -135,12 +133,19 @@ function retrieveNameAndValues(
   return res;
 }
 
-function isPasswordName(testString: string) {
+function isPasswordName(testString: string): boolean {
   const reg = /^pass(wd|word|code|phrase)?/;
   return reg.test(testString);
 }
 
-function isSafeValue(testString: string) {
-  const reg = /^test/;
-  return reg.test(testString);
+function isSafeValue(testCase: TSESTree.Literal): boolean {
+  if (isStringLiteral(testCase)) {
+    if (testCase.value === "") {
+      return true;
+    }
+
+    const reg = /^test/;
+    return reg.test(testCase.value);
+  }
+  return false;
 }
