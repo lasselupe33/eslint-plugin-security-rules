@@ -23,5 +23,7 @@ export function getNodeType(typeProgram: TypeProgram | undefined, node: Node) {
           typeProgram?.checker.getReturnTypeOfSignature(signature)?.symbol
             ?.escapedName as unknown as string
       ) ?? [],
+
+    sourceFile: type?.symbol.valueDeclaration?.parent.getSourceFile(),
   };
 }

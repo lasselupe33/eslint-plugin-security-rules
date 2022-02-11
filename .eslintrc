@@ -18,6 +18,7 @@
     "import"
   ],
   "rules": {
+    "spaced-comment": "warn",
     "import/no-unresolved": "off",
     "import/namespace": "off",
     "import/no-relative-packages": "error",

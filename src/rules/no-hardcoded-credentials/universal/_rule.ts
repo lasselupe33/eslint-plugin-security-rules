@@ -10,6 +10,7 @@ import {
   isProperty,
   isStringLiteral,
 } from "../../../utils/guards";
+import { isSafeValue } from "../utils/is-safe-value";
 
 /**
  * Progress
@@ -18,6 +19,7 @@ import {
  *  [ ] Reduction of false positives
  *  [ ] Fulfilling unit testing
  *  [ ] Extensive documentation
+ *  [ ] Fulfilling configuration options
  */
 
 /**
@@ -132,16 +134,4 @@ function retrieveNameAndValues(
 function isPasswordName(testString: string): boolean {
   const reg = /^pass(wd|word|code|phrase)?/;
   return reg.test(testString);
-}
-
-function isSafeValue(testCase: TSESTree.Literal): boolean {
-  if (isStringLiteral(testCase)) {
-    if (testCase.value === "") {
-      return true;
-    }
-
-    const reg = /^test/;
-    return reg.test(testCase.value);
-  }
-  return false;
 }
