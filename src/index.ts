@@ -1,5 +1,5 @@
-import { noDomXSSRule } from "./rules/browser/no-dom-xss/_rule";
 import { noHardcodedCredentials } from "./rules/mysql/no-hardcoded-credentials/_rule";
+import { noDomXSSRule } from "./rules/no-dom-xss/browser/_rule";
 import { noHcCredentials } from "./rules/universal/no-hc-credentials/_rule";
 
 export const rules = {

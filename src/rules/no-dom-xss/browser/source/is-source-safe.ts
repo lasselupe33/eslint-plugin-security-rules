@@ -7,7 +7,10 @@ import { RuleContext } from "@typescript-eslint/utils/dist/ts-eslint";
 
 import { mapNodeToHandler } from "../../../../utils/map-node-to-handler";
 import { traceVariable } from "../../../../utils/tracing/_trace-variable";
-import { isVariableNode } from "../../../../utils/tracing/types";
+import { makeTraceDebugger } from "../../../../utils/tracing/debug/print-trace";
+import { TraceNode } from "../../../../utils/tracing/types";
+import { makeChainGenerator } from "../../../../utils/tracing/utils/generate-chains";
+import { mergeTraceHandlers } from "../../../../utils/tracing/utils/merge-trace-handlers";
 
 type Context = {
   context: RuleContext<string, unknown[]>;
@@ -34,7 +37,8 @@ function traceToSource(
 ): boolean {
   const rootScope = getInnermostScope(context.getScope(), identifier);
 
-  let isSafe = false;
+  const chains: TraceNode[][] = [];
+  const isSafe = false;
 
   traceVariable(
     {
@@ -42,21 +46,7 @@ function traceToSource(
       rootScope: rootScope,
       variable: findVariable(rootScope, identifier),
     },
-    (node) => {
-      if (!isVariableNode(node)) {
-        return false;
-      }
-
-      if (
-        node.variable.defs.some((def) => def.type === "FunctionName") &&
-        SAFE_FUNCTIONS_NAMES.includes(node.variable.name)
-      ) {
-        isSafe = true;
-        return true;
-      }
-
-      return false;
-    }
+    ...mergeTraceHandlers(makeTraceDebugger(), makeChainGenerator(chains))
   );
 
   return isSafe;
