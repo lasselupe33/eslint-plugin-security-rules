@@ -63,7 +63,6 @@ export const noHcCredentials: TSESLint.RuleModule<MessageIds> = {
 
         if (isObjectExpression(node.init)) {
           for (const property of node.init.properties) {
-            console.log(property);
             if (
               isProperty(property) &&
               isIdentifier(property.key) &&
@@ -77,13 +76,10 @@ export const noHcCredentials: TSESLint.RuleModule<MessageIds> = {
         } else if (isArrayPattern(node.id) && isArrayExpression(node.init)) {
           const table = retrieveNameAndValues(node.id, node.init);
           for (const pair of table) {
-            console.log(pair);
-          }
-          table.forEach((pair) => {
-            if (isPasswordName(pair.id?.name) && !isSafeValue(pair.val)) {
+            if (isPasswordName(pair.id.name) && !isSafeValue(pair.val)) {
               report(pair.val);
             }
-          });
+          }
         } else if (isIdentifier(node.id)) {
           if (
             isPasswordName(node.id.name) &&
