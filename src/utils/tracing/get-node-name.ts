@@ -1,6 +1,6 @@
 import { AST_NODE_TYPES, TSESTree } from "@typescript-eslint/utils";
 
-import { mapNodeToHandler } from "../mapNodeToHandler";
+import { mapNodeToHandler } from "../map-node-to-handler";
 
 export function getNodeName(node: TSESTree.Node | undefined): string {
   return (

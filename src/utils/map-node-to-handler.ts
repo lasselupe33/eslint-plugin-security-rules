@@ -17,7 +17,16 @@ export function mapNodeToHandler<
     return;
   }
 
+  const callback = callbacks[node.type];
+
+  if (!callback) {
+    console.warn(
+      `mapNodeToHandler(${node.type}): No handler associated to type.`,
+      node
+    );
+  }
+
   // @ts-expect-error Typings are not ideal for the internal implementation of
   // this helper, however when used externally we get what we expect.
-  return callbacks[node.type]?.(ctx, node) as ReturnType;
+  return callback?.(ctx, node) as ReturnType;
 }

@@ -13,10 +13,14 @@ export type TraceContext = {
   variable?: Scope.Variable | null;
 };
 
+/**
+ * Allows tracing a variable to its source(s) while triggering a callback for
+ * every relevant node that is visited in the order of discovery.
+ */
 export function traceVariable(
   ctx: TraceContext,
-  onNodeVisited: (node: TraceNode) => boolean,
-  onFinished: () => void
+  onNodeVisited?: (node: TraceNode) => boolean,
+  onFinished?: () => void
 ) {
   if (!ctx.variable) {
     return;
@@ -33,9 +37,9 @@ export function traceVariable(
       break;
     }
 
-    onNodeVisited(traceNode);
+    onNodeVisited?.(traceNode);
 
-    // We cannot continue tracing when encountering terminal nodes
+    // We cannot continue tracing when encountering terminal nodes.
     if (isTerminalNode(traceNode)) {
       continue;
     }
@@ -52,6 +56,8 @@ export function traceVariable(
     // In case we've encountered a parameter, then we cannot handle it simply be
     // tracing its references since we need to be context aware in this case.
     if (isParameter(variable.defs[0]) && parameterToArgumentMap) {
+      // Parameter mappings should take precedence over other existing variables
+      // to guarantee the order. Thus we use unshift().
       remainingVariables.unshift(
         ...visitParameter(handlingContext, variable.defs[0])
       );
@@ -63,5 +69,5 @@ export function traceVariable(
     }
   }
 
-  onFinished();
+  onFinished?.();
 }

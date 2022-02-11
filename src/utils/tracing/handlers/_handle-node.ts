@@ -1,6 +1,6 @@
 import { AST_NODE_TYPES, TSESTree } from "@typescript-eslint/utils";
 
-import { mapNodeToHandler } from "../../mapNodeToHandler";
+import { mapNodeToHandler } from "../../map-node-to-handler";
 import { HandlingContext, TraceNode } from "../types";
 
 import { handleCallExpression } from "./callExpression";
@@ -20,13 +20,6 @@ export function handleNode(
     },
     context
   );
-
-  if (node && !variables) {
-    console.warn(
-      `traceVariable.handleNode(): No handler associated to type.`,
-      node.type
-    );
-  }
 
   return variables ?? [];
 }

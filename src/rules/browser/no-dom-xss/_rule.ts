@@ -5,10 +5,9 @@ import {
 } from "@typescript-eslint/utils/dist/ast-utils";
 
 import { isIdentifier } from "../../../utils/guards";
-import { resolveDocsRoute } from "../../../utils/resolveDocsRoute";
+import { resolveDocsRoute } from "../../../utils/resolve-docs-route";
 import { traceVariable } from "../../../utils/tracing/_trace-variable";
 import { makeTraceDebugger } from "../../../utils/tracing/debug/print-trace";
-import { isTerminalNode } from "../../../utils/tracing/types";
 import { getTypeProgram } from "../../../utils/types/getTypeProgram";
 
 import {
