@@ -1,5 +1,5 @@
 {
   "src/**/*.{ts,tsx}": [
-    "yarn eslint:files"
+    "yarn eslint:files --config ./.eslintrc.precommit"
   ]
 }
