@@ -33,11 +33,9 @@ export function traceVariable(
   while (remainingVariables.length > 0) {
     const traceNode = remainingVariables.shift();
 
-    if (!traceNode) {
+    if (!traceNode || onNodeVisited?.(traceNode)) {
       break;
     }
-
-    onNodeVisited?.(traceNode);
 
     // We cannot continue tracing when encountering terminal nodes.
     if (isTerminalNode(traceNode)) {

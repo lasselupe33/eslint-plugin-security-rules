@@ -21,8 +21,8 @@ export function makeTraceDebugger(): [
     if (!isTerminalNode(prevNode) && node.connection === prevNode?.variable) {
       currentChain.push(node);
     } else {
-      console.log(currentChain.map(nodeToString).join(" --> "));
-      console.log();
+      console.warn(currentChain.map(nodeToString).join(" --> "));
+      console.warn();
 
       prevNode = currentChain.pop();
 
@@ -44,7 +44,7 @@ export function makeTraceDebugger(): [
   }
 
   function onFinished() {
-    console.log(currentChain.map(nodeToString).join(" --> "));
+    console.warn(currentChain.map(nodeToString).join(" --> "));
   }
 
   return [onNodeVisited, onFinished];
