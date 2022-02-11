@@ -8,7 +8,8 @@ type Argument = {
 
 export type ParameterToArgumentMap = Map<string, Argument>;
 
-const incMap: Record<string, number> = {};
+const setMap: Record<string, number> = {};
+const getMap: Record<string, number> = {};
 
 /**
  * When inserting entries into the ParameterToArgument map we must generate
@@ -34,6 +35,9 @@ const incMap: Record<string, number> = {};
  *
  * "basic-arg-0" -> "hello"
  * "basic-arg-1" -> "world"
+ *
+ * Which in term will be extracted in the same order when given the same
+ * parameter and funciton.
  */
 export function toParameterToArgumentKey(
   functionName: string,
@@ -41,12 +45,23 @@ export function toParameterToArgumentKey(
   type: "set" | "get"
 ): string {
   const baseKey = `${functionName}-${parameterName}`;
+  let id = 0;
 
-  if (!incMap[baseKey]) {
-    incMap[baseKey] = 0;
+  if (type === "set") {
+    if (!setMap[baseKey]) {
+      setMap[baseKey] = 0;
+    }
+
+    id = setMap[baseKey]++;
   }
 
-  const id = type === "set" ? incMap[baseKey]++ : --incMap[baseKey];
+  if (type === "get") {
+    if (!getMap[baseKey]) {
+      getMap[baseKey] = 0;
+    }
+
+    id = getMap[baseKey]++;
+  }
 
   return `${baseKey}-${id}`;
 }
