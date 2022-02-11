@@ -1,4 +1,7 @@
 {
+  "ignorePatterns": [
+    "src/**/tests/**"
+  ],
   "extends": ["./.eslintrc"],
   "rules": {
     "no-console": ["error", { "allow": ["warn", "error"] }]
