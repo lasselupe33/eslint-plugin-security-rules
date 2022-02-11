@@ -1,12 +1,16 @@
 import { TSESLint, TSESTree } from "@typescript-eslint/utils";
+import { SourceFile } from "typescript";
 
 import {
   isCallExpression,
   isIdentifier,
   isObjectExpression,
   isProperty,
+  isLiteral,
 } from "../../../utils/guards";
+import { getNodeType } from "../../../utils/types/get-node-type";
 import { getTypeProgram } from "../../../utils/types/get-type-program";
+import { isSafeValue } from "../utils/is-safe-value";
 
 /**
  * Progress
@@ -15,6 +19,7 @@ import { getTypeProgram } from "../../../utils/types/get-type-program";
  *  [ ] Reduction of false positives
  *  [ ] Fulfilling unit testing
  *  [ ] Extensive documentation
+ *  [ ] Fulfilling configuration options
  */
 
 enum MessageIds {
@@ -52,11 +57,15 @@ export const noHardcodedCredentials: TSESLint.RuleModule<MessageIds> = {
         }
         const rhs = node.init;
         if (isIdentifier(rhs.callee)) {
-          /* const { typeName, baseTypeNames, returnTypeNames } = getNodeType(
+          const { typeName, returnTypeNames, sourceFile } = getNodeType(
             typeProgram,
             rhs.callee
-          ); */
-          if (rhs.callee.name == "createConnection") {
+          );
+          if (
+            typeName == "createConnection" &&
+            returnTypeNames[0] === "Connection" &&
+            sourceFile?.fileName.endsWith("@types/mysql/index.d.ts")
+          ) {
             const arg = rhs.arguments[0];
             if (isObjectExpression(arg)) {
               arg.properties.flatMap((property) => {
@@ -65,7 +74,12 @@ export const noHardcodedCredentials: TSESLint.RuleModule<MessageIds> = {
                   isIdentifier(property.key) &&
                   property.key.name.toLowerCase() === "password"
                 ) {
-                  //No op
+                  if (
+                    isLiteral(property.value) &&
+                    !isSafeValue(property.value)
+                  ) {
+                    report(property.value);
+                  }
                 }
               });
             }
