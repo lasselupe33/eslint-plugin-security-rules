@@ -6,8 +6,7 @@ import {
   isObjectExpression,
   isProperty,
 } from "../../../utils/guards";
-import { getNodeType } from "../../../utils/types/getNodeType";
-import { getTypeProgram } from "../../../utils/types/getTypeProgram";
+import { getTypeProgram } from "../../../utils/types/get-type-program";
 
 /**
  * Progress

@@ -1,6 +1,6 @@
 import { noDomXSSRule } from "./rules/browser/no-dom-xss/_rule";
-import { noHardcodedCredentials } from "./rules/mysql/no-hardcoded-credentials/_rule";
-import { noHcCredentials } from "./rules/universal/no-hc-credentials/_rule";
+import { noHardcodedCredentials } from "./rules/no-hardcoded-credentials/mysql/_rule";
+import { noHcCredentials } from "./rules/no-hardcoded-credentials/universal/_rule";
 
 export const rules = {
   "browser/no-dom-xss": noDomXSSRule,
