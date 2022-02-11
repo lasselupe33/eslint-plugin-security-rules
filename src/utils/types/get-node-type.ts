@@ -1,6 +1,6 @@
 import { Node } from "@typescript-eslint/types/dist/ast-spec";
 
-import { TypeProgram } from "./getTypeProgram";
+import { TypeProgram } from "./get-type-program";
 
 export function getNodeType(typeProgram: TypeProgram | undefined, node: Node) {
   const tsNode = typeProgram?.parserServices.esTreeNodeToTSNodeMap.get(node);
