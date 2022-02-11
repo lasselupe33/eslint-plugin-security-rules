@@ -38,7 +38,6 @@ function traceToSource(
   const rootScope = getInnermostScope(context.getScope(), identifier);
 
   const chains: TraceNode[][] = [];
-  const isSafe = false;
 
   traceVariable(
     {
@@ -49,5 +48,7 @@ function traceToSource(
     ...mergeTraceHandlers(makeTraceDebugger(), makeChainGenerator(chains))
   );
 
-  return isSafe;
+  // const isSafe = chains.some((chain) => chain.some(""));
+
+  return true;
 }

@@ -3,9 +3,11 @@ import { AST_NODE_TYPES, TSESTree } from "@typescript-eslint/utils";
 import { mapNodeToHandler } from "../../map-node-to-handler";
 import { HandlingContext, TraceNode } from "../types";
 
-import { handleCallExpression } from "./callExpression";
+import { handleBinaryExpression } from "./binary-expression";
+import { handleCallExpression } from "./call-expression";
 import { handleIdentifier } from "./identifier";
 import { handleLiteral } from "./literal";
+import { handleTemplateLiteral } from "./template-literal";
 
 export function handleNode(
   context: HandlingContext,
@@ -17,6 +19,8 @@ export function handleNode(
       [AST_NODE_TYPES.Literal]: handleLiteral,
       [AST_NODE_TYPES.Identifier]: handleIdentifier,
       [AST_NODE_TYPES.CallExpression]: handleCallExpression,
+      [AST_NODE_TYPES.BinaryExpression]: handleBinaryExpression,
+      [AST_NODE_TYPES.TemplateLiteral]: handleTemplateLiteral,
     },
     context
   );

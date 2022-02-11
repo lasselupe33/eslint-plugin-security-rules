@@ -17,7 +17,15 @@ export function makeChainGenerator(chains: TraceNode[][]): TraceHandler {
 
     let prevNode = currentChain[currentChain.length - 1];
 
-    if (!isTerminalNode(prevNode) && node.connection === prevNode?.variable) {
+    if (!node.connection) {
+      console.error("CANNOT RESOLVE CONNECTION");
+      return false;
+    }
+
+    if (
+      !isTerminalNode(prevNode) &&
+      node.connection.variable === prevNode?.variable
+    ) {
       currentChain.push(node);
     } else {
       chains.push(currentChain);
@@ -29,7 +37,7 @@ export function makeChainGenerator(chains: TraceNode[][]): TraceHandler {
 
       while (
         isTerminalNode(prevNode) ||
-        node.connection !== prevNode?.variable
+        node.connection.variable !== prevNode?.variable
       ) {
         prevNode = currentChain.pop();
       }

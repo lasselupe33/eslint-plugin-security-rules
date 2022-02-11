@@ -47,8 +47,8 @@ export function traceVariable(
     const handlingContext: HandlingContext = {
       ruleContext: ctx.context,
       scope,
-      connection: variable,
-      parameterToArgumentMap: parameterToArgumentMap ?? new Map(),
+      connection: { variable, nodeType: undefined },
+      parameterToArgumentMap,
     };
 
     // In case we've encountered a parameter, then we cannot handle it simply be

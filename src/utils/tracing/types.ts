@@ -1,15 +1,21 @@
+import { AST_NODE_TYPES } from "@typescript-eslint/utils";
 import { RuleContext, Scope } from "@typescript-eslint/utils/dist/ts-eslint";
 
 import { ParameterToArgumentMap } from "./parameter-to-argument";
+
+type Connection = {
+  variable: Scope.Variable | undefined;
+  nodeType: (AST_NODE_TYPES | "Argument") | undefined;
+};
 
 /**
  * Context available to all handlers when tracing a given node
  */
 export type HandlingContext = {
   ruleContext: RuleContext<string, unknown[]>;
-  connection: Scope.Variable | undefined;
+  connection: Connection | undefined;
   scope: Scope.Scope;
-  parameterToArgumentMap: ParameterToArgumentMap;
+  parameterToArgumentMap: ParameterToArgumentMap | undefined;
 };
 
 /**
@@ -17,12 +23,12 @@ export type HandlingContext = {
  */
 export type TerminalNode = {
   value: string;
-  connection?: Scope.Variable | undefined;
+  connection?: Connection | undefined;
 };
 
 export type VariableNode = {
   variable: Scope.Variable;
-  connection?: Scope.Variable | undefined;
+  connection?: Connection | undefined;
   scope: Scope.Scope;
   parameterToArgumentMap?: ParameterToArgumentMap | undefined;
 };

@@ -16,7 +16,15 @@ export function makeTraceDebugger(): TraceHandler {
 
     let prevNode = currentChain[currentChain.length - 1];
 
-    if (isVariableNode(prevNode) && node.connection === prevNode?.variable) {
+    if (!node.connection) {
+      console.error("CANNOT RESOLVE CONNECTION");
+      return false;
+    }
+
+    if (
+      isVariableNode(prevNode) &&
+      node.connection.variable === prevNode?.variable
+    ) {
       currentChain.push(node);
     } else {
       console.warn(currentChain.map(nodeToString).join(" --> "));
@@ -26,7 +34,7 @@ export function makeTraceDebugger(): TraceHandler {
 
       while (
         isTerminalNode(prevNode) ||
-        node.connection !== prevNode?.variable
+        node.connection.variable !== prevNode?.variable
       ) {
         prevNode = currentChain.pop();
       }
@@ -52,6 +60,10 @@ function nodeToString(node: TraceNode): string {
   if (isTerminalNode(node)) {
     return `"${node.value}" (Terminal)`;
   } else {
-    return `${node.variable.name} (${node.variable.defs[0]?.type})`;
+    const nodeType = node.connection?.nodeType
+      ? `, in ${node.connection?.nodeType}`
+      : "";
+
+    return `${node.variable.name} (${node.variable.defs[0]?.type}${nodeType})`;
   }
 }

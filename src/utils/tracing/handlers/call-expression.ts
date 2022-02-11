@@ -1,5 +1,5 @@
 import { ReturnStatement } from "@typescript-eslint/types/dist/ast-spec";
-import { TSESTree } from "@typescript-eslint/utils";
+import { TSESTree, AST_NODE_TYPES } from "@typescript-eslint/utils";
 import {
   findVariable,
   getInnermostScope,
@@ -11,7 +11,10 @@ import {
   isReturnStatement,
 } from "../../guards";
 import { getNodeName } from "../get-node-name";
-import { toParameterToArgumentKey } from "../parameter-to-argument";
+import {
+  ParameterToArgumentMap,
+  toParameterToArgumentKey,
+} from "../parameter-to-argument";
 import { HandlingContext, TraceNode } from "../types";
 
 import { handleNode } from "./_handle-node";
@@ -26,7 +29,7 @@ import { handleNode } from "./_handle-node";
  * 3. The variables of the parameters that the return statement depends on
  */
 export function handleCallExpression(
-  { scope, connection, parameterToArgumentMap, ruleContext }: HandlingContext,
+  { scope, connection, ruleContext }: HandlingContext,
   callExpression: TSESTree.CallExpression
 ): TraceNode[] {
   const foundNodes: TraceNode[] = [];
@@ -46,7 +49,6 @@ export function handleCallExpression(
     scope,
     variable: calleeVariable,
     connection,
-    parameterToArgumentMap,
   });
 
   // ... then we look at the declaration of the function to determine its return
@@ -58,14 +60,15 @@ export function handleCallExpression(
   }
 
   // Extend map with the relevant argument to parameter mappings.
+  const parameterToArgumentMap: ParameterToArgumentMap = new Map();
+
   functionDeclaration.params.map(getNodeName).forEach((name, index) => {
-    parameterToArgumentMap.set(
-      toParameterToArgumentKey(calleeVariable.name, name, "set"),
-      {
-        argument: callExpression.arguments[index],
-        scope: getInnermostScope(scope, callExpression),
-      }
-    );
+    const key = toParameterToArgumentKey(calleeVariable.name, name);
+
+    parameterToArgumentMap.set(key, {
+      argument: callExpression.arguments[index],
+      scope: getInnermostScope(scope, callExpression),
+    });
   });
 
   const returnStatements = functionDeclaration.body.body.filter(
@@ -77,7 +80,10 @@ export function handleCallExpression(
       {
         ruleContext,
         scope,
-        connection: calleeVariable,
+        connection: {
+          variable: calleeVariable,
+          nodeType: AST_NODE_TYPES.CallExpression,
+        },
         parameterToArgumentMap,
       },
       returnStatement.argument

@@ -2,13 +2,10 @@ import { findVariable } from "@typescript-eslint/utils/dist/ast-utils";
 import { Scope } from "@typescript-eslint/utils/dist/ts-eslint";
 
 import { getFunctionName } from "../../ast";
-import { isFunctionDeclaration, isLiteral, isParameter } from "../../guards";
+import { isFunctionDeclaration, isLiteral } from "../../guards";
 import { getNodeName } from "../get-node-name";
-import { getRelevantReferences } from "../get-relevant-references";
 import { toParameterToArgumentKey } from "../parameter-to-argument";
-import { HandlingContext, TraceNode } from "../types";
-
-import { visitReference } from "./reference";
+import { HandlingContext, TraceNode, VariableNode } from "../types";
 
 /**
  * When a variable is a parameter, then it means that we've reached a state
@@ -28,7 +25,7 @@ export function visitParameter(
 
   const functionName = getFunctionName(parameter.node);
   const parameterName = getNodeName(parameter.name);
-  const key = toParameterToArgumentKey(functionName, parameterName, "get");
+  const key = toParameterToArgumentKey(functionName, parameterName);
   const argument = ctx.parameterToArgumentMap.get(key);
 
   if (!argument) {
@@ -54,13 +51,15 @@ export function visitParameter(
     return [];
   }
 
-  const relatedParameter = relatedVariable.defs[0];
+  const relatedTraceNode: VariableNode = {
+    variable: relatedVariable,
+    scope: argument.scope,
+    connection: {
+      variable: ctx.connection?.variable,
+      nodeType: "Argument",
+    },
+    parameterToArgumentMap: ctx.parameterToArgumentMap,
+  };
 
-  if (isParameter(relatedParameter)) {
-    return visitParameter(ctx, relatedParameter);
-  } else {
-    const references = getRelevantReferences(relatedVariable.references);
-
-    return references.flatMap((reference) => visitReference(ctx, reference));
-  }
+  return [relatedTraceNode];
 }
