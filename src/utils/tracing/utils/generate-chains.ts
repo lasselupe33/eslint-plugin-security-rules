@@ -1,12 +1,13 @@
-import { isTerminalNode, isVariableNode, TraceNode } from "../types";
-import { TraceHandler } from "../utils/merge-trace-handlers";
+import { isTerminalNode, TraceNode } from "../types";
+
+import { TraceHandler } from "./merge-trace-handlers";
 
 /**
  * Basic utility to print the trace that our variable tracing algorithm
  * encounters.
  */
-export function makeTraceDebugger(): TraceHandler {
-  const currentChain: TraceNode[] = [];
+export function makeChainGenerator(chains: TraceNode[][]): TraceHandler {
+  let currentChain: TraceNode[] = [];
 
   function onNodeVisited(node: TraceNode) {
     if (currentChain.length === 0) {
@@ -16,11 +17,13 @@ export function makeTraceDebugger(): TraceHandler {
 
     let prevNode = currentChain[currentChain.length - 1];
 
-    if (isVariableNode(prevNode) && node.connection === prevNode?.variable) {
+    if (!isTerminalNode(prevNode) && node.connection === prevNode?.variable) {
       currentChain.push(node);
     } else {
-      console.warn(currentChain.map(nodeToString).join(" --> "));
-      console.warn();
+      chains.push(currentChain);
+
+      // ...
+      currentChain = [...currentChain];
 
       prevNode = currentChain.pop();
 
@@ -42,16 +45,8 @@ export function makeTraceDebugger(): TraceHandler {
   }
 
   function onFinished() {
-    console.warn(currentChain.map(nodeToString).join(" --> "));
+    chains.push(currentChain);
   }
 
   return [onNodeVisited, onFinished];
-}
-
-function nodeToString(node: TraceNode): string {
-  if (isTerminalNode(node)) {
-    return `"${node.value}" (Terminal)`;
-  } else {
-    return `${node.variable.name} (${node.variable.defs[0]?.type})`;
-  }
 }

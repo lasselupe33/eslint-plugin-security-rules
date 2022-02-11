@@ -19,6 +19,7 @@ import { isSourceSafe } from "./source/is-source-safe";
  *  [-] Reduction of false positives
  *  [ ] Fulfilling unit testing
  *  [ ] Extensive documentation
+ *  [ ] Fulfilling configuration options
  */
 
 enum MessageIds {

@@ -1,4 +1,4 @@
-import { noDomXSSRule } from "./rules/browser/no-dom-xss/_rule";
+import { noDomXSSRule } from "./rules/no-dom-xss/browser/_rule";
 import { noHardcodedCredentials } from "./rules/no-hardcoded-credentials/mysql/_rule";
 import { noHcCredentials } from "./rules/no-hardcoded-credentials/universal/_rule";
 

@@ -54,8 +54,6 @@ export function traceVariable(
     // In case we've encountered a parameter, then we cannot handle it simply be
     // tracing its references since we need to be context aware in this case.
     if (isParameter(variable.defs[0]) && parameterToArgumentMap) {
-      // Parameter mappings should take precedence over other existing variables
-      // to guarantee the order. Thus we use unshift().
       remainingVariables.unshift(
         ...visitParameter(handlingContext, variable.defs[0])
       );
@@ -63,7 +61,7 @@ export function traceVariable(
     }
 
     for (const reference of getRelevantReferences(variable.references)) {
-      remainingVariables.push(...visitReference(handlingContext, reference));
+      remainingVariables.unshift(...visitReference(handlingContext, reference));
     }
   }
 

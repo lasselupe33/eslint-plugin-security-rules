@@ -22,14 +22,14 @@ export function visitParameter(
   ctx: HandlingContext,
   parameter: Scope.Definition
 ): TraceNode[] {
-  if (!isFunctionDeclaration(parameter.node)) {
+  if (!isFunctionDeclaration(parameter.node) || !ctx.parameterToArgumentMap) {
     return [];
   }
 
   const functionName = getFunctionName(parameter.node);
   const parameterName = getNodeName(parameter.name);
   const key = toParameterToArgumentKey(functionName, parameterName, "get");
-  const argument = ctx.parameterToArgumentMap?.get(key);
+  const argument = ctx.parameterToArgumentMap.get(key);
 
   if (!argument) {
     console.warn(`Failed to map parameter (${key}) to initialising argument`);
