@@ -29,6 +29,12 @@ export type VariableNode = {
 
 export type TraceNode = TerminalNode | VariableNode;
 
+export function isVariableNode(
+  node: TraceNode | undefined
+): node is VariableNode {
+  return node != null && "variable" in node;
+}
+
 export function isTerminalNode(
   node: TraceNode | undefined
 ): node is TerminalNode {

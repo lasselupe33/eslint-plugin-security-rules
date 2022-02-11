@@ -5,9 +5,9 @@ import {
   isIdentifier,
   isMemberExpression,
 } from "../../../../utils/guards";
-import { TypeProgram } from "../../../../utils/types/getTypeProgram";
-import { RawSink, SinkTypes } from "../sinks";
+import { TypeProgram } from "../../../../utils/types/get-type-program";
 
+import { RawSink, SinkTypes } from "./data";
 import { findConclusionSink } from "./find-conclusion-sink";
 import { findMatchingSinks } from "./find-matching-sinks";
 

@@ -1,7 +1,8 @@
 import { TSESTree } from "@typescript-eslint/utils";
 
 import { isLiteral } from "../../../../utils/guards";
-import { CallExpressionSink } from "../sinks";
+
+import { CallExpressionSink } from "./data";
 
 export function isCallRelevant(
   args: TSESTree.CallExpressionArgument[],

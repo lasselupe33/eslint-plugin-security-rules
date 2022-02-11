@@ -1,22 +1,16 @@
 import { TSESLint } from "@typescript-eslint/utils";
-import {
-  findVariable,
-  getInnermostScope,
-} from "@typescript-eslint/utils/dist/ast-utils";
 
-import { isIdentifier } from "../../../utils/guards";
 import { resolveDocsRoute } from "../../../utils/resolve-docs-route";
-import { traceVariable } from "../../../utils/tracing/_trace-variable";
-import { makeTraceDebugger } from "../../../utils/tracing/debug/print-trace";
-import { getTypeProgram } from "../../../utils/types/getTypeProgram";
+import { getTypeProgram } from "../../../utils/types/get-type-program";
 
 import {
   ASSIGNMENT_EXPRESSION_SINKS,
   CALL_EXPRESSION_SINKS,
   NEW_EXPRESSION_SINKS,
-} from "./sinks";
-import { isCallRelevant } from "./utils/is-call-relevant";
-import { isSink } from "./utils/is-sink";
+} from "./sink/data";
+import { isCallRelevant } from "./sink/is-call-relevant";
+import { isSink } from "./sink/is-sink";
+import { isSourceSafe } from "./source/is-source-safe";
 
 /**
  * Progress
@@ -61,26 +55,17 @@ export const noDomXSSRule: TSESLint.RuleModule<MessageIds> = {
         );
 
         if (sinkType) {
-          if (isIdentifier(node.right)) {
-            const rootScope = getInnermostScope(context.getScope(), node.right);
+          const isSafe = isSourceSafe(node.right, { context });
 
-            traceVariable(
-              {
-                context,
-                rootScope: rootScope,
-                variable: findVariable(rootScope, node.right),
+          if (!isSafe) {
+            context.report({
+              node: node.right,
+              messageId: MessageIds.TEST,
+              data: {
+                sinkType,
               },
-              ...makeTraceDebugger()
-            );
+            });
           }
-
-          context.report({
-            node: node.right,
-            messageId: MessageIds.TEST,
-            data: {
-              sinkType,
-            },
-          });
         }
       },
       CallExpression: (node) => {
