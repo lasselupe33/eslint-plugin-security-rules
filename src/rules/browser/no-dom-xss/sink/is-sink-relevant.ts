@@ -1,8 +1,9 @@
 import { TSESTree } from "@typescript-eslint/utils";
 
-import { getNodeType } from "../../../../utils/types/getNodeType";
-import { TypeProgram } from "../../../../utils/types/getTypeProgram";
-import { RawSink } from "../sinks";
+import { getNodeType } from "../../../../utils/types/get-node-type";
+import { TypeProgram } from "../../../../utils/types/get-type-program";
+
+import { RawSink } from "./data";
 
 /**
  * Iterates through all the remaining possible sinks and returns the remaining

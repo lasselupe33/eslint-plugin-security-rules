@@ -1,8 +1,8 @@
 import { TSESTree } from "@typescript-eslint/utils";
 
-import { TypeProgram } from "../../../../utils/types/getTypeProgram";
-import { RawSink } from "../sinks";
+import { TypeProgram } from "../../../../utils/types/get-type-program";
 
+import { RawSink } from "./data";
 import { isSinkRelevant } from "./is-sink-relevant";
 
 /**
