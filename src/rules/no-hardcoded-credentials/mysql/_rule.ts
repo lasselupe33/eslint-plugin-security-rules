@@ -43,11 +43,36 @@ export const noHardcodedCredentials: TSESLint.RuleModule<MessageIds> = {
 
   create: (context) => {
     const typeProgram = getTypeProgram(context);
+    let skipTypescript = true;
+    if (typeProgram) {
+      skipTypescript = false;
+    }
 
-    function handle(
-      skipTypescript: boolean,
-      node: TSESTree.CallExpression
+    function handleIdentifier(
+      identifier: TSESTree.Identifier,
+      callExpression: TSESTree.CallExpression,
+      typeName: string
     ): void {
+      if (identifier.name === "createConnection") {
+        if (!skipTypescript) {
+          if (!(typeName === "Connection")) {
+            return;
+          }
+        }
+        // handle createConnection;
+        handleCallExpression(callExpression);
+      } else if (identifier.name === "createPool") {
+        if (!skipTypescript) {
+          if (!(typeName === "Pool")) {
+            return;
+          }
+        }
+        // handle createPool
+        handleCallExpression(callExpression);
+      }
+    }
+
+    function handleCallExpression(node: TSESTree.CallExpression): void {
       // Assuming that createConnection only contains one arg based on
       // it's definition.
       const arg = node.arguments[0];
@@ -61,11 +86,6 @@ export const noHardcodedCredentials: TSESLint.RuleModule<MessageIds> = {
 
     return {
       VariableDeclarator: (node) => {
-        let skipTypescript = true;
-        if (typeProgram) {
-          skipTypescript = false;
-        }
-
         if (!node.init) {
           return;
         }
@@ -86,47 +106,14 @@ export const noHardcodedCredentials: TSESLint.RuleModule<MessageIds> = {
           isMemberExpression(node.init.callee) &&
           isIdentifier(node.init.callee.property)
         ) {
-          if (node.init.callee.property.name === "createConnection") {
-            if (!skipTypescript) {
-              if (!(typeName === "Connection")) {
-                return;
-              }
-            }
-            // handle createConnection;
-            handle(skipTypescript, node.init);
-          } else if (node.init.callee.property.name === "createPool") {
-            if (!skipTypescript) {
-              if (!(typeName === "Pool")) {
-                return;
-              }
-            }
-            // handle createPool
-            handle(skipTypescript, node.init);
-          }
+          handleIdentifier(node.init.callee.property, node.init, typeName);
         }
         // createConnection or createPool
         else if (
           isCallExpression(node.init) &&
           isIdentifier(node.init.callee)
         ) {
-          if (node.init.callee.name === "createConnection") {
-            if (!skipTypescript) {
-              if (!(typeName === "Connection")) {
-                return;
-              }
-            }
-            // handle createConnection;
-            handle(skipTypescript, node.init);
-          } else if (node.init.callee.name === "createPool") {
-            // handle createPool
-            if (!skipTypescript) {
-              if (!(typeName === "Pool")) {
-                return;
-              }
-            }
-            // handle createPool
-            handle(skipTypescript, node.init);
-          }
+          handleIdentifier(node.init.callee, node.init, typeName);
         }
       },
     };
