@@ -6,10 +6,13 @@ import {
   isObjectExpression,
   isProperty,
   isLiteral,
+  isMemberExpression,
 } from "../../../utils/guards";
 import { getNodeType } from "../../../utils/types/get-node-type";
 import { getTypeProgram } from "../../../utils/types/get-type-program";
 import { isSafeValue } from "../utils/is-safe-value";
+
+// TODO : Check on AST properties instead of only type properties
 
 /**
  * Progress
@@ -39,54 +42,91 @@ export const noHardcodedCredentials: TSESLint.RuleModule<MessageIds> = {
   },
 
   create: (context) => {
-    const test = context;
     const typeProgram = getTypeProgram(context);
+
+    function handle(
+      skipTypescript: boolean,
+      node: TSESTree.CallExpression
+    ): void {
+      // Assuming that createConnection only contains one arg based on
+      // it's definition.
+      const arg = node.arguments[0];
+
+      // If we're using ConnectionConfig
+      if (isObjectExpression(arg)) {
+        checkArgumentsForPassword(arg.properties, context);
+      }
+      // TODO: Unhandled connectionURI
+    }
 
     return {
       VariableDeclarator: (node) => {
-        if (
-          !node.init ||
-          !isCallExpression(node.init) ||
-          !isIdentifier(node.init.callee)
-        ) {
+        let skipTypescript = true;
+        if (typeProgram) {
+          skipTypescript = false;
+        }
+
+        if (!node.init) {
           return;
         }
-        // rhs = createConnection({..})
-        const rhs = node.init;
-        const { typeName, returnTypeNames, sourceFile } = getNodeType(
+        const { typeName, fullyQualifiedName } = getNodeType(
           typeProgram,
-          rhs.callee // createConnection
+          node.init
         );
 
-        // We want to check that we are using the mysql package.
-        if (!sourceFile?.fileName.endsWith("@types/mysql/index.d.ts")) {
-          return;
+        if (!skipTypescript) {
+          if (!fullyQualifiedName?.includes("@types/mysql/index")) {
+            return;
+          }
         }
 
+        // mysql.createConnection or mysql.createPool
         if (
-          typeName === "createConnection" &&
-          returnTypeNames[0] === "Connection"
+          isCallExpression(node.init) &&
+          isMemberExpression(node.init.callee) &&
+          isIdentifier(node.init.callee.property)
         ) {
-          // Assuming that createConnection only contains one arg based on it's
-          // definition.
-          const arg = rhs.arguments[0];
-
-          // If we're using ConnectionConfig
-          if (isObjectExpression(arg)) {
-            checkArgumentsForPassword(arg.properties, context);
+          if (node.init.callee.property.name === "createConnection") {
+            if (!skipTypescript) {
+              if (!(typeName === "Connection")) {
+                return;
+              }
+            }
+            // handle createConnection;
+            handle(skipTypescript, node.init);
+          } else if (node.init.callee.property.name === "createPool") {
+            if (!skipTypescript) {
+              if (!(typeName === "Pool")) {
+                return;
+              }
+            }
+            // handle createPool
+            handle(skipTypescript, node.init);
           }
-          // TODO: Unhandled connectionURI
-        } else if (typeName === "createPool" && returnTypeNames[0] === "Pool") {
-          // Assuming that createPool only contains one arg
-          // based on it's definition.
-          const arg = rhs.arguments[0];
-
-          // If we're using PoolConfig
-          if (isObjectExpression(arg)) {
-            checkArgumentsForPassword(arg.properties, context);
+        }
+        // createConnection or createPool
+        else if (
+          isCallExpression(node.init) &&
+          isIdentifier(node.init.callee)
+        ) {
+          if (node.init.callee.name === "createConnection") {
+            if (!skipTypescript) {
+              if (!(typeName === "Connection")) {
+                return;
+              }
+            }
+            // handle createConnection;
+            handle(skipTypescript, node.init);
+          } else if (node.init.callee.name === "createPool") {
+            // handle createPool
+            if (!skipTypescript) {
+              if (!(typeName === "Pool")) {
+                return;
+              }
+            }
+            // handle createPool
+            handle(skipTypescript, node.init);
           }
-
-          // TODO: Unhandled connectionURI
         }
       },
     };
