@@ -9,8 +9,6 @@ export function getNodeType(typeProgram: TypeProgram | undefined, node: Node) {
     : undefined;
   const signatures = type?.getCallSignatures();
 
-  const symbol = type?.symbol;
-
   return {
     typeName: type?.symbol?.escapedName as unknown as string,
 
