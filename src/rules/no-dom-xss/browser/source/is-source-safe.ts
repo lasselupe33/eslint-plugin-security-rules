@@ -3,7 +3,6 @@ import { getInnermostScope } from "@typescript-eslint/utils/dist/ast-utils";
 import { RuleContext } from "@typescript-eslint/utils/dist/ts-eslint";
 
 import { traceVariable } from "../../../../utils/tracing/_trace-variable";
-import { makeTraceDebugger } from "../../../../utils/tracing/debug/print-trace";
 import {
   ConnectionTypes,
   isTerminalNode,
@@ -33,7 +32,7 @@ export function isSourceSafe(
       rootScope: getInnermostScope(context.getScope(), node),
       node,
     },
-    ...mergeTraceHandlers(makeTraceDebugger(), makeTraceGenerator(traces))
+    ...mergeTraceHandlers(/* makeTraceDebugger(),*/ makeTraceGenerator(traces))
   );
 
   const isSafe = traces.every(isTraceSafe);
@@ -43,6 +42,16 @@ export function isSourceSafe(
 
 const SAFE_FUNCTIONS_NAMES = ["safe"];
 
+/**
+ * Iterates through a trace to determine whether or not XSS can occur inside it.
+ *
+ * We check this by determining if a sanitation method has been called BEFORE
+ * any modifications in the trace. (Since sanitation is rendered useless after
+ * modifications).
+ *
+ * Otherwise, if a trace ends in a terminal - i.e. a constant variable, then we
+ * assume that the string is secure since it is written by the developer herself
+ */
 function isTraceSafe(trace: TraceNode[]): boolean {
   let isSafelySanitized = false;
 
