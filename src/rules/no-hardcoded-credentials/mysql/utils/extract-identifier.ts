@@ -1,6 +1,8 @@
 import { AST_NODE_TYPES, TSESTree } from "@typescript-eslint/utils";
 
-import { mapNodeToHandler } from "../../../../utils/map-node-to-handler";
+import { makeMapNodeToHandler } from "../../../../utils/map-node-to-handler";
+
+const mapNodeToHandler = makeMapNodeToHandler({ disableWarnings: true });
 
 export function extractIdentifier(
   node: TSESTree.Node
