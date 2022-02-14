@@ -1,9 +1,7 @@
 import { TSESLint, TSESTree } from "@typescript-eslint/utils";
 
-import { isIdentifier, isProperty, isLiteral } from "../../../utils/guards";
-import { isSafeValue } from "../utils/is-safe-value";
-
 import { handleIdentifier } from "./handlers/handle-identifier";
+import { checkArgumentsForPassword } from "./utils/check-arguments-for-password";
 import { extractIdentifier } from "./utils/extract-identifier";
 import { extractObjectProperties } from "./utils/extract-object-properties";
 
@@ -24,18 +22,19 @@ export type HandlingContext = {
 };
 
 enum MessageIds {
-  ERRROR1 = "string",
+  ERROR1 = "error1",
 }
 
 export const noHardcodedCredentials: TSESLint.RuleModule<MessageIds> = {
   meta: {
     type: "problem",
     messages: {
-      [MessageIds.ERRROR1]: "Including passwords is bad",
+      [MessageIds.ERROR1]: "Credentials shouldn't be hardcoded into a file.",
     },
     docs: {
       recommended: "error",
-      description: "Description",
+      description:
+        "It is recommended to use a secret manager, such as Google Secret Manager, or use process.env \nprocess.env may still reveal secrets in a stack trace ",
     },
     schema: {},
   },
@@ -45,9 +44,12 @@ export const noHardcodedCredentials: TSESLint.RuleModule<MessageIds> = {
       CallExpression: (node) => {
         const id = extractIdentifier(node);
 
-        const handled = handleIdentifier({ ruleContext: context }, id);
+        const didMatchIdentifierName = handleIdentifier(
+          { ruleContext: context },
+          id
+        );
 
-        if (handled) {
+        if (didMatchIdentifierName) {
           const properties = extractObjectProperties(node);
           checkArgumentsForPassword({ ruleContext: context }, properties);
           // TODO: Unhandled connectionURI
@@ -57,30 +59,10 @@ export const noHardcodedCredentials: TSESLint.RuleModule<MessageIds> = {
   },
 };
 
-function checkArgumentsForPassword(
-  ctx: HandlingContext,
-  properties: TSESTree.ObjectLiteralElement[] | undefined
-) {
-  if (!properties) {
-    return;
-  }
-  for (const property of properties) {
-    if (
-      isProperty(property) &&
-      isIdentifier(property.key) &&
-      property.key.name.toLowerCase() === "password"
-    ) {
-      if (isLiteral(property.value) && !isSafeValue(property.value)) {
-        report(property.value, ctx);
-      }
-    }
-  }
-}
-
-function report(node: TSESTree.Node, ctx: HandlingContext) {
+export function report(node: TSESTree.Node, ctx: HandlingContext) {
   ctx.ruleContext.report({
     node,
-    messageId: MessageIds.ERRROR1,
+    messageId: MessageIds.ERROR1,
     data: { node },
   });
 }
