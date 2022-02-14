@@ -24,7 +24,7 @@ export function isSink<Sink extends RawSink>(
   typeProgram: TypeProgram,
   expression: TSESTree.Expression,
   matchIn: Sink[]
-): Omit<Sink, "identifier"> | undefined {
+): Sink | undefined {
   // Once the expression has been reduced to an identifier, then we've reached
   // the root and thus we determine if a conclusion sink exists for the given
   // traversal.

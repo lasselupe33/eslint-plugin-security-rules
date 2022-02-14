@@ -1,4 +1,5 @@
 import { TSESLint, TSESTree } from "@typescript-eslint/utils";
+import { RuleFix, RuleFixer } from "@typescript-eslint/utils/dist/ts-eslint";
 
 import { isNewExpression } from "../../../utils/guards";
 import { resolveDocsRoute } from "../../../utils/resolve-docs-route";
@@ -16,7 +17,7 @@ import { isSourceSafe } from "./source/is-source-safe";
 /**
  * Progress
  *  [X] Detection
- *  [ ] Automatic fix / Suggestions
+ *  [X] Automatic fix / Suggestions
  *  [X] Reduction of false positives
  *  [ ] Fulfilling unit testing
  *  [ ] Extensive documentation
@@ -25,6 +26,7 @@ import { isSourceSafe } from "./source/is-source-safe";
 
 enum MessageIds {
   TEST = "test",
+  FIX = "fix",
 }
 
 /**
@@ -37,12 +39,15 @@ export const noDomXSSRule: TSESLint.RuleModule<MessageIds> = {
     fixable: "code",
     messages: {
       [MessageIds.TEST]: "{{ sinkType }} sink",
+      [MessageIds.FIX]: "lol",
     },
     docs: {
       description: "Relevant assertion methods must be used on fastify routes",
       recommended: "error",
       url: resolveDocsRoute(__dirname),
+      suggestion: true,
     },
+    hasSuggestions: true,
     schema: {},
   },
   create: (context) => {
@@ -72,6 +77,12 @@ export const noDomXSSRule: TSESLint.RuleModule<MessageIds> = {
           data: {
             sinkType: sink.type,
           },
+          suggest: [
+            {
+              fix: (fixer: RuleFixer) => addSanitazionAtSink(fixer, node.right),
+              messageId: MessageIds.FIX,
+            },
+          ],
         });
       },
       ["CallExpression, NewExpression"]: (
@@ -81,7 +92,7 @@ export const noDomXSSRule: TSESLint.RuleModule<MessageIds> = {
           ? NEW_EXPRESSION_SINKS
           : CALL_EXPRESSION_SINKS;
 
-        const relevantSinks = isCallRelevant(node.arguments, sinks);
+        const relevantSinks = isCallRelevant(context, node.arguments, sinks);
         const sink = isSink(typeProgram, node.callee, relevantSinks);
 
         if (!sink) {
@@ -120,3 +131,11 @@ export const noDomXSSRule: TSESLint.RuleModule<MessageIds> = {
     };
   },
 };
+
+function* addSanitazionAtSink(
+  fixer: RuleFixer,
+  unsafeNode: TSESTree.Node
+): Generator<RuleFix> {
+  yield fixer.insertTextBefore(unsafeNode, "safe(");
+  yield fixer.insertTextAfter(unsafeNode, ")");
+}

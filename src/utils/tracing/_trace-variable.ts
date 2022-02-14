@@ -12,7 +12,7 @@ import { visitReference } from "./visitors/reference";
 export type TraceContext = {
   context: RuleContext<string, unknown[]>;
   rootScope: Scope.Scope;
-  node?: Node | null;
+  node?: Node | null | undefined;
 };
 
 /**
