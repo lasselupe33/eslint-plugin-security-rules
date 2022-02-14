@@ -8,7 +8,6 @@ export function extractObjectProperties(
   const cases = mapNodeToHandler(node, {
     [AST_NODE_TYPES.ObjectExpression]: (ctx, objExp) => objExp.properties,
     [AST_NODE_TYPES.CallExpression]: (ctx, callExp) =>
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       extractObjectProperties(callExp.arguments[0]),
   });
 
