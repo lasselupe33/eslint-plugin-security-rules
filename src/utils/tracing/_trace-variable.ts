@@ -1,8 +1,10 @@
+import { Node } from "@typescript-eslint/types/dist/ast-spec";
 import { RuleContext, Scope } from "@typescript-eslint/utils/dist/ts-eslint";
 
 import { isParameter } from "../guards";
 
 import { getRelevantReferences } from "./get-relevant-references";
+import { handleNode } from "./handlers/_handle-node";
 import { HandlingContext, isTerminalNode, TraceNode } from "./types";
 import { visitParameter } from "./visitors/parameter";
 import { visitReference } from "./visitors/reference";
@@ -10,7 +12,7 @@ import { visitReference } from "./visitors/reference";
 export type TraceContext = {
   context: RuleContext<string, unknown[]>;
   rootScope: Scope.Scope;
-  variable?: Scope.Variable | null;
+  node?: Node | null;
 };
 
 /**
@@ -22,13 +24,19 @@ export function traceVariable(
   onNodeVisited?: (node: TraceNode) => boolean,
   onFinished?: () => void
 ) {
-  if (!ctx.variable) {
+  if (!ctx.node) {
     return;
   }
 
-  const remainingVariables: TraceNode[] = [
-    { variable: ctx.variable, scope: ctx.rootScope },
-  ];
+  const remainingVariables = handleNode(
+    {
+      ruleContext: ctx.context,
+      scope: ctx.rootScope,
+      connection: undefined,
+      parameterToArgumentMap: undefined,
+    },
+    ctx.node
+  );
 
   while (remainingVariables.length > 0) {
     const traceNode = remainingVariables.shift();
@@ -47,7 +55,7 @@ export function traceVariable(
     const handlingContext: HandlingContext = {
       ruleContext: ctx.context,
       scope,
-      connection: { variable, nodeType: undefined },
+      connection: { variable, nodeType: undefined, type: undefined },
       parameterToArgumentMap,
     };
 
