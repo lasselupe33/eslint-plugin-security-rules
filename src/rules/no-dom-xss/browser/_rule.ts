@@ -25,8 +25,8 @@ import { isSourceSafe } from "./source/is-source-safe";
  */
 
 enum MessageIds {
-  TEST = "test",
-  FIX = "fix",
+  VULNERABLE_SINK = "vulnerable-sink",
+  ADD_SANITATION_FIX = "add-sanitation-fix",
 }
 
 /**
@@ -38,8 +38,10 @@ export const noDomXSSRule: TSESLint.RuleModule<MessageIds> = {
     type: "problem",
     fixable: "code",
     messages: {
-      [MessageIds.TEST]: "{{ sinkType }} sink",
-      [MessageIds.FIX]: "lol",
+      [MessageIds.VULNERABLE_SINK]:
+        "This assignment is vulnerable to XSS attacks, it acts as a {{ sinkType }} sink",
+      [MessageIds.ADD_SANITATION_FIX]:
+        "Add sanitation before assigning vulnerable value",
     },
     docs: {
       description: "Relevant assertion methods must be used on fastify routes",
@@ -73,14 +75,14 @@ export const noDomXSSRule: TSESLint.RuleModule<MessageIds> = {
 
         context.report({
           node: node.right,
-          messageId: MessageIds.TEST,
+          messageId: MessageIds.VULNERABLE_SINK,
           data: {
             sinkType: sink.type,
           },
           suggest: [
             {
               fix: (fixer: RuleFixer) => addSanitazionAtSink(fixer, node.right),
-              messageId: MessageIds.FIX,
+              messageId: MessageIds.ADD_SANITATION_FIX,
             },
           ],
         });
@@ -111,21 +113,37 @@ export const noDomXSSRule: TSESLint.RuleModule<MessageIds> = {
             ? [node.arguments[index]]
             : node.arguments;
 
-        const isSafe = nodesToCheck.every((variable) =>
-          isSourceSafe(variable, { context })
+        const vulnerableNodes = nodesToCheck.filter(
+          (variable) => !isSourceSafe(variable, { context })
         );
 
-        if (isSafe) {
+        if (vulnerableNodes.length === 0) {
           return;
         }
 
         context.report({
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
           node: index ? node.arguments[index]! : node,
-          messageId: MessageIds.TEST,
+          messageId: MessageIds.VULNERABLE_SINK,
           data: {
             sinkType: sink.type,
           },
+          suggest: [
+            {
+              fix: function* fixer(fixer: RuleFixer) {
+                for (const node of vulnerableNodes) {
+                  if (!node) {
+                    return;
+                  }
+
+                  for (const fix of addSanitazionAtSink(fixer, node)) {
+                    yield fix;
+                  }
+                }
+              },
+              messageId: MessageIds.ADD_SANITATION_FIX,
+            },
+          ],
         });
       },
     };
