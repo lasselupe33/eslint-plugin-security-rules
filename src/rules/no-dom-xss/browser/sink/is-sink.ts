@@ -7,7 +7,7 @@ import {
 } from "../../../../utils/guards";
 import { TypeProgram } from "../../../../utils/types/get-type-program";
 
-import { RawSink, SinkTypes } from "./data";
+import { RawSink } from "./data";
 import { findConclusionSink } from "./find-conclusion-sink";
 import { findMatchingSinks } from "./find-matching-sinks";
 
@@ -24,7 +24,7 @@ export function isSink<Sink extends RawSink>(
   typeProgram: TypeProgram,
   expression: TSESTree.Expression,
   matchIn: Sink[]
-): SinkTypes | undefined {
+): Omit<Sink, "identifier"> | undefined {
   // Once the expression has been reduced to an identifier, then we've reached
   // the root and thus we determine if a conclusion sink exists for the given
   // traversal.
@@ -36,7 +36,7 @@ export function isSink<Sink extends RawSink>(
       matchIn
     );
 
-    return sink?.type;
+    return sink;
   } else if (
     isMemberExpression(expression) &&
     isIdentifier(expression.property)

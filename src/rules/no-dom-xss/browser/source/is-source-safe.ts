@@ -1,54 +1,69 @@
-import { AST_NODE_TYPES, TSESTree } from "@typescript-eslint/utils";
-import {
-  findVariable,
-  getInnermostScope,
-} from "@typescript-eslint/utils/dist/ast-utils";
+import { TSESTree } from "@typescript-eslint/utils";
+import { getInnermostScope } from "@typescript-eslint/utils/dist/ast-utils";
 import { RuleContext } from "@typescript-eslint/utils/dist/ts-eslint";
 
-import { mapNodeToHandler } from "../../../../utils/map-node-to-handler";
 import { traceVariable } from "../../../../utils/tracing/_trace-variable";
 import { makeTraceDebugger } from "../../../../utils/tracing/debug/print-trace";
-import { TraceNode } from "../../../../utils/tracing/types";
-import { makeChainGenerator } from "../../../../utils/tracing/utils/generate-chains";
+import {
+  ConnectionTypes,
+  isTerminalNode,
+  isVariableNode,
+  TraceNode,
+} from "../../../../utils/tracing/types";
+import { makeTraceGenerator } from "../../../../utils/tracing/utils/generate-traces";
 import { mergeTraceHandlers } from "../../../../utils/tracing/utils/merge-trace-handlers";
 
 type Context = {
   context: RuleContext<string, unknown[]>;
 };
 
-export function isSourceSafe(node: TSESTree.Node, ctx: Context): boolean {
-  return (
-    mapNodeToHandler(
-      node,
-      {
-        [AST_NODE_TYPES.Literal]: () => true,
-        [AST_NODE_TYPES.Identifier]: traceToSource,
-      },
-      ctx
-    ) ?? false
-  );
-}
-
-const SAFE_FUNCTIONS_NAMES = ["safe"];
-
-function traceToSource(
-  { context }: Context,
-  identifier: TSESTree.Identifier
+export function isSourceSafe(
+  node: TSESTree.Node | undefined,
+  { context }: Context
 ): boolean {
-  const rootScope = getInnermostScope(context.getScope(), identifier);
+  if (!node) {
+    return true;
+  }
 
-  const chains: TraceNode[][] = [];
+  const traces: TraceNode[][] = [];
 
   traceVariable(
     {
       context,
-      rootScope: rootScope,
-      variable: findVariable(rootScope, identifier),
+      rootScope: getInnermostScope(context.getScope(), node),
+      node,
     },
-    ...mergeTraceHandlers(makeTraceDebugger(), makeChainGenerator(chains))
+    ...mergeTraceHandlers(makeTraceDebugger(), makeTraceGenerator(traces))
   );
 
-  // const isSafe = chains.some((chain) => chain.some(""));
+  const isSafe = traces.every(isTraceSafe);
 
-  return true;
+  return isSafe;
+}
+
+const SAFE_FUNCTIONS_NAMES = ["safe"];
+
+function isTraceSafe(trace: TraceNode[]): boolean {
+  let isSafelySanitized = false;
+
+  for (const node of trace) {
+    if (node.connection?.type === ConnectionTypes.MODIFICATION) {
+      break;
+    }
+
+    if (
+      isVariableNode(node) &&
+      SAFE_FUNCTIONS_NAMES.includes(node.variable.name)
+    ) {
+      isSafelySanitized = true;
+      break;
+    }
+  }
+
+  const finalNode = trace[trace.length - 1];
+
+  return (
+    isSafelySanitized ||
+    (isTerminalNode(finalNode) && finalNode.value !== "__undefined__")
+  );
 }
