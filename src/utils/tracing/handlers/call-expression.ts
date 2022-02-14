@@ -42,6 +42,15 @@ export function handleCallExpression(
   const calleeVariable = findVariable(scope, callExpression.callee);
 
   if (!calleeVariable) {
+    // In case an invalid program has been written, then we cannot infer the
+    // next variable (Since none exist!). Let's convey this information
+    // publicly.
+    foundNodes.push({
+      scope,
+      value: "__undefined__",
+      connection,
+    });
+
     return foundNodes;
   }
 

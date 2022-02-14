@@ -6,7 +6,7 @@ import { TraceHandler } from "./merge-trace-handlers";
  * Basic utility to print the trace that our variable tracing algorithm
  * encounters.
  */
-export function makeChainGenerator(chains: TraceNode[][]): TraceHandler {
+export function makeTraceGenerator(chains: TraceNode[][]): TraceHandler {
   let currentChain: TraceNode[] = [];
 
   function onNodeVisited(node: TraceNode) {

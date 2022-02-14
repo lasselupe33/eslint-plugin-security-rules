@@ -64,6 +64,8 @@ function nodeToString(node: TraceNode): string {
       ? `, in ${node.connection?.nodeType}`
       : "";
 
-    return `${node.variable.name} (${node.variable.defs[0]?.type}${nodeType})`;
+    return `${node.variable.name} (${node.variable.defs[0]?.type}${nodeType}${
+      node.connection?.type ? `/${node.connection.type}` : ""
+    })`;
   }
 }

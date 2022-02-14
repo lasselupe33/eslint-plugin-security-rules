@@ -1,6 +1,6 @@
 import { AST_NODE_TYPES, TSESTree } from "@typescript-eslint/utils";
 
-import { HandlingContext, TraceNode } from "../types";
+import { ConnectionTypes, HandlingContext, TraceNode } from "../types";
 
 import { handleNode } from "./_handle-node";
 
@@ -13,6 +13,7 @@ export function handleBinaryExpression(
     connection: {
       variable: ctx.connection?.variable,
       nodeType: AST_NODE_TYPES.BinaryExpression,
+      type: ConnectionTypes.MODIFICATION,
     },
   };
 

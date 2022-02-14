@@ -3,9 +3,14 @@ import { RuleContext, Scope } from "@typescript-eslint/utils/dist/ts-eslint";
 
 import { ParameterToArgumentMap } from "./parameter-to-argument";
 
+export enum ConnectionTypes {
+  MODIFICATION = "modification",
+}
+
 type Connection = {
   variable: Scope.Variable | undefined;
   nodeType: (AST_NODE_TYPES | "Argument") | undefined;
+  type?: ConnectionTypes | undefined;
 };
 
 /**
