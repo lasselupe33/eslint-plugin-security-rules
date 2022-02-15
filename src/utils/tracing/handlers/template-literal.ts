@@ -12,7 +12,7 @@ export function handleTemplateLiteral(
   const nextCtx: HandlingContext = {
     ...ctx,
     connection: {
-      variable: ctx.connection?.variable,
+      ...ctx.connection,
       nodeType: AST_NODE_TYPES.TemplateLiteral,
       type: ConnectionTypes.MODIFICATION,
     },

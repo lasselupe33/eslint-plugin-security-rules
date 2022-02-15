@@ -74,6 +74,7 @@ export function makeTraceCallbacksWithTrace(
   }
 
   function onFinished() {
+    callbacks.onTraceFinished?.(currentTrace);
     callbacks.onFinished?.(currentTrace);
   }
 

@@ -11,5 +11,5 @@ export function handleIdentifier(
 
   return variable
     ? [{ variable, connection, scope, parameterToArgumentMap }]
-    : [];
+    : [{ value: identifier.name, connection, type: "identifier" }];
 }

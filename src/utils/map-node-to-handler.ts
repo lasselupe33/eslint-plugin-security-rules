@@ -31,8 +31,7 @@ export function makeMapNodeToHandler(
 
     if (!callback && !disableWarnings) {
       console.warn(
-        `mapNodeToHandler(${node.type}): No handler associated to type.`,
-        node
+        `mapNodeToHandler(${node.type}): No handler associated to type.`
       );
     }
 

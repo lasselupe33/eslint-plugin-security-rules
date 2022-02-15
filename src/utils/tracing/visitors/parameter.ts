@@ -38,7 +38,7 @@ export function visitParameter(
     {
       ...ctx,
       connection: {
-        variable: ctx.connection?.variable,
+        ...ctx.connection,
         nodeType: "Argument",
       },
       scope: argument.scope,

@@ -9,6 +9,7 @@ import {
   isTerminalNode,
   isVariableNode,
 } from "../../../../utils/tracing/types";
+import { printTrace } from "../../../../utils/tracing/utils/printTrace";
 
 type Context = {
   context: RuleContext<string, unknown[]>;
@@ -61,6 +62,8 @@ export function isSourceSafe(
         }
       },
       onTraceFinished: (trace) => {
+        printTrace(trace);
+
         const finalNode = trace[trace.length - 1];
         const isTraceSafe =
           isCurrentTraceSafelySanitzed ||

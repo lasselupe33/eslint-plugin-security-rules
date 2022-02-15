@@ -8,9 +8,10 @@ export enum ConnectionTypes {
 }
 
 type Connection = {
-  variable: Scope.Variable | undefined;
-  nodeType: (AST_NODE_TYPES | "Argument") | undefined;
+  variable?: Scope.Variable | undefined;
+  nodeType?: (AST_NODE_TYPES | "Argument") | undefined;
   type?: ConnectionTypes | undefined;
+  meta: Record<string, unknown>;
 };
 
 /**
@@ -18,7 +19,7 @@ type Connection = {
  */
 export type HandlingContext = {
   ruleContext: RuleContext<string, unknown[]>;
-  connection: Connection | undefined;
+  connection: Connection;
   scope: Scope.Scope;
   parameterToArgumentMap: ParameterToArgumentMap | undefined;
 };
@@ -28,7 +29,7 @@ export type HandlingContext = {
  */
 export type TerminalNode = {
   value: string;
-  type: "constant" | "variable" | "unresolved";
+  type: "constant" | "variable" | "unresolved" | "identifier";
   connection?: Connection | undefined;
 };
 

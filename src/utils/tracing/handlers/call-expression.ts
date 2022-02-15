@@ -91,6 +91,7 @@ export function handleCallExpression(
         ruleContext,
         scope,
         connection: {
+          ...connection,
           variable: calleeVariable,
           nodeType: AST_NODE_TYPES.CallExpression,
         },

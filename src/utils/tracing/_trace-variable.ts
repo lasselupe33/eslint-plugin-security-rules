@@ -46,7 +46,7 @@ export function traceVariable(
     {
       ruleContext: ctx.context,
       scope: ctx.rootScope,
-      connection: undefined,
+      connection: { meta: {} },
       parameterToArgumentMap: undefined,
     },
     ctx.node
@@ -88,12 +88,17 @@ export function traceVariable(
       continue;
     }
 
-    const { variable, parameterToArgumentMap, scope } = traceNode;
+    const { variable, parameterToArgumentMap, connection, scope } = traceNode;
 
     const handlingContext: HandlingContext = {
       ruleContext: ctx.context,
       scope,
-      connection: { variable, nodeType: undefined, type: undefined },
+      connection: {
+        variable,
+        meta: connection?.meta ?? {},
+        nodeType: undefined,
+        type: undefined,
+      },
       parameterToArgumentMap,
     };
 
