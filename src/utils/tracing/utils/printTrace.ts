@@ -2,6 +2,7 @@ import { isTerminalNode, TraceNode } from "../types";
 
 export function printTrace(trace: TraceNode[]): void {
   console.warn(trace.map(nodeToString).join(" --> "));
+  console.warn();
 }
 
 function nodeToString(node: TraceNode): string {

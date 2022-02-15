@@ -10,7 +10,6 @@ export function makeTraceDebugger(traces: TraceNode[][]): TraceCallbacks {
   function onFinished() {
     for (const trace of traces) {
       printTrace(trace);
-      console.warn();
     }
   }
 

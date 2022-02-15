@@ -16,7 +16,7 @@ export function findConclusionSink<Sink extends RawSink>(
   currentIdentifierName: string,
   matchIn: Sink[]
 ) {
-  return matchIn.find(
+  return matchIn.filter(
     (sink) =>
       sink.identifier.length === 0 ||
       (sink.identifier.length === 1 &&
