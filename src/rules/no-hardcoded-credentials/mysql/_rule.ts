@@ -1,5 +1,7 @@
 import { TSESLint, TSESTree } from "@typescript-eslint/utils";
 
+import { resolveDocsRoute } from "../../../utils/resolve-docs-route";
+
 import { handleIdentifier } from "./handlers/handle-identifier";
 import { checkArgumentsForPassword } from "./utils/check-arguments-for-password";
 import { extractIdentifier } from "./utils/extract-identifier";
@@ -22,19 +24,20 @@ export type HandlingContext = {
 };
 
 enum MessageIds {
-  ERROR1 = "error1",
+  HARDCODED_CREDENTIAL = "hardcoded-credentail",
 }
 
-export const noHardcodedCredentials: TSESLint.RuleModule<MessageIds> = {
+export const mysqlNoHardcodedCredentials: TSESLint.RuleModule<MessageIds> = {
   meta: {
     type: "problem",
     messages: {
-      [MessageIds.ERROR1]: "Credentials shouldn't be hardcoded into a file.",
+      [MessageIds.HARDCODED_CREDENTIAL]:
+        "Credentials shouldn't be hardcoded into {{ id }}.",
     },
     docs: {
       recommended: "error",
-      description:
-        "It is recommended to use a secret manager, such as Google Secret Manager, or use process.env \nprocess.env may still reveal secrets in a stack trace ",
+      description: "disallow hardcoded passwords",
+      url: resolveDocsRoute(__dirname),
     },
     schema: {},
   },
@@ -59,10 +62,14 @@ export const noHardcodedCredentials: TSESLint.RuleModule<MessageIds> = {
   },
 };
 
-export function report(node: TSESTree.Node, ctx: HandlingContext) {
+export function report(
+  id: TSESTree.Identifier,
+  node: TSESTree.Node,
+  ctx: HandlingContext
+) {
   ctx.ruleContext.report({
     node,
-    messageId: MessageIds.ERROR1,
-    data: { node },
+    messageId: MessageIds.HARDCODED_CREDENTIAL,
+    data: { id: id.name },
   });
 }

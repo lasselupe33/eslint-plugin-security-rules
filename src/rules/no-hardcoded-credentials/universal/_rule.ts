@@ -35,7 +35,7 @@ enum MessageIds {
   ERRROR1 = "string",
 }
 
-export const noHcCredentials: TSESLint.RuleModule<MessageIds> = {
+export const uniNoHardcodedCredentials: TSESLint.RuleModule<MessageIds> = {
   meta: {
     type: "problem",
     messages: {

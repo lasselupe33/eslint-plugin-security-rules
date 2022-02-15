@@ -1,11 +1,11 @@
 import { noDomXSSRule } from "./rules/no-dom-xss/browser/_rule";
-import { noHardcodedCredentials } from "./rules/no-hardcoded-credentials/mysql/_rule";
-import { noHcCredentials } from "./rules/no-hardcoded-credentials/universal/_rule";
+import { mysqlNoHardcodedCredentials } from "./rules/no-hardcoded-credentials/mysql/_rule";
+import { uniNoHardcodedCredentials } from "./rules/no-hardcoded-credentials/universal/_rule";
 
 export const rules = {
   "browser/no-dom-xss": noDomXSSRule,
-  "universal/no-hc-credentials": noHcCredentials,
-  "mysql/no-hardcoded-credentials": noHardcodedCredentials,
+  "universal/no-hc-credentials": uniNoHardcodedCredentials,
+  "mysql/no-hardcoded-credentials": mysqlNoHardcodedCredentials,
 };
 
 export const configs = {
