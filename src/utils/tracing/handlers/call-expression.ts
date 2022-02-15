@@ -47,8 +47,9 @@ export function handleCallExpression(
     // publicly.
     foundNodes.push({
       scope,
-      value: "__undefined__",
+      value: "",
       connection,
+      type: "unresolved",
     });
 
     return foundNodes;

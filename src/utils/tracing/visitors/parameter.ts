@@ -1,11 +1,11 @@
-import { findVariable } from "@typescript-eslint/utils/dist/ast-utils";
 import { Scope } from "@typescript-eslint/utils/dist/ts-eslint";
 
 import { getFunctionName } from "../../ast";
-import { isFunctionDeclaration, isLiteral } from "../../guards";
+import { isFunctionDeclaration } from "../../guards";
 import { getNodeName } from "../get-node-name";
+import { handleNode } from "../handlers/_handle-node";
 import { toParameterToArgumentKey } from "../parameter-to-argument";
-import { HandlingContext, TraceNode, VariableNode } from "../types";
+import { HandlingContext, TraceNode } from "../types";
 
 /**
  * When a variable is a parameter, then it means that we've reached a state
@@ -34,32 +34,15 @@ export function visitParameter(
     return [];
   }
 
-  // In case our argumnt was a literal, then we cannot continue tracing. And as
-  // such we simply return a terminal node.
-  if (isLiteral(argument.argument)) {
-    return [
-      { value: String(argument.argument.value), connection: ctx.connection },
-    ];
-  }
-
-  const relatedVariable = findVariable(
-    argument.scope,
-    getNodeName(argument.argument)
-  );
-
-  if (!relatedVariable) {
-    return [];
-  }
-
-  const relatedTraceNode: VariableNode = {
-    variable: relatedVariable,
-    scope: argument.scope,
-    connection: {
-      variable: ctx.connection?.variable,
-      nodeType: "Argument",
+  return handleNode(
+    {
+      ...ctx,
+      connection: {
+        variable: ctx.connection?.variable,
+        nodeType: "Argument",
+      },
+      scope: argument.scope,
     },
-    parameterToArgumentMap: ctx.parameterToArgumentMap,
-  };
-
-  return [relatedTraceNode];
+    argument.argument
+  );
 }

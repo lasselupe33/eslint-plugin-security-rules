@@ -3,14 +3,12 @@ import { getInnermostScope } from "@typescript-eslint/utils/dist/ast-utils";
 import { RuleContext } from "@typescript-eslint/utils/dist/ts-eslint";
 
 import { traceVariable } from "../../../../utils/tracing/_trace-variable";
+import { makeTraceCallbacksWithTrace } from "../../../../utils/tracing/callbacks/with-current-trace";
 import {
   ConnectionTypes,
   isTerminalNode,
   isVariableNode,
-  TraceNode,
 } from "../../../../utils/tracing/types";
-import { makeTraceGenerator } from "../../../../utils/tracing/utils/generate-traces";
-import { mergeTraceHandlers } from "../../../../utils/tracing/utils/merge-trace-handlers";
 
 type Context = {
   context: RuleContext<string, unknown[]>;
@@ -24,55 +22,62 @@ export function isSourceSafe(
     return true;
   }
 
-  const traces: TraceNode[][] = [];
+  let isSafe = true;
+  let isCurrentTraceSafelySanitzed = false;
 
+  /**
+   * Iterates through traces to determine whether or not XSS can occur.
+   *
+   * We check this by determining if a sanitation method has been called BEFORE
+   * any modifications in the trace. (Since sanitation is rendered useless after
+   * modifications).
+   *
+   * Otherwise, if a trace ends in a terminal that is a constant, then
+   * we assume that the string is secure since this value has been written by
+   * the developer herself.
+   */
   traceVariable(
     {
       context,
       rootScope: getInnermostScope(context.getScope(), node),
       node,
     },
-    ...mergeTraceHandlers(/* makeTraceDebugger(),*/ makeTraceGenerator(traces))
-  );
+    makeTraceCallbacksWithTrace({
+      onNodeVisited: (trace, traceNode) => {
+        if (
+          isVariableNode(traceNode) &&
+          SAFE_FUNCTIONS_NAMES.includes(traceNode.variable.name)
+        ) {
+          const hasModificationInTrace = trace.some(
+            (node) => node.connection?.type === ConnectionTypes.MODIFICATION
+          );
 
-  const isSafe = traces.every(isTraceSafe);
+          // We can conclude that the current trace is safe if we encounter a
+          // safe function without having previously modification connections.
+          if (!hasModificationInTrace) {
+            isCurrentTraceSafelySanitzed = true;
+            return { stopFollowingVariable: true };
+          }
+        }
+      },
+      onTraceFinished: (trace) => {
+        const finalNode = trace[trace.length - 1];
+        const isTraceSafe =
+          isCurrentTraceSafelySanitzed ||
+          (isTerminalNode(finalNode) && finalNode.type !== "unresolved");
+
+        // Reset state for next trace
+        isCurrentTraceSafelySanitzed = false;
+
+        if (!isTraceSafe) {
+          isSafe = false;
+          return { halt: true };
+        }
+      },
+    })
+  );
 
   return isSafe;
 }
 
 const SAFE_FUNCTIONS_NAMES = ["safe"];
-
-/**
- * Iterates through a trace to determine whether or not XSS can occur inside it.
- *
- * We check this by determining if a sanitation method has been called BEFORE
- * any modifications in the trace. (Since sanitation is rendered useless after
- * modifications).
- *
- * Otherwise, if a trace ends in a terminal - i.e. a constant variable, then we
- * assume that the string is secure since it is written by the developer herself
- */
-function isTraceSafe(trace: TraceNode[]): boolean {
-  let isSafelySanitized = false;
-
-  for (const node of trace) {
-    if (node.connection?.type === ConnectionTypes.MODIFICATION) {
-      break;
-    }
-
-    if (
-      isVariableNode(node) &&
-      SAFE_FUNCTIONS_NAMES.includes(node.variable.name)
-    ) {
-      isSafelySanitized = true;
-      break;
-    }
-  }
-
-  const finalNode = trace[trace.length - 1];
-
-  return (
-    isSafelySanitized ||
-    (isTerminalNode(finalNode) && finalNode.value !== "__undefined__")
-  );
-}

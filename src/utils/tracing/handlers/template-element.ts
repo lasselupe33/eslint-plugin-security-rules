@@ -6,5 +6,11 @@ export function handleTemplateElement(
   ctx: HandlingContext,
   templateElement: TSESTree.TemplateElement
 ): TraceNode[] {
-  return [{ value: templateElement.value.raw, connection: ctx.connection }];
+  return [
+    {
+      value: templateElement.value.raw,
+      connection: ctx.connection,
+      type: "constant",
+    },
+  ];
 }

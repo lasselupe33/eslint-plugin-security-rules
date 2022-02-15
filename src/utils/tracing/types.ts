@@ -28,6 +28,7 @@ export type HandlingContext = {
  */
 export type TerminalNode = {
   value: string;
+  type: "constant" | "variable" | "unresolved";
   connection?: Connection | undefined;
 };
 

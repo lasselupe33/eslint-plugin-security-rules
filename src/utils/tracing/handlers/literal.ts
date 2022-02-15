@@ -6,5 +6,5 @@ export function handleLiteral(
   { connection }: HandlingContext,
   literal: TSESTree.Literal
 ): TraceNode[] {
-  return [{ value: String(literal.value), connection }];
+  return [{ value: String(literal.value), connection, type: "constant" }];
 }

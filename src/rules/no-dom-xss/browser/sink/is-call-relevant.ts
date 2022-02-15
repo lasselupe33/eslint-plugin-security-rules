@@ -3,8 +3,8 @@ import { getInnermostScope } from "@typescript-eslint/utils/dist/ast-utils";
 import { RuleContext } from "@typescript-eslint/utils/dist/ts-eslint";
 
 import { traceVariable } from "../../../../utils/tracing/_trace-variable";
+import { makeTraceGenerator } from "../../../../utils/tracing/callbacks/generate-traces";
 import { isTerminalNode, TraceNode } from "../../../../utils/tracing/types";
-import { makeTraceGenerator } from "../../../../utils/tracing/utils/generate-traces";
 
 import { CallExpressionSink } from "./data";
 
@@ -42,7 +42,7 @@ function validateIfPredicate(
         rootScope: getInnermostScope(context.getScope(), argumentNode),
         context,
       },
-      ...makeTraceGenerator(traces)
+      makeTraceGenerator(traces, { printTraces: false })
     );
   }
 
