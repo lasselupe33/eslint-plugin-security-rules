@@ -93,6 +93,9 @@ export function isSymbol(value: unknown): value is symbol {
 
 // Literals
 
+export const isTemplateLiteral = isNodeOfType(AST_NODE_TYPES.TemplateLiteral);
+export const isTemplateElement = isNodeOfType(AST_NODE_TYPES.TemplateElement);
+
 export function isBigIntLiteral(
   literal: TSESTree.Literal
 ): literal is TSESTree.BigIntLiteral {
@@ -117,7 +120,7 @@ export function isNumberLiteral(
   return typeof literal.value === "number";
 }
 
-/*export function isRegExpLiteral(
+/* export function isRegExpLiteral(
   literal: TSESTree.Literal
 ): literal is TSESTree.RegExpLiteral {
   return typeof
