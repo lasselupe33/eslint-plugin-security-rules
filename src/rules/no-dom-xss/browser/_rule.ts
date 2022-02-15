@@ -10,8 +10,8 @@ import {
   CALL_EXPRESSION_SINKS,
   NEW_EXPRESSION_SINKS,
 } from "./sink/data";
+import { getRelevantSinks } from "./sink/get-relevant-sinks";
 import { isCallRelevant } from "./sink/is-call-relevant";
-import { isSink } from "./sink/is-sink";
 import { isSourceSafe } from "./source/is-source-safe";
 
 /**
@@ -57,11 +57,11 @@ export const noDomXSSRule: TSESLint.RuleModule<MessageIds> = {
 
     return {
       AssignmentExpression: (node) => {
-        const sink = isSink(
+        const sink = getRelevantSinks(
           typeProgram,
           node.left,
           ASSIGNMENT_EXPRESSION_SINKS
-        );
+        )[0];
 
         if (!sink) {
           return;
@@ -94,8 +94,8 @@ export const noDomXSSRule: TSESLint.RuleModule<MessageIds> = {
           ? NEW_EXPRESSION_SINKS
           : CALL_EXPRESSION_SINKS;
 
-        const relevantSinks = isCallRelevant(context, node.arguments, sinks);
-        const sink = isSink(typeProgram, node.callee, relevantSinks);
+        const relevantSinks = getRelevantSinks(typeProgram, node.callee, sinks);
+        const sink = isCallRelevant(context, node.arguments, relevantSinks)[0];
 
         if (!sink) {
           return;

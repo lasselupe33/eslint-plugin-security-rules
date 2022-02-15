@@ -7,6 +7,8 @@ import { handleBinaryExpression } from "./binary-expression";
 import { handleCallExpression } from "./call-expression";
 import { handleIdentifier } from "./identifier";
 import { handleLiteral } from "./literal";
+import { handleMemberExpression } from "./member-expression";
+import { handleObjectExpression } from "./object-expression";
 import { handleTemplateElement } from "./template-element";
 import { handleTemplateLiteral } from "./template-literal";
 
@@ -23,6 +25,8 @@ export function handleNode(
       [AST_NODE_TYPES.BinaryExpression]: handleBinaryExpression,
       [AST_NODE_TYPES.TemplateLiteral]: handleTemplateLiteral,
       [AST_NODE_TYPES.TemplateElement]: handleTemplateElement,
+      [AST_NODE_TYPES.MemberExpression]: handleMemberExpression,
+      [AST_NODE_TYPES.ObjectExpression]: handleObjectExpression,
     },
     context
   );
