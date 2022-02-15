@@ -1,7 +1,11 @@
 import { TSESLint, TSESTree } from "@typescript-eslint/utils";
 
+import { isTemplateLiteral } from "../../../utils/guards";
+
 import { handleIdentifier } from "./handlers/handle-identifier";
+import { handleTemplateLiteral } from "./handlers/handle-template-literal";
 import { extractIdentifier } from "./utils/extract-identifier";
+import { extractQuery } from "./utils/extract-query";
 
 /**
  * Progress
@@ -18,14 +22,17 @@ export type HandlingContext = {
 };
 
 enum MessageIds {
-  ERROR1 = "error1",
+  VULNERABLE_QUERY = "vulnerable-query",
+  PARAMTERIZED_FIX = "parameterized-fix",
 }
 
-export const noHardcodedCredentials: TSESLint.RuleModule<MessageIds> = {
+export const mysqlNoSQLInjections: TSESLint.RuleModule<MessageIds> = {
   meta: {
     type: "problem",
     messages: {
-      [MessageIds.ERROR1]: "The query is vulnerable to SQL injections",
+      [MessageIds.VULNERABLE_QUERY]:
+        "The query is vulnerable to SQL injections",
+      [MessageIds.PARAMTERIZED_FIX]: "",
     },
     docs: {
       recommended: "error",
@@ -44,8 +51,31 @@ export const noHardcodedCredentials: TSESLint.RuleModule<MessageIds> = {
           id
         );
 
-        if (didMatchIdentifierName) {
-          // TODO
+        if (!didMatchIdentifierName) {
+          return;
+        }
+
+        const queryParam = node.arguments[0];
+        const queryLiteral = extractQuery(queryParam);
+
+        if (!isTemplateLiteral(queryLiteral)) {
+          return;
+        }
+
+        const templateLiteralArray = handleTemplateLiteral(
+          { ruleContext: context },
+          queryLiteral
+        );
+
+        // If it's a template literal, we want to check that it actually
+        // uses template expressions. If it's just a string, it has the length
+        // one, even though it spans multiple lines.
+        if (templateLiteralArray.length > 1) {
+          context.report({
+            node: queryLiteral,
+            messageId: MessageIds.VULNERABLE_QUERY,
+            data: { queryLiteral },
+          });
         }
       },
     };
@@ -55,7 +85,7 @@ export const noHardcodedCredentials: TSESLint.RuleModule<MessageIds> = {
 export function report(node: TSESTree.Node, ctx: HandlingContext) {
   ctx.ruleContext.report({
     node,
-    messageId: MessageIds.ERROR1,
+    messageId: MessageIds.VULNERABLE_QUERY,
     data: { node },
   });
 }
