@@ -18,7 +18,7 @@ export function checkArgumentsForPassword(
       property.key.name.toLowerCase() === "password"
     ) {
       if (isLiteral(property.value) && !isSafeValue(property.value)) {
-        report(property.value, ctx);
+        report(property.key, property.value, ctx);
       }
     }
   }
