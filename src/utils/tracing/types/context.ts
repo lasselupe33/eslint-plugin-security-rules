@@ -21,6 +21,12 @@ export type Meta = {
    * to be resolved to its actual value.
    */
   memberPath: string[];
+
+  /**
+   * If set to true, then when handling an identifier we will simply return the
+   * literal instead of the resolved variable
+   */
+  forceIdentifierLiteral?: boolean;
 };
 
 /**

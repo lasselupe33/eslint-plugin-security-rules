@@ -10,7 +10,10 @@ export function handleMemberExpression(
   ctx: HandlingContext,
   memberExpression: TSESTree.MemberExpression
 ): TraceNode[] {
-  const pathTerminal = handleNode(ctx, memberExpression.property)[0];
+  const pathTerminal = handleNode(
+    deepMerge(ctx, { meta: { forceIdentifierLiteral: true } }),
+    memberExpression.property
+  )[0];
 
   if (
     !isConstantTerminalNode(pathTerminal) ||

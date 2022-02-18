@@ -18,6 +18,7 @@ import {
 } from "../parameter-to-argument";
 import { HandlingContext } from "../types/context";
 import {
+  isVariableNode,
   makeUnresolvedTerminalNode,
   makeVariableNode,
   TraceNode,
@@ -40,14 +41,9 @@ export function handleCallExpression(
 ): TraceNode[] {
   const foundNodes: TraceNode[] = [];
 
-  if (!isIdentifier(callExpression.callee)) {
-    return foundNodes;
-  }
+  const calleeNode = handleNode(ctx, callExpression.callee)[0];
 
-  // Initially we extract the variable of the function call
-  const calleeVariable = findVariable(ctx.scope, callExpression.callee);
-
-  if (!calleeVariable) {
+  if (!isVariableNode(calleeNode)) {
     // In case an invalid program has been written, then we cannot infer the
     // next variable (Since none exist!). Let's convey this information
     // publicly.
@@ -60,6 +56,9 @@ export function handleCallExpression(
 
     return foundNodes;
   }
+
+  // Initially we extract the variable of the function call
+  const calleeVariable = calleeNode.variable;
 
   foundNodes.push(
     makeVariableNode({

@@ -4,6 +4,8 @@ type DeepPartial<T> = T extends object
     }
   : T;
 
+const keysToSkip = ["variable"];
+
 export function deepMerge<T extends Record<string, unknown>>(
   a: T,
   b: DeepPartial<T>
@@ -18,7 +20,7 @@ export function deepMerge<T extends Record<string, unknown>>(
     if (isObject(aValue)) {
       merged[key] =
         key in b
-          ? isObject(bValue)
+          ? !keysToSkip.includes(key) && isObject(bValue)
             ? deepMerge(aValue, bValue)
             : bValue
           : aValue;

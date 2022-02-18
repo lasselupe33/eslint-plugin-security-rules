@@ -12,7 +12,9 @@ export function handleIdentifier(
   ctx: HandlingContext,
   identifier: TSESTree.Identifier
 ): TraceNode[] {
-  const variable = findVariable(ctx.scope, identifier);
+  const variable = !ctx.meta.forceIdentifierLiteral
+    ? findVariable(ctx.scope, identifier)
+    : undefined;
 
   return variable
     ? [makeVariableNode({ ...ctx, variable })]
