@@ -1,6 +1,10 @@
 import { TSESTree } from "@typescript-eslint/utils";
 
-import { isIdentifier, isProperty, isLiteral } from "../../../../utils/guards";
+import {
+  isIdentifier,
+  isProperty,
+  isLiteral,
+} from "../../../../utils/ast/guards";
 import { isSafeValue } from "../../utils/is-safe-value";
 import { HandlingContext, report } from "../_rule";
 

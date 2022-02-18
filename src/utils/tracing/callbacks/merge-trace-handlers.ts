@@ -1,5 +1,5 @@
 import { TraceCallbacks } from "../_trace-variable";
-import { TraceNode } from "../types";
+import { TraceNode } from "../types/nodes";
 
 export function mergeTraceHandlers(
   ...handlers: TraceCallbacks[]

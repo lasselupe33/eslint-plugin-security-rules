@@ -1,16 +1,12 @@
 import { Node } from "@typescript-eslint/types/dist/ast-spec";
 import { RuleContext, Scope } from "@typescript-eslint/utils/dist/ts-eslint";
 
-import { isParameter } from "../guards";
+import { isImportBinding, isParameter } from "../ast/guards";
 
 import { getRelevantReferences } from "./get-relevant-references";
 import { handleNode } from "./handlers/_handle-node";
-import {
-  HandlingContext,
-  isTerminalNode,
-  isVariableNode,
-  TraceNode,
-} from "./types";
+import { HandlingContext } from "./types/context";
+import { isTerminalNode, isVariableNode, TraceNode } from "./types/nodes";
 import { visitParameter } from "./visitors/parameter";
 import { visitReference } from "./visitors/reference";
 
@@ -46,8 +42,11 @@ export function traceVariable(
     {
       ruleContext: ctx.context,
       scope: ctx.rootScope,
-      connection: { meta: {} },
-      parameterToArgumentMap: undefined,
+      connection: {},
+      meta: {
+        parameterToArgumentMap: undefined,
+        memberPath: [],
+      },
     },
     ctx.node
   );
@@ -88,25 +87,33 @@ export function traceVariable(
       continue;
     }
 
-    const { variable, parameterToArgumentMap, connection, scope } = traceNode;
+    const { variable, meta, scope } = traceNode;
 
     const handlingContext: HandlingContext = {
       ruleContext: ctx.context,
       scope,
       connection: {
         variable,
-        meta: connection?.meta ?? {},
         nodeType: undefined,
         type: undefined,
       },
-      parameterToArgumentMap,
+      meta,
     };
 
     // In case we've encountered a parameter, then we cannot handle it simply be
     // tracing its references since we need to be context aware in this case.
-    if (isParameter(variable.defs[0]) && parameterToArgumentMap) {
+    if (isParameter(variable.defs[0]) && meta.parameterToArgumentMap) {
       remainingVariables.unshift(
         ...visitParameter(handlingContext, variable.defs[0])
+      );
+      continue;
+    }
+
+    // In case we encounter an import binding, then we simply need to propagate
+    // its correct node.
+    if (isImportBinding(variable.defs[0])) {
+      remainingVariables.unshift(
+        ...handleNode(handlingContext, variable.defs[0].node)
       );
       continue;
     }

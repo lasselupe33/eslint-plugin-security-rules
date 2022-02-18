@@ -22,17 +22,16 @@ export const configs = {
     overrides: [
       {
         files: ["*.ts", "*.tsx"],
-        // parserOptions: {
-        //   project: "./tsconfig.json",
-        //   tsconfigRootDir: process.cwd(),
-        // },
       },
     ],
   },
   browser: {
     plugins: ["security-rules"],
     rules: {
-      "security-rules/browser/no-dom-xss": ["error"],
+      "security-rules/browser/no-dom-xss": [
+        "error",
+        { sanitation: { method: "string", package: "test" } },
+      ],
     },
   },
   universal: {

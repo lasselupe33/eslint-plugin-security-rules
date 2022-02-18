@@ -9,13 +9,19 @@ import {
   isFunctionDeclaration,
   isIdentifier,
   isReturnStatement,
-} from "../../guards";
+} from "../../ast/guards";
+import { deepMerge } from "../../deep-merge";
 import { getNodeName } from "../get-node-name";
 import {
   ParameterToArgumentMap,
   toParameterToArgumentKey,
 } from "../parameter-to-argument";
-import { HandlingContext, TraceNode } from "../types";
+import { HandlingContext } from "../types/context";
+import {
+  makeUnresolvedTerminalNode,
+  makeVariableNode,
+  TraceNode,
+} from "../types/nodes";
 
 import { handleNode } from "./_handle-node";
 
@@ -29,7 +35,7 @@ import { handleNode } from "./_handle-node";
  * 3. The variables of the parameters that the return statement depends on
  */
 export function handleCallExpression(
-  { scope, connection, ruleContext }: HandlingContext,
+  ctx: HandlingContext,
   callExpression: TSESTree.CallExpression
 ): TraceNode[] {
   const foundNodes: TraceNode[] = [];
@@ -39,27 +45,28 @@ export function handleCallExpression(
   }
 
   // Initially we extract the variable of the function call
-  const calleeVariable = findVariable(scope, callExpression.callee);
+  const calleeVariable = findVariable(ctx.scope, callExpression.callee);
 
   if (!calleeVariable) {
     // In case an invalid program has been written, then we cannot infer the
     // next variable (Since none exist!). Let's convey this information
     // publicly.
-    foundNodes.push({
-      scope,
-      value: "",
-      connection,
-      type: "unresolved",
-    });
+    foundNodes.push(
+      makeUnresolvedTerminalNode({
+        reason: "Broken program",
+        connection: ctx.connection,
+      })
+    );
 
     return foundNodes;
   }
 
-  foundNodes.push({
-    scope,
-    variable: calleeVariable,
-    connection,
-  });
+  foundNodes.push(
+    makeVariableNode({
+      ...ctx,
+      variable: calleeVariable,
+    })
+  );
 
   // ... then we look at the declaration of the function to determine its return
   // variables.
@@ -77,7 +84,7 @@ export function handleCallExpression(
 
     parameterToArgumentMap.set(key, {
       argument: callExpression.arguments[index],
-      scope: getInnermostScope(scope, callExpression),
+      scope: getInnermostScope(ctx.scope, callExpression),
     });
   });
 
@@ -87,16 +94,15 @@ export function handleCallExpression(
 
   const returnStatementVariables = returnStatements.flatMap((returnStatement) =>
     handleNode(
-      {
-        ruleContext,
-        scope,
+      deepMerge(ctx, {
         connection: {
-          ...connection,
           variable: calleeVariable,
           nodeType: AST_NODE_TYPES.CallExpression,
         },
-        parameterToArgumentMap,
-      },
+        meta: {
+          parameterToArgumentMap,
+        },
+      }),
       returnStatement.argument
     )
   );

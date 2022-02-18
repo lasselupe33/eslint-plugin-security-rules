@@ -9,7 +9,7 @@ import {
   isObjectPattern,
   isProperty,
   isStringLiteral,
-} from "../../../utils/guards";
+} from "../../../utils/ast/guards";
 import { isSafeValue } from "../utils/is-safe-value";
 
 /**

@@ -1,5 +1,5 @@
 import { TraceCallbacks } from "../_trace-variable";
-import { isTerminalNode, TraceNode } from "../types";
+import { isTerminalNode, TraceNode } from "../types/nodes";
 
 type TraceCallbacksWithCurrentTrace = {
   onNodeVisited?: (

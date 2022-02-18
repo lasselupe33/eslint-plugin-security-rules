@@ -1,6 +1,6 @@
 import { AST_NODE_TYPES, TSESTree } from "@typescript-eslint/utils";
 
-import { mapNodeToHandler } from "../../../../utils/map-node-to-handler";
+import { mapNodeToHandler } from "../../../../utils/ast/map-node-to-handler";
 
 export function extractObjectProperties(
   node: TSESTree.Node | undefined

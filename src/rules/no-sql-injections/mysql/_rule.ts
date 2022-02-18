@@ -1,6 +1,6 @@
 import { TSESLint, TSESTree } from "@typescript-eslint/utils";
 
-import { isTemplateLiteral } from "../../../utils/guards";
+import { isTemplateLiteral } from "../../../utils/ast/guards";
 
 import { handleIdentifier } from "./handlers/handle-identifier";
 import { handleTemplateLiteral } from "./handlers/handle-template-literal";

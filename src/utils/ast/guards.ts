@@ -69,6 +69,12 @@ export const isParameter = (
 ): def is Scope.Definition & { type: typeof Scope.DefinitionType.Parameter } =>
   def?.type === Scope.DefinitionType.Parameter;
 
+export const isImportBinding = (
+  def?: Scope.Definition | null
+): def is Scope.Definition & {
+  type: typeof Scope.DefinitionType.ImportBinding;
+} => def?.type === Scope.DefinitionType.ImportBinding;
+
 // Basic guards
 
 export function isPrimitive(

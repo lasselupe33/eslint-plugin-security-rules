@@ -1,7 +1,8 @@
-import { TSESLint, TSESTree } from "@typescript-eslint/utils";
+import { TSESTree } from "@typescript-eslint/utils";
+import { RuleCreator } from "@typescript-eslint/utils/dist/eslint-utils";
 import { RuleFix, RuleFixer } from "@typescript-eslint/utils/dist/ts-eslint";
 
-import { isNewExpression } from "../../../utils/guards";
+import { isNewExpression } from "../../../utils/ast/guards";
 import { resolveDocsRoute } from "../../../utils/resolve-docs-route";
 import { getTypeProgram } from "../../../utils/types/get-type-program";
 
@@ -21,7 +22,7 @@ import { isSourceSafe } from "./source/is-source-safe";
  *  [X] Reduction of false positives
  *  [ ] Fulfilling unit testing
  *  [ ] Extensive documentation
- *  [ ] Fulfilling configuration options
+ *  [-] Fulfilling configuration options
  */
 
 enum MessageIds {
@@ -29,11 +30,33 @@ enum MessageIds {
   ADD_SANITATION_FIX = "add-sanitation-fix",
 }
 
+export type SanitationOptions = {
+  sanitation: {
+    package: string;
+    method: string;
+    usage: string;
+  };
+};
+
+type Options = [SanitationOptions];
+
+const createRule = RuleCreator(resolveDocsRoute);
+
 /**
  * Detects and reports if any expressions assign unsafe values to known vanilla
  * XSS injection sinks.
  */
-export const noDomXSSRule: TSESLint.RuleModule<MessageIds> = {
+export const noDomXSSRule = createRule<Options, MessageIds>({
+  name: "no-dom-xss/browser",
+  defaultOptions: [
+    {
+      sanitation: {
+        package: "dom-purify",
+        method: "sanitize",
+        usage: "sanitize(<% html %>, { USE_PROFILES: { html: true } })",
+      },
+    },
+  ],
   meta: {
     type: "problem",
     fixable: "code",
@@ -44,15 +67,30 @@ export const noDomXSSRule: TSESLint.RuleModule<MessageIds> = {
         "Add sanitation before assigning vulnerable value",
     },
     docs: {
-      description: "Relevant assertion methods must be used on fastify routes",
+      description: "TODO",
       recommended: "error",
-      url: resolveDocsRoute(__dirname),
       suggestion: true,
     },
     hasSuggestions: true,
-    schema: {},
+    schema: [
+      {
+        type: "object",
+        properties: {
+          sanitation: {
+            type: "object",
+            required: false,
+            properties: {
+              package: { type: "string", required: true },
+              method: { type: "string", required: true },
+              usage: { type: "string", required: false },
+            },
+          },
+        },
+        additionalProperties: false,
+      },
+    ],
   },
-  create: (context) => {
+  create: (context, [sanitationOptions]) => {
     const typeProgram = getTypeProgram(context);
 
     return {
@@ -67,7 +105,10 @@ export const noDomXSSRule: TSESLint.RuleModule<MessageIds> = {
           return;
         }
 
-        const isSafe = isSourceSafe(node.right, { context });
+        const isSafe = isSourceSafe(node.right, {
+          context,
+          options: sanitationOptions,
+        });
 
         if (isSafe) {
           return;
@@ -81,7 +122,8 @@ export const noDomXSSRule: TSESLint.RuleModule<MessageIds> = {
           },
           suggest: [
             {
-              fix: (fixer: RuleFixer) => addSanitazionAtSink(fixer, node.right),
+              fix: (fixer: RuleFixer) =>
+                addSanitazionAtSink(sanitationOptions, fixer, node.right),
               messageId: MessageIds.ADD_SANITATION_FIX,
             },
           ],
@@ -114,7 +156,8 @@ export const noDomXSSRule: TSESLint.RuleModule<MessageIds> = {
             : node.arguments;
 
         const vulnerableNodes = nodesToCheck.filter(
-          (variable) => !isSourceSafe(variable, { context })
+          (variable) =>
+            !isSourceSafe(variable, { context, options: sanitationOptions })
         );
 
         if (vulnerableNodes.length === 0) {
@@ -136,7 +179,11 @@ export const noDomXSSRule: TSESLint.RuleModule<MessageIds> = {
                     return;
                   }
 
-                  for (const fix of addSanitazionAtSink(fixer, node)) {
+                  for (const fix of addSanitazionAtSink(
+                    sanitationOptions,
+                    fixer,
+                    node
+                  )) {
                     yield fix;
                   }
                 }
@@ -148,12 +195,16 @@ export const noDomXSSRule: TSESLint.RuleModule<MessageIds> = {
       },
     };
   },
-};
+});
 
 function* addSanitazionAtSink(
+  options: SanitationOptions,
   fixer: RuleFixer,
   unsafeNode: TSESTree.Node
 ): Generator<RuleFix> {
-  yield fixer.insertTextBefore(unsafeNode, "safe(");
-  yield fixer.insertTextAfter(unsafeNode, ")");
+  const toInsertBefore = options.sanitation.usage.split("<%")[0] ?? "";
+  const toInsertAfter = options.sanitation.usage.split("%>")[1] ?? "";
+
+  yield fixer.insertTextBefore(unsafeNode, toInsertBefore);
+  yield fixer.insertTextAfter(unsafeNode, toInsertAfter);
 }

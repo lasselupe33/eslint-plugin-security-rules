@@ -4,7 +4,10 @@ import { RuleContext } from "@typescript-eslint/utils/dist/ts-eslint";
 
 import { traceVariable } from "../../../../utils/tracing/_trace-variable";
 import { makeTraceGenerator } from "../../../../utils/tracing/callbacks/generate-traces";
-import { isTerminalNode, TraceNode } from "../../../../utils/tracing/types";
+import {
+  isConstantTerminalNode,
+  TraceNode,
+} from "../../../../utils/tracing/types/nodes";
 
 import { CallExpressionSink } from "./data";
 
@@ -51,7 +54,7 @@ function validateIfPredicate(
   const argumentNames = traces
     .map((trace) => {
       const lastNode = trace[trace.length - 1];
-      return isTerminalNode(lastNode) ? lastNode.value : undefined;
+      return isConstantTerminalNode(lastNode) ? lastNode.value : undefined;
     })
     .filter((it): it is string => it !== undefined);
 

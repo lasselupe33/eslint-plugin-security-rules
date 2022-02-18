@@ -1,8 +1,14 @@
 import { AST_NODE_TYPES, TSESTree } from "@typescript-eslint/utils";
 
-import { isProperty } from "../../guards";
+import { isProperty } from "../../ast/guards";
+import { deepMerge } from "../../deep-merge";
 import { getNodeName } from "../get-node-name";
-import { HandlingContext, TraceNode } from "../types";
+import { HandlingContext } from "../types/context";
+import {
+  makeNodeTerminalNode,
+  makeUnresolvedTerminalNode,
+  TraceNode,
+} from "../types/nodes";
 
 import { handleNode } from "./_handle-node";
 
@@ -10,30 +16,30 @@ export function handleObjectExpression(
   ctx: HandlingContext,
   objectExpression: TSESTree.ObjectExpression
 ): TraceNode[] {
-  const { objectPath } = ctx.connection.meta;
+  const { memberPath } = ctx.meta;
 
-  if (!Array.isArray(objectPath) || objectPath.length === 0) {
+  // In case we're not attempting to resolve a specific value in the objecet
+  // expression, then we must simply resolve the object as a terminal
+  if (memberPath.length === 0) {
     return [
-      {
-        value: "object-expression",
-        type: "variable",
+      makeNodeTerminalNode({
+        node: objectExpression,
+        nodeType: objectExpression.type,
         connection: ctx.connection,
-      },
+      }),
     ];
   }
 
-  const nextCtx: HandlingContext = {
-    ...ctx,
+  const nextCtx = deepMerge(ctx, {
     connection: {
-      ...ctx.connection,
       nodeType: AST_NODE_TYPES.ObjectExpression,
     },
-  };
+  });
 
-  const targetProperty = objectPath.pop() as string;
+  const targetProperty = memberPath.pop() as string;
 
   for (const property of objectExpression.properties) {
-    // @Todo handle spreadElement and function definition
+    // @TODO: handle spreadElement and function definition
     if (isProperty(property)) {
       const propertyName = getNodeName(property.key);
 
@@ -43,11 +49,12 @@ export function handleObjectExpression(
     }
   }
 
+  // We should not be able to get here, but if we do, then resolve as a
+  // terminal.
   return [
-    {
-      value: "__unable to follow object expression__",
-      type: "unresolved",
+    makeUnresolvedTerminalNode({
+      reason: "unable to follow object expression",
       connection: ctx.connection,
-    },
+    }),
   ];
 }

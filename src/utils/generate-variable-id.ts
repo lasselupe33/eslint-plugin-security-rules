@@ -1,4 +1,4 @@
-import { isPrimitive, isSymbol } from "./guards";
+import { isPrimitive, isSymbol } from "./ast/guards";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const ID_CACHE = new WeakMap<any, string>();
