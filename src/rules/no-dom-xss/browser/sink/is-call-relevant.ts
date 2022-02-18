@@ -5,7 +5,7 @@ import { RuleContext } from "@typescript-eslint/utils/dist/ts-eslint";
 import { traceVariable } from "../../../../utils/tracing/_trace-variable";
 import { makeTraceGenerator } from "../../../../utils/tracing/callbacks/generate-traces";
 import {
-  isLiteralTerminalNode,
+  isConstantTerminalNode,
   TraceNode,
 } from "../../../../utils/tracing/types/nodes";
 
@@ -54,7 +54,7 @@ function validateIfPredicate(
   const argumentNames = traces
     .map((trace) => {
       const lastNode = trace[trace.length - 1];
-      return isLiteralTerminalNode(lastNode) ? lastNode.value : undefined;
+      return isConstantTerminalNode(lastNode) ? lastNode.value : undefined;
     })
     .filter((it): it is string => it !== undefined);
 

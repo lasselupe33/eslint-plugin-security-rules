@@ -1,5 +1,7 @@
 import { Node, AST_NODE_TYPES } from "@typescript-eslint/types/dist/ast-spec";
 
+import { warnOnce } from "../warn-once";
+
 export function makeMapNodeToHandler(
   { disableWarnings }: { disableWarnings: boolean } = { disableWarnings: false }
 ) {
@@ -30,9 +32,10 @@ export function makeMapNodeToHandler(
     }
 
     if (!callback && !disableWarnings) {
-      console.warn(
-        `mapNodeToHandler(${node.type}): No handler associated to type.`
-      );
+      warnOnce(() => [
+        `mapNodeToHandler(%s): No handler associated to type.`,
+        node.type,
+      ]);
     }
 
     // @ts-expect-error Typings are not ideal for the internal implementation of

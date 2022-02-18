@@ -7,6 +7,7 @@ import { TraceNode } from "../types/nodes";
 import { handleBinaryExpression } from "./binary-expression";
 import { handleCallExpression } from "./call-expression";
 import { handleIdentifier } from "./identifier";
+import { handleImportDeclaration } from "./import-declaration";
 import { handleImportSpecifier } from "./import-specifier";
 import { handleLiteral } from "./literal";
 import { handleMemberExpression } from "./member-expression";
@@ -30,6 +31,7 @@ export function handleNode(
       [AST_NODE_TYPES.MemberExpression]: handleMemberExpression,
       [AST_NODE_TYPES.ObjectExpression]: handleObjectExpression,
       [AST_NODE_TYPES.ImportSpecifier]: handleImportSpecifier,
+      [AST_NODE_TYPES.ImportDeclaration]: handleImportDeclaration,
     },
     context
   );

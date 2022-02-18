@@ -1,5 +1,6 @@
+import { isPrimitive } from "../../ast/guards";
 import {
-  isLiteralTerminalNode,
+  isConstantTerminalNode,
   isNodeTerminalNode,
   isUnresolvedTerminalNode,
   TraceNode,
@@ -11,8 +12,10 @@ export function printTrace(trace: TraceNode[]): void {
 }
 
 function nodeToString(node: TraceNode): string {
-  if (isLiteralTerminalNode(node)) {
-    return `"${node.value}" (Terminal/${node.type})`;
+  if (isConstantTerminalNode(node)) {
+    return `"${
+      isPrimitive(node.value) ? node.value : JSON.stringify(node.value)
+    }" (Terminal/${node.type})`;
   } else if (isUnresolvedTerminalNode(node)) {
     return `"${node.reason}" (Terminal/${node.type})`;
   } else if (isNodeTerminalNode(node)) {

@@ -9,9 +9,9 @@ type BaseTerminalNode = {
   connection: Connection | undefined;
 };
 
-type LiteralTerminalNode = BaseTerminalNode & {
-  type: "literal";
-  value: string;
+type ConstantTerminalNode = BaseTerminalNode & {
+  type: "constant";
+  value: unknown;
 };
 
 type UnresolvedTerminalNode = BaseTerminalNode & {
@@ -30,7 +30,7 @@ type NodeTerminalNode<NodeType extends AST_NODE_TYPES = AST_NODE_TYPES> =
  * Specification of nodes that can be returned while tracing
  */
 export type TerminalNode =
-  | LiteralTerminalNode
+  | ConstantTerminalNode
   | UnresolvedTerminalNode
   | NodeTerminalNode;
 
@@ -45,12 +45,12 @@ export type VariableNode = {
 
 export type TraceNode = TerminalNode | VariableNode;
 
-export function makeLiteralTerminalNode(
-  node: Omit<LiteralTerminalNode, "type" | "__isTerminalNode">
-): LiteralTerminalNode {
+export function makeConstantTerminalNode(
+  node: Omit<ConstantTerminalNode, "type" | "__isTerminalNode">
+): ConstantTerminalNode {
   return {
     __isTerminalNode: true,
-    type: "literal",
+    type: "constant",
     ...node,
   };
 }
@@ -84,10 +84,10 @@ export function makeVariableNode(
   };
 }
 
-export function isLiteralTerminalNode(
+export function isConstantTerminalNode(
   node: TraceNode | undefined
-): node is LiteralTerminalNode {
-  return isTerminalNode(node) && node.type === "literal";
+): node is ConstantTerminalNode {
+  return isTerminalNode(node) && node.type === "constant";
 }
 
 export function isUnresolvedTerminalNode(

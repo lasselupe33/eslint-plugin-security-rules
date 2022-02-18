@@ -3,7 +3,7 @@ import { findVariable } from "@typescript-eslint/utils/dist/ast-utils";
 
 import { HandlingContext } from "../types/context";
 import {
-  makeLiteralTerminalNode,
+  makeConstantTerminalNode,
   makeVariableNode,
   TraceNode,
 } from "../types/nodes";
@@ -17,7 +17,7 @@ export function handleIdentifier(
   return variable
     ? [makeVariableNode({ ...ctx, variable })]
     : [
-        makeLiteralTerminalNode({
+        makeConstantTerminalNode({
           value: identifier.name,
           connection: ctx.connection,
         }),

@@ -2,7 +2,7 @@ import { AST_NODE_TYPES, TSESTree } from "@typescript-eslint/utils";
 
 import { deepMerge } from "../../deep-merge";
 import { HandlingContext } from "../types/context";
-import { isLiteralTerminalNode, TraceNode } from "../types/nodes";
+import { isConstantTerminalNode, TraceNode } from "../types/nodes";
 
 import { handleNode } from "./_handle-node";
 
@@ -12,13 +12,16 @@ export function handleMemberExpression(
 ): TraceNode[] {
   const pathTerminal = handleNode(ctx, memberExpression.property)[0];
 
-  if (!isLiteralTerminalNode(pathTerminal)) {
+  if (
+    !isConstantTerminalNode(pathTerminal) ||
+    typeof pathTerminal.value !== "string"
+  ) {
     throw new Error(
       "handleMemberExpression(): Unable to extract the pathName to follow. This is not intentional, please file a bug report."
     );
   }
 
-  const pathName = String(pathTerminal.value);
+  const pathName = pathTerminal.value;
 
   const nextCtx = deepMerge(ctx, {
     connection: {

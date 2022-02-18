@@ -2,7 +2,7 @@ import { AST_NODE_TYPES, TSESTree } from "@typescript-eslint/utils";
 
 import { deepMerge } from "../../deep-merge";
 import { HandlingContext } from "../types/context";
-import { makeNodeTerminalNode, TraceNode } from "../types/nodes";
+import { makeConstantTerminalNode, TraceNode } from "../types/nodes";
 
 export function handleImportDeclaration(
   ctx: HandlingContext,
@@ -14,9 +14,8 @@ export function handleImportDeclaration(
     },
   });
 
-  const terminalNode = makeNodeTerminalNode({
-    node: importDeclaration.source,
-    nodeType: importDeclaration.source.type,
+  const terminalNode = makeConstantTerminalNode({
+    value: importDeclaration.source.value,
     connection: nextCtx.connection,
   });
 
