@@ -1,6 +1,6 @@
 import { AST_NODE_TYPES, TSESTree } from "@typescript-eslint/utils";
 
-import { mapNodeToHandler } from "../../../../utils/map-node-to-handler";
+import { mapNodeToHandler } from "../../../../utils/ast/map-node-to-handler";
 import { getNodeModule } from "../../../../utils/types/get-node-module";
 import { getTypeProgram } from "../../../../utils/types/get-type-program";
 import { HandlingContext } from "../_rule";

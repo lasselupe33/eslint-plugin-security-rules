@@ -1,6 +1,6 @@
 import { TSESTree } from "@typescript-eslint/utils";
 
-import { isStringLiteral } from "../../../utils/guards";
+import { isStringLiteral } from "../../../utils/ast/guards";
 
 export function isSafeValue(testCase: TSESTree.Literal): boolean {
   if (isStringLiteral(testCase)) {

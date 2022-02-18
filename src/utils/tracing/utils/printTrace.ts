@@ -1,4 +1,9 @@
-import { isTerminalNode, TraceNode } from "../types";
+import {
+  isLiteralTerminalNode,
+  isNodeTerminalNode,
+  isUnresolvedTerminalNode,
+  TraceNode,
+} from "../types/nodes";
 
 export function printTrace(trace: TraceNode[]): void {
   console.warn(trace.map(nodeToString).join(" --> "));
@@ -6,8 +11,12 @@ export function printTrace(trace: TraceNode[]): void {
 }
 
 function nodeToString(node: TraceNode): string {
-  if (isTerminalNode(node)) {
+  if (isLiteralTerminalNode(node)) {
     return `"${node.value}" (Terminal/${node.type})`;
+  } else if (isUnresolvedTerminalNode(node)) {
+    return `"${node.reason}" (Terminal/${node.type})`;
+  } else if (isNodeTerminalNode(node)) {
+    return `"${node.nodeType}" (Terminal/${node.type})`;
   } else {
     const nodeType = node.connection?.nodeType
       ? `, in ${node.connection?.nodeType}`

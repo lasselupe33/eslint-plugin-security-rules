@@ -1,7 +1,8 @@
 import { AST_NODE_TYPES, TSESTree } from "@typescript-eslint/utils";
 
 import { deepMerge } from "../../deep-merge";
-import { HandlingContext, isTerminalNode, TraceNode } from "../types";
+import { HandlingContext } from "../types/context";
+import { isLiteralTerminalNode, TraceNode } from "../types/nodes";
 
 import { handleNode } from "./_handle-node";
 
@@ -10,15 +11,14 @@ export function handleMemberExpression(
   memberExpression: TSESTree.MemberExpression
 ): TraceNode[] {
   const pathTerminal = handleNode(ctx, memberExpression.property)[0];
-  const pathName = isTerminalNode(pathTerminal)
-    ? pathTerminal.value
-    : undefined;
 
-  if (!pathName) {
+  if (!isLiteralTerminalNode(pathTerminal)) {
     throw new Error(
       "handleMemberExpression(): Unable to extract the pathName to follow. This is not intentional, please file a bug report."
     );
   }
+
+  const pathName = String(pathTerminal.value);
 
   const nextCtx = deepMerge(ctx, {
     connection: {

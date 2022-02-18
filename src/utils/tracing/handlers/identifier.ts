@@ -1,7 +1,12 @@
 import { TSESTree } from "@typescript-eslint/utils";
 import { findVariable } from "@typescript-eslint/utils/dist/ast-utils";
 
-import { HandlingContext, TraceNode } from "../types";
+import { HandlingContext } from "../types/context";
+import {
+  makeLiteralTerminalNode,
+  makeVariableNode,
+  TraceNode,
+} from "../types/nodes";
 
 export function handleIdentifier(
   ctx: HandlingContext,
@@ -10,12 +15,11 @@ export function handleIdentifier(
   const variable = findVariable(ctx.scope, identifier);
 
   return variable
-    ? [{ ...ctx, variable }]
+    ? [makeVariableNode({ ...ctx, variable })]
     : [
-        {
+        makeLiteralTerminalNode({
           value: identifier.name,
           connection: ctx.connection,
-          type: "identifier",
-        },
+        }),
       ];
 }

@@ -4,7 +4,7 @@ import {
   isCallExpression,
   isIdentifier,
   isMemberExpression,
-} from "../../../../utils/guards";
+} from "../../../../utils/ast/guards";
 import { TypeProgram } from "../../../../utils/types/get-type-program";
 
 import { RawSink } from "./data";

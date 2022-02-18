@@ -1,9 +1,14 @@
 import { AST_NODE_TYPES, TSESTree } from "@typescript-eslint/utils";
 
+import { isProperty } from "../../ast/guards";
 import { deepMerge } from "../../deep-merge";
-import { isProperty } from "../../guards";
 import { getNodeName } from "../get-node-name";
-import { HandlingContext, TraceNode } from "../types";
+import { HandlingContext } from "../types/context";
+import {
+  makeNodeTerminalNode,
+  makeUnresolvedTerminalNode,
+  TraceNode,
+} from "../types/nodes";
 
 import { handleNode } from "./_handle-node";
 
@@ -17,11 +22,11 @@ export function handleObjectExpression(
   // expression, then we must simply resolve the object as a terminal
   if (memberPath.length === 0) {
     return [
-      {
-        value: "object-expression",
-        type: "variable",
+      makeNodeTerminalNode({
+        node: objectExpression,
+        nodeType: objectExpression.type,
         connection: ctx.connection,
-      },
+      }),
     ];
   }
 
@@ -47,10 +52,9 @@ export function handleObjectExpression(
   // We should not be able to get here, but if we do, then resolve as a
   // terminal.
   return [
-    {
-      value: "__unable to follow object expression__",
-      type: "unresolved",
+    makeUnresolvedTerminalNode({
+      reason: "unable to follow object expression",
       connection: ctx.connection,
-    },
+    }),
   ];
 }

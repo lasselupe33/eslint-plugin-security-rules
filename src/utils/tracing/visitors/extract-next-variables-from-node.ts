@@ -1,8 +1,9 @@
 import { TSESTree } from "@typescript-eslint/utils";
 
-import { isAssignmentExpression, isVariableDeclarator } from "../../guards";
+import { isAssignmentExpression, isVariableDeclarator } from "../../ast/guards";
 import { handleNode } from "../handlers/_handle-node";
-import { HandlingContext, TraceNode } from "../types";
+import { HandlingContext } from "../types/context";
+import { TraceNode } from "../types/nodes";
 
 export function extractNextVariablesFromNode(
   ctx: HandlingContext,

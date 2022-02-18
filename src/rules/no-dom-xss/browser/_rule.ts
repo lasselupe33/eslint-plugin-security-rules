@@ -2,7 +2,7 @@ import { TSESTree } from "@typescript-eslint/utils";
 import { RuleCreator } from "@typescript-eslint/utils/dist/eslint-utils";
 import { RuleFix, RuleFixer } from "@typescript-eslint/utils/dist/ts-eslint";
 
-import { isNewExpression } from "../../../utils/guards";
+import { isNewExpression } from "../../../utils/ast/guards";
 import { resolveDocsRoute } from "../../../utils/resolve-docs-route";
 import { getTypeProgram } from "../../../utils/types/get-type-program";
 
@@ -30,15 +30,15 @@ enum MessageIds {
   ADD_SANITATION_FIX = "add-sanitation-fix",
 }
 
-type Options = [
-  {
-    sanitation: {
-      package: string;
-      method: string;
-      usage: string;
-    };
-  }
-];
+export type SanitationOptions = {
+  sanitation: {
+    package: string;
+    method: string;
+    usage: string;
+  };
+};
+
+type Options = [SanitationOptions];
 
 const createRule = RuleCreator(resolveDocsRoute);
 
@@ -105,7 +105,10 @@ export const noDomXSSRule = createRule<Options, MessageIds>({
           return;
         }
 
-        const isSafe = isSourceSafe(node.right, { context });
+        const isSafe = isSourceSafe(node.right, {
+          context,
+          options: sanitationOptions,
+        });
 
         if (isSafe) {
           return;
@@ -153,7 +156,8 @@ export const noDomXSSRule = createRule<Options, MessageIds>({
             : node.arguments;
 
         const vulnerableNodes = nodesToCheck.filter(
-          (variable) => !isSourceSafe(variable, { context })
+          (variable) =>
+            !isSourceSafe(variable, { context, options: sanitationOptions })
         );
 
         if (vulnerableNodes.length === 0) {
@@ -194,7 +198,7 @@ export const noDomXSSRule = createRule<Options, MessageIds>({
 });
 
 function* addSanitazionAtSink(
-  options: Options[0],
+  options: SanitationOptions,
   fixer: RuleFixer,
   unsafeNode: TSESTree.Node
 ): Generator<RuleFix> {

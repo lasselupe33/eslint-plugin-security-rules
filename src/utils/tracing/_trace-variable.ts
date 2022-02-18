@@ -1,16 +1,12 @@
 import { Node } from "@typescript-eslint/types/dist/ast-spec";
 import { RuleContext, Scope } from "@typescript-eslint/utils/dist/ts-eslint";
 
-import { isParameter } from "../guards";
+import { isImportBinding, isParameter } from "../ast/guards";
 
 import { getRelevantReferences } from "./get-relevant-references";
 import { handleNode } from "./handlers/_handle-node";
-import {
-  HandlingContext,
-  isTerminalNode,
-  isVariableNode,
-  TraceNode,
-} from "./types";
+import { HandlingContext } from "./types/context";
+import { isTerminalNode, isVariableNode, TraceNode } from "./types/nodes";
 import { visitParameter } from "./visitors/parameter";
 import { visitReference } from "./visitors/reference";
 
@@ -109,6 +105,15 @@ export function traceVariable(
     if (isParameter(variable.defs[0]) && meta.parameterToArgumentMap) {
       remainingVariables.unshift(
         ...visitParameter(handlingContext, variable.defs[0])
+      );
+      continue;
+    }
+
+    // In case we encounter an import binding, then we simply need to propagate
+    // its correct node.
+    if (isImportBinding(variable.defs[0])) {
+      remainingVariables.unshift(
+        ...handleNode(handlingContext, variable.defs[0].node)
       );
       continue;
     }

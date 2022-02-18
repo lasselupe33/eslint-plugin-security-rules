@@ -4,15 +4,17 @@ import { RuleContext } from "@typescript-eslint/utils/dist/ts-eslint";
 
 import { traceVariable } from "../../../../utils/tracing/_trace-variable";
 import { makeTraceCallbacksWithTrace } from "../../../../utils/tracing/callbacks/with-current-trace";
+import { ConnectionTypes } from "../../../../utils/tracing/types/connection";
 import {
-  ConnectionTypes,
   isTerminalNode,
   isVariableNode,
-} from "../../../../utils/tracing/types";
+} from "../../../../utils/tracing/types/nodes";
 import { printTrace } from "../../../../utils/tracing/utils/printTrace";
+import { SanitationOptions } from "../_rule";
 
 type Context = {
   context: RuleContext<string, unknown[]>;
+  options: SanitationOptions;
 };
 
 export function isSourceSafe(

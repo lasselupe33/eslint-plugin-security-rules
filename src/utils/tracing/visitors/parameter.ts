@@ -1,11 +1,12 @@
 import { Scope } from "@typescript-eslint/utils/dist/ts-eslint";
 
-import { getFunctionName } from "../../ast";
-import { isFunctionDeclaration } from "../../guards";
+import { getFunctionName } from "../../ast/ast";
+import { isFunctionDeclaration } from "../../ast/guards";
 import { getNodeName } from "../get-node-name";
 import { handleNode } from "../handlers/_handle-node";
 import { toParameterToArgumentKey } from "../parameter-to-argument";
-import { HandlingContext, TraceNode } from "../types";
+import { HandlingContext } from "../types/context";
+import { TraceNode } from "../types/nodes";
 
 /**
  * When a variable is a parameter, then it means that we've reached a state
@@ -19,14 +20,17 @@ export function visitParameter(
   ctx: HandlingContext,
   parameter: Scope.Definition
 ): TraceNode[] {
-  if (!isFunctionDeclaration(parameter.node) || !ctx.parameterToArgumentMap) {
+  if (
+    !isFunctionDeclaration(parameter.node) ||
+    !ctx.meta.parameterToArgumentMap
+  ) {
     return [];
   }
 
   const functionName = getFunctionName(parameter.node);
   const parameterName = getNodeName(parameter.name);
   const key = toParameterToArgumentKey(functionName, parameterName);
-  const argument = ctx.parameterToArgumentMap.get(key);
+  const argument = ctx.meta.parameterToArgumentMap.get(key);
 
   if (!argument) {
     console.warn(`Failed to map parameter (${key}) to initialising argument`);

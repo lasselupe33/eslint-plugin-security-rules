@@ -5,18 +5,23 @@ import {
   getInnermostScope,
 } from "@typescript-eslint/utils/dist/ast-utils";
 
-import { deepMerge } from "../../deep-merge";
 import {
   isFunctionDeclaration,
   isIdentifier,
   isReturnStatement,
-} from "../../guards";
+} from "../../ast/guards";
+import { deepMerge } from "../../deep-merge";
 import { getNodeName } from "../get-node-name";
 import {
   ParameterToArgumentMap,
   toParameterToArgumentKey,
 } from "../parameter-to-argument";
-import { HandlingContext, TraceNode } from "../types";
+import { HandlingContext } from "../types/context";
+import {
+  makeUnresolvedTerminalNode,
+  makeVariableNode,
+  TraceNode,
+} from "../types/nodes";
 
 import { handleNode } from "./_handle-node";
 
@@ -46,19 +51,22 @@ export function handleCallExpression(
     // In case an invalid program has been written, then we cannot infer the
     // next variable (Since none exist!). Let's convey this information
     // publicly.
-    foundNodes.push({
-      ...ctx,
-      value: "",
-      type: "unresolved",
-    });
+    foundNodes.push(
+      makeUnresolvedTerminalNode({
+        reason: "Broken program",
+        connection: ctx.connection,
+      })
+    );
 
     return foundNodes;
   }
 
-  foundNodes.push({
-    ...ctx,
-    variable: calleeVariable,
-  });
+  foundNodes.push(
+    makeVariableNode({
+      ...ctx,
+      variable: calleeVariable,
+    })
+  );
 
   // ... then we look at the declaration of the function to determine its return
   // variables.
