@@ -1,6 +1,7 @@
 import { TSESTree } from "@typescript-eslint/utils";
 import { findVariable } from "@typescript-eslint/utils/dist/ast-utils";
 
+import { deepMerge } from "../../deep-merge";
 import { HandlingContext } from "../types/context";
 import {
   makeConstantTerminalNode,
@@ -16,8 +17,14 @@ export function handleIdentifier(
     ? findVariable(ctx.scope, identifier)
     : undefined;
 
+  const nextCtx = deepMerge(ctx, {
+    meta: {
+      forceIdentifierLiteral: undefined,
+    },
+  });
+
   return variable
-    ? [makeVariableNode({ ...ctx, variable })]
+    ? [makeVariableNode({ ...nextCtx, variable })]
     : [
         makeConstantTerminalNode({
           value: identifier.name,

@@ -1,15 +1,8 @@
 import { ReturnStatement } from "@typescript-eslint/types/dist/ast-spec";
 import { TSESTree, AST_NODE_TYPES } from "@typescript-eslint/utils";
-import {
-  findVariable,
-  getInnermostScope,
-} from "@typescript-eslint/utils/dist/ast-utils";
+import { getInnermostScope } from "@typescript-eslint/utils/dist/ast-utils";
 
-import {
-  isFunctionDeclaration,
-  isIdentifier,
-  isReturnStatement,
-} from "../../ast/guards";
+import { isFunctionDeclaration, isReturnStatement } from "../../ast/guards";
 import { deepMerge } from "../../deep-merge";
 import { getNodeName } from "../get-node-name";
 import {
@@ -20,7 +13,6 @@ import { HandlingContext } from "../types/context";
 import {
   isVariableNode,
   makeUnresolvedTerminalNode,
-  makeVariableNode,
   TraceNode,
 } from "../types/nodes";
 
@@ -60,12 +52,7 @@ export function handleCallExpression(
   // Initially we extract the variable of the function call
   const calleeVariable = calleeNode.variable;
 
-  foundNodes.push(
-    makeVariableNode({
-      ...ctx,
-      variable: calleeVariable,
-    })
-  );
+  foundNodes.push(calleeNode);
 
   // ... then we look at the declaration of the function to determine its return
   // variables.
