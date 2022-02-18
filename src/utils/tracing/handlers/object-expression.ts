@@ -1,5 +1,6 @@
 import { AST_NODE_TYPES, TSESTree } from "@typescript-eslint/utils";
 
+import { deepMerge } from "../../deep-merge";
 import { isProperty } from "../../guards";
 import { getNodeName } from "../get-node-name";
 import { HandlingContext, TraceNode } from "../types";
@@ -10,9 +11,11 @@ export function handleObjectExpression(
   ctx: HandlingContext,
   objectExpression: TSESTree.ObjectExpression
 ): TraceNode[] {
-  const { objectPath } = ctx.connection.meta;
+  const { memberPath } = ctx.meta;
 
-  if (!Array.isArray(objectPath) || objectPath.length === 0) {
+  // In case we're not attempting to resolve a specific value in the objecet
+  // expression, then we must simply resolve the object as a terminal
+  if (memberPath.length === 0) {
     return [
       {
         value: "object-expression",
@@ -22,18 +25,16 @@ export function handleObjectExpression(
     ];
   }
 
-  const nextCtx: HandlingContext = {
-    ...ctx,
+  const nextCtx = deepMerge(ctx, {
     connection: {
-      ...ctx.connection,
       nodeType: AST_NODE_TYPES.ObjectExpression,
     },
-  };
+  });
 
-  const targetProperty = objectPath.pop() as string;
+  const targetProperty = memberPath.pop() as string;
 
   for (const property of objectExpression.properties) {
-    // @Todo handle spreadElement and function definition
+    // @TODO: handle spreadElement and function definition
     if (isProperty(property)) {
       const propertyName = getNodeName(property.key);
 
@@ -43,6 +44,8 @@ export function handleObjectExpression(
     }
   }
 
+  // We should not be able to get here, but if we do, then resolve as a
+  // terminal.
   return [
     {
       value: "__unable to follow object expression__",

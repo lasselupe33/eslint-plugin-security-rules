@@ -1,5 +1,6 @@
 import { AST_NODE_TYPES, TSESTree } from "@typescript-eslint/utils";
 
+import { deepMerge } from "../../deep-merge";
 import { isRangeAfter } from "../../is-range-after";
 import { ConnectionTypes, HandlingContext, TraceNode } from "../types";
 
@@ -9,14 +10,12 @@ export function handleTemplateLiteral(
   ctx: HandlingContext,
   templateLiteral: TSESTree.TemplateLiteral
 ): TraceNode[] {
-  const nextCtx: HandlingContext = {
-    ...ctx,
+  const nextCtx = deepMerge(ctx, {
     connection: {
-      ...ctx.connection,
       nodeType: AST_NODE_TYPES.TemplateLiteral,
       type: ConnectionTypes.MODIFICATION,
     },
-  };
+  });
 
   const nodes = [
     ...templateLiteral.expressions,

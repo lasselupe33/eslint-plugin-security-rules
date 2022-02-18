@@ -4,12 +4,18 @@ import { findVariable } from "@typescript-eslint/utils/dist/ast-utils";
 import { HandlingContext, TraceNode } from "../types";
 
 export function handleIdentifier(
-  { scope, connection, parameterToArgumentMap }: HandlingContext,
+  ctx: HandlingContext,
   identifier: TSESTree.Identifier
 ): TraceNode[] {
-  const variable = findVariable(scope, identifier);
+  const variable = findVariable(ctx.scope, identifier);
 
   return variable
-    ? [{ variable, connection, scope, parameterToArgumentMap }]
-    : [{ value: identifier.name, connection, type: "identifier" }];
+    ? [{ ...ctx, variable }]
+    : [
+        {
+          value: identifier.name,
+          connection: ctx.connection,
+          type: "identifier",
+        },
+      ];
 }

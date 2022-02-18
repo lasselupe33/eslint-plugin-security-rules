@@ -7,11 +7,29 @@ export enum ConnectionTypes {
   MODIFICATION = "modification",
 }
 
+/**
+ * Specification of data that will be passed through the entire tracing
+ * algorithm, allowing handlers to send additional metadata to future handlers
+ */
+type Meta = {
+  /**
+   * Mapping between parameters and arguments which is useful when entering
+   * and exiting functions, where we need to ensure we exit back to the
+   * correct argument.
+   */
+  parameterToArgumentMap: ParameterToArgumentMap | undefined;
+
+  /**
+   * Specifies the identifiers that we have traversed on a member that is yet
+   * to be resolved to its actual value.
+   */
+  memberPath: string[];
+};
+
 type Connection = {
   variable?: Scope.Variable | undefined;
   nodeType?: (AST_NODE_TYPES | "Argument") | undefined;
   type?: ConnectionTypes | undefined;
-  meta: Record<string, unknown>;
 };
 
 /**
@@ -21,7 +39,7 @@ export type HandlingContext = {
   ruleContext: RuleContext<string, unknown[]>;
   connection: Connection;
   scope: Scope.Scope;
-  parameterToArgumentMap: ParameterToArgumentMap | undefined;
+  meta: Meta;
 };
 
 /**
@@ -37,7 +55,7 @@ export type VariableNode = {
   variable: Scope.Variable;
   connection?: Connection | undefined;
   scope: Scope.Scope;
-  parameterToArgumentMap?: ParameterToArgumentMap | undefined;
+  meta: Meta;
 };
 
 export type TraceNode = TerminalNode | VariableNode;

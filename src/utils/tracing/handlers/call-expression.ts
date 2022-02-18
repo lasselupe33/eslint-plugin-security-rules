@@ -5,6 +5,7 @@ import {
   getInnermostScope,
 } from "@typescript-eslint/utils/dist/ast-utils";
 
+import { deepMerge } from "../../deep-merge";
 import {
   isFunctionDeclaration,
   isIdentifier,
@@ -29,7 +30,7 @@ import { handleNode } from "./_handle-node";
  * 3. The variables of the parameters that the return statement depends on
  */
 export function handleCallExpression(
-  { scope, connection, ruleContext }: HandlingContext,
+  ctx: HandlingContext,
   callExpression: TSESTree.CallExpression
 ): TraceNode[] {
   const foundNodes: TraceNode[] = [];
@@ -39,16 +40,15 @@ export function handleCallExpression(
   }
 
   // Initially we extract the variable of the function call
-  const calleeVariable = findVariable(scope, callExpression.callee);
+  const calleeVariable = findVariable(ctx.scope, callExpression.callee);
 
   if (!calleeVariable) {
     // In case an invalid program has been written, then we cannot infer the
     // next variable (Since none exist!). Let's convey this information
     // publicly.
     foundNodes.push({
-      scope,
+      ...ctx,
       value: "",
-      connection,
       type: "unresolved",
     });
 
@@ -56,9 +56,8 @@ export function handleCallExpression(
   }
 
   foundNodes.push({
-    scope,
+    ...ctx,
     variable: calleeVariable,
-    connection,
   });
 
   // ... then we look at the declaration of the function to determine its return
@@ -77,7 +76,7 @@ export function handleCallExpression(
 
     parameterToArgumentMap.set(key, {
       argument: callExpression.arguments[index],
-      scope: getInnermostScope(scope, callExpression),
+      scope: getInnermostScope(ctx.scope, callExpression),
     });
   });
 
@@ -87,16 +86,15 @@ export function handleCallExpression(
 
   const returnStatementVariables = returnStatements.flatMap((returnStatement) =>
     handleNode(
-      {
-        ruleContext,
-        scope,
+      deepMerge(ctx, {
         connection: {
-          ...connection,
           variable: calleeVariable,
           nodeType: AST_NODE_TYPES.CallExpression,
         },
-        parameterToArgumentMap,
-      },
+        meta: {
+          parameterToArgumentMap,
+        },
+      }),
       returnStatement.argument
     )
   );

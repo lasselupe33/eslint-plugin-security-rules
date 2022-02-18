@@ -46,8 +46,11 @@ export function traceVariable(
     {
       ruleContext: ctx.context,
       scope: ctx.rootScope,
-      connection: { meta: {} },
-      parameterToArgumentMap: undefined,
+      connection: {},
+      meta: {
+        parameterToArgumentMap: undefined,
+        memberPath: [],
+      },
     },
     ctx.node
   );
@@ -88,23 +91,22 @@ export function traceVariable(
       continue;
     }
 
-    const { variable, parameterToArgumentMap, connection, scope } = traceNode;
+    const { variable, meta, scope } = traceNode;
 
     const handlingContext: HandlingContext = {
       ruleContext: ctx.context,
       scope,
       connection: {
         variable,
-        meta: connection?.meta ?? {},
         nodeType: undefined,
         type: undefined,
       },
-      parameterToArgumentMap,
+      meta,
     };
 
     // In case we've encountered a parameter, then we cannot handle it simply be
     // tracing its references since we need to be context aware in this case.
-    if (isParameter(variable.defs[0]) && parameterToArgumentMap) {
+    if (isParameter(variable.defs[0]) && meta.parameterToArgumentMap) {
       remainingVariables.unshift(
         ...visitParameter(handlingContext, variable.defs[0])
       );
