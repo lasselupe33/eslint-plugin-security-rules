@@ -76,7 +76,7 @@ export function isSourceEscaped(
         // No op
       },
       onTraceFinished: (trace) => {
-        printTrace(trace);
+        // printTrace(trace);
       },
     })
   );
