@@ -71,11 +71,15 @@ export const mysqlNoSQLInjections: TSESLint.RuleModule<MessageIds> = {
         // uses template expressions. If it's just a string, it has the length
         // one, even though it spans multiple lines.
         if (templateLiteralArray.length > 1) {
-          context.report({
-            node: queryLiteral,
-            messageId: MessageIds.VULNERABLE_QUERY,
-            data: { queryLiteral },
-          });
+          for (const [node, isEscaped] of templateLiteralArray) {
+            if (isEscaped !== undefined && !isEscaped) {
+              context.report({
+                node: node,
+                messageId: MessageIds.VULNERABLE_QUERY,
+                data: { queryLiteral },
+              });
+            }
+          }
         }
       },
     };
