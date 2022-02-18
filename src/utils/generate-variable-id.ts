@@ -14,7 +14,7 @@ let AUTO_INCREMENTED_ID = 0;
  */
 export function generateVariableId(variable: unknown): string {
   if (isPrimitive(variable)) {
-    return `str:${variable}`;
+    return `str:${String(variable)}`;
   }
 
   if (isSymbol(variable)) {

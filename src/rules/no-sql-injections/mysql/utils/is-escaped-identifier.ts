@@ -4,7 +4,6 @@ import { getInnermostScope } from "@typescript-eslint/utils/dist/ast-utils";
 import { mapNodeToHandler } from "../../../../utils/ast/map-node-to-handler";
 import { traceVariable } from "../../../../utils/tracing/_trace-variable";
 import { makeTraceCallbacksWithTrace } from "../../../../utils/tracing/callbacks/with-current-trace";
-import { printTrace } from "../../../../utils/tracing/utils/printTrace";
 import { getNodeModule } from "../../../../utils/types/get-node-module";
 import { getTypeProgram } from "../../../../utils/types/get-type-program";
 import { HandlingContext } from "../_rule";
@@ -22,7 +21,7 @@ export function isEscapedExpression(
         isEscapedExpression(ctx, memExp.property),
       [AST_NODE_TYPES.CallExpression]: (ctx, callExp) =>
         isEscapedExpression(ctx, callExp.callee),
-      [AST_NODE_TYPES.TemplateElement]: (ctx, callExp) => undefined,
+      [AST_NODE_TYPES.TemplateElement]: () => undefined,
     },
     context
   );
@@ -56,7 +55,6 @@ export function isSourceEscaped(
   }
 
   const isSafe = false;
-  const isCurrentTraceSafelySanitzed = false;
   /**
    * Iterates through traces to determine whether or not the function has been
    * escaped.
@@ -72,10 +70,10 @@ export function isSourceEscaped(
       node,
     },
     makeTraceCallbacksWithTrace({
-      onNodeVisited: (trace, traceNode) => {
+      onNodeVisited: () => {
         // No op
       },
-      onTraceFinished: (trace) => {
+      onTraceFinished: () => {
         // printTrace(trace);
       },
     })
