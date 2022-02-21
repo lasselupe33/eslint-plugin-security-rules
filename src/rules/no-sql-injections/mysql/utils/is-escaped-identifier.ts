@@ -4,6 +4,10 @@ import { getInnermostScope } from "@typescript-eslint/utils/dist/ast-utils";
 import { mapNodeToHandler } from "../../../../utils/ast/map-node-to-handler";
 import { traceVariable } from "../../../../utils/tracing/_trace-variable";
 import { makeTraceCallbacksWithTrace } from "../../../../utils/tracing/callbacks/with-current-trace";
+import {
+  isConstantTerminalNode,
+  isVariableNode,
+} from "../../../../utils/tracing/types/nodes";
 import { getNodeModule } from "../../../../utils/types/get-node-module";
 import { getTypeProgram } from "../../../../utils/types/get-type-program";
 import { HandlingContext } from "../_rule";
@@ -54,7 +58,8 @@ export function isSourceEscaped(
     return true;
   }
 
-  const isSafe = false;
+  let isSafe = true;
+  let isCurrentTraceSafelySanitzed = false;
   /**
    * Iterates through traces to determine whether or not the function has been
    * escaped.
@@ -70,11 +75,34 @@ export function isSourceEscaped(
       node,
     },
     makeTraceCallbacksWithTrace({
-      onNodeVisited: () => {
-        // No op
+      onNodeVisited: (trace, traceNode) => {
+        if (!isVariableNode(traceNode)) {
+          return;
+        }
+
+        if (traceNode.connection?.nodeType === "MemberExpression") {
+          if (traceNode.meta.memberPath[0] === "escape") {
+            isCurrentTraceSafelySanitzed = true;
+            return { stopFollowingVariable: true };
+          }
+        }
       },
-      onTraceFinished: () => {
-        // printTrace(trace);
+      onTraceFinished: (trace) => {
+        const finalNode = trace[trace.length - 1];
+
+        const isTraceSafe =
+          isCurrentTraceSafelySanitzed || isConstantTerminalNode(finalNode);
+
+        // Reset for next iteration
+        isCurrentTraceSafelySanitzed = false;
+
+        // If all traces are deemed safe or ends with a constant value,
+        // we assume the trace to be sanitized. If any one trace is found to'
+        // be unsafe, we halt further tracing.
+        if (!isTraceSafe) {
+          isSafe = false;
+          return { halt: true };
+        }
       },
     })
   );
