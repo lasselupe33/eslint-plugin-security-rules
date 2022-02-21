@@ -1,6 +1,6 @@
 import { TSESTree } from "@typescript-eslint/utils";
 
-import { TypeProgram } from "../../../utils/types/get-type-program";
+import { TypeProgram } from "../../../../utils/types/get-type-program";
 
 import { isSinkRelevant } from "./is-sink-relevant";
 import { RawSink } from "./types";
