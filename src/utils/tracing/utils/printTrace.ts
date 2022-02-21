@@ -1,6 +1,7 @@
 import { isPrimitive } from "../../ast/guards";
 import {
   isConstantTerminalNode,
+  isImportTerminalNode,
   isNodeTerminalNode,
   isUnresolvedTerminalNode,
   TraceNode,
@@ -17,9 +18,11 @@ function nodeToString(node: TraceNode): string {
       isPrimitive(node.value) ? String(node.value) : JSON.stringify(node.value)
     }" (Terminal/${node.type})`;
   } else if (isUnresolvedTerminalNode(node)) {
-    return `"${node.reason}" (Terminal/${node.type})`;
+    return `${node.reason} (Terminal/${node.type})`;
   } else if (isNodeTerminalNode(node)) {
-    return `"${node.nodeType}" (Terminal/${node.type})`;
+    return `${node.nodeType} (Terminal/${node.type})`;
+  } else if (isImportTerminalNode(node)) {
+    return `Imported: ${node.imported}, Source: ${node.source} (Terminal/${node.type})`;
   } else {
     const nodeType = node.connection?.nodeType
       ? `, in ${node.connection?.nodeType}`

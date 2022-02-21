@@ -2,13 +2,12 @@ import { TSESTree } from "@typescript-eslint/utils";
 import { getInnermostScope } from "@typescript-eslint/utils/dist/ast-utils";
 import { RuleContext } from "@typescript-eslint/utils/dist/ts-eslint";
 
-import { getImportMeta } from "../../../../utils/ast/get-import-meta";
 import { traceVariable } from "../../../../utils/tracing/_trace-variable";
 import { makeTraceCallbacksWithTrace } from "../../../../utils/tracing/callbacks/with-current-trace";
 import { ConnectionTypes } from "../../../../utils/tracing/types/connection";
 import {
-  isNodeTerminalNode,
-  isTerminalNode,
+  isConstantTerminalNode,
+  isImportTerminalNode,
 } from "../../../../utils/tracing/types/nodes";
 import { printTrace } from "../../../../utils/tracing/utils/printTrace";
 import { SanitationOptions } from "../_rule";
@@ -48,16 +47,10 @@ export function isSourceSafe(
     },
     makeTraceCallbacksWithTrace({
       onNodeVisited: (trace, traceNode) => {
-        if (isNodeTerminalNode(traceNode)) {
-          const importMeta = getImportMeta(traceNode.node);
-
-          // In case we cannot resolve import data from the terminal node, then
-          // we will not have encountered a sanitation terminal, since
-          // sanitsation methods will always have to be imported!
+        if (isImportTerminalNode(traceNode)) {
           if (
-            !importMeta ||
-            importMeta.source !== options.sanitation.package ||
-            importMeta.imported !== options.sanitation.method
+            traceNode.source !== options.sanitation.package ||
+            traceNode.imported !== options.sanitation.method
           ) {
             return;
           }
@@ -78,9 +71,13 @@ export function isSourceSafe(
         printTrace(trace);
 
         const finalNode = trace[trace.length - 1];
+
+        // We assume that all traces that have been explicitly deemed safe are
+        // safe. Or, in the case that a trace ends with a constant value we
+        // assume the trace to be safe as well (due to the belief that the
+        // developer herself would not explicitly include XSS in their code).
         const isTraceSafe =
-          isCurrentTraceSafelySanitzed ||
-          (isTerminalNode(finalNode) && finalNode.type !== "unresolved");
+          isCurrentTraceSafelySanitzed || isConstantTerminalNode(finalNode);
 
         // Reset state for next trace
         isCurrentTraceSafelySanitzed = false;

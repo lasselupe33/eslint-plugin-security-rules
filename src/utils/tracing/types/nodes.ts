@@ -14,6 +14,12 @@ type ConstantTerminalNode = BaseTerminalNode & {
   value: string;
 };
 
+type ImportTerminalNode = BaseTerminalNode & {
+  type: "import";
+  imported: string;
+  source: string;
+};
+
 type UnresolvedTerminalNode = BaseTerminalNode & {
   type: "unresolved";
   reason: string;
@@ -31,6 +37,7 @@ type NodeTerminalNode<NodeType extends AST_NODE_TYPES = AST_NODE_TYPES> =
  */
 export type TerminalNode =
   | ConstantTerminalNode
+  | ImportTerminalNode
   | UnresolvedTerminalNode
   | NodeTerminalNode;
 
@@ -51,6 +58,16 @@ export function makeConstantTerminalNode(
   return {
     __isTerminalNode: true,
     type: "constant",
+    ...node,
+  };
+}
+
+export function makeImportTerminalNode(
+  node: Omit<ImportTerminalNode, "type" | "__isTerminalNode">
+): ImportTerminalNode {
+  return {
+    __isTerminalNode: true,
+    type: "import",
     ...node,
   };
 }
@@ -88,6 +105,12 @@ export function isConstantTerminalNode(
   node: TraceNode | undefined
 ): node is ConstantTerminalNode {
   return isTerminalNode(node) && node.type === "constant";
+}
+
+export function isImportTerminalNode(
+  node: TraceNode | undefined
+): node is ImportTerminalNode {
+  return isTerminalNode(node) && node.type === "import";
 }
 
 export function isUnresolvedTerminalNode(
