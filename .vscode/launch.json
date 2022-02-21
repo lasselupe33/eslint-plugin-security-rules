@@ -30,6 +30,7 @@
       "disableOptimisticBPs": true,
       "cwd": "${workspaceFolder}",
       "runtimeExecutable": "yarn",
+      "smartStep": true,
       "args": [
         "eslint:files",
         "./dummy/debug.ts*"
