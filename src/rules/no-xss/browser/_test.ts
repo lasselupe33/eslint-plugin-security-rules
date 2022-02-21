@@ -5,7 +5,7 @@ import { ESLintUtils } from "@typescript-eslint/utils";
 import { getCode } from "../../../utils/testing/get-code";
 import { repeat } from "../../../utils/testing/repeat";
 
-import { MessageIds, noDomXSSRule } from "./_rule";
+import { MessageIds, noBrowserXSSRule } from "./_rule";
 
 const ruleTester = new ESLintUtils.RuleTester({
   parser: "@typescript-eslint/parser",
@@ -15,7 +15,7 @@ const ruleTester = new ESLintUtils.RuleTester({
   },
 });
 
-ruleTester.run("browser/no-dom-xss", noDomXSSRule, {
+ruleTester.run("browser/no-xss", noBrowserXSSRule, {
   valid: [
     {
       code: getCode(__dirname, "allow-assign-safe-value"),

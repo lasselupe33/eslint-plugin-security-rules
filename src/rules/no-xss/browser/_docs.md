@@ -1,4 +1,4 @@
-# No XSS ??? ergegro (no-dom-xss)
+# No XSS ??? ergegro (no-xss)
 
 Primary description
 

@@ -52,8 +52,8 @@ const createRule = RuleCreator(resolveDocsRoute);
  * Detects and reports if any expressions assign unsafe values to known vanilla
  * XSS injection sinks.
  */
-export const noDomXSSRule = createRule<Options, MessageIds>({
-  name: "no-dom-xss/browser",
+export const noBrowserXSSRule = createRule<Options, MessageIds>({
+  name: "no-xss/browser",
   defaultOptions: [
     {
       sanitation: {

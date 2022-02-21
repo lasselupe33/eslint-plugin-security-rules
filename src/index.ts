@@ -1,10 +1,10 @@
-import { noDomXSSRule } from "./rules/no-dom-xss/browser/_rule";
 import { mysqlNoHardcodedCredentials } from "./rules/no-hardcoded-credentials/mysql/_rule";
 import { uniNoHardcodedCredentials } from "./rules/no-hardcoded-credentials/universal/_rule";
 import { mysqlNoSQLInjections } from "./rules/no-sql-injections/mysql/_rule";
+import { noBrowserXSSRule } from "./rules/no-xss/browser/_rule";
 
 export const rules = {
-  "browser/no-dom-xss": noDomXSSRule,
+  "browser/no-xss": noBrowserXSSRule,
   "universal/no-hc-credentials": uniNoHardcodedCredentials,
   "mysql/no-hardcoded-credentials": mysqlNoHardcodedCredentials,
   "mysql/no-sql-injections": mysqlNoSQLInjections,
@@ -28,7 +28,7 @@ export const configs = {
   browser: {
     plugins: ["security-rules"],
     rules: {
-      "security-rules/browser/no-dom-xss": ["error"],
+      "security-rules/browser/no-xss": ["error"],
     },
   },
   universal: {
