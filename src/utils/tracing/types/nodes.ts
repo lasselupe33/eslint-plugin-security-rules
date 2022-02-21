@@ -9,23 +9,23 @@ type BaseTerminalNode = {
   connection: Connection | undefined;
 };
 
-type ConstantTerminalNode = BaseTerminalNode & {
+export type ConstantTerminalNode = BaseTerminalNode & {
   type: "constant";
   value: string;
 };
 
-type ImportTerminalNode = BaseTerminalNode & {
+export type ImportTerminalNode = BaseTerminalNode & {
   type: "import";
   imported: string;
   source: string;
 };
 
-type UnresolvedTerminalNode = BaseTerminalNode & {
+export type UnresolvedTerminalNode = BaseTerminalNode & {
   type: "unresolved";
   reason: string;
 };
 
-type NodeTerminalNode<NodeType extends AST_NODE_TYPES = AST_NODE_TYPES> =
+export type NodeTerminalNode<NodeType extends AST_NODE_TYPES = AST_NODE_TYPES> =
   BaseTerminalNode & {
     type: "node";
     nodeType: NodeType;

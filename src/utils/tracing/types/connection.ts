@@ -3,6 +3,7 @@ import { Scope } from "@typescript-eslint/utils/dist/ts-eslint";
 
 export enum ConnectionTypes {
   MODIFICATION = "modification",
+  OVERRIDE = "override",
 }
 
 /**

@@ -4,6 +4,7 @@ import { getInnermostScope } from "@typescript-eslint/utils/dist/ast-utils";
 
 import { isFunctionDeclaration, isReturnStatement } from "../../ast/guards";
 import { deepMerge } from "../../deep-merge";
+import { getModuleScope } from "../../get-module-scope";
 import { getNodeName } from "../get-node-name";
 import {
   ParameterToArgumentMap,
@@ -88,6 +89,10 @@ export function handleCallExpression(
         meta: {
           parameterToArgumentMap,
         },
+        scope: getInnermostScope(
+          getModuleScope(ctx.ruleContext.getScope()),
+          returnStatement
+        ),
       }),
       returnStatement.argument
     )

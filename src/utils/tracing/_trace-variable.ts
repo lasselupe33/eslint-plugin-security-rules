@@ -7,6 +7,7 @@ import { getRelevantReferences } from "./get-relevant-references";
 import { handleNode } from "./handlers/_handle-node";
 import { HandlingContext } from "./types/context";
 import { isTerminalNode, isVariableNode, TraceNode } from "./types/nodes";
+import { visitImportBinding } from "./visitors/import-binding";
 import { visitParameter } from "./visitors/parameter";
 import { visitReference } from "./visitors/reference";
 
@@ -121,7 +122,7 @@ export function traceVariable(
     // its correct node.
     if (isImportBinding(variable.defs[0])) {
       remainingVariables.unshift(
-        ...handleNode(handlingContext, variable.defs[0].node)
+        ...visitImportBinding(handlingContext, variable, variable.defs[0])
       );
       continue;
     }

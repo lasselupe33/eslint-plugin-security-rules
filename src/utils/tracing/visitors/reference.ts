@@ -1,8 +1,7 @@
 import { WriteableReference } from "../get-relevant-references";
+import { handleNode } from "../handlers/_handle-node";
 import { HandlingContext } from "../types/context";
 import { TraceNode } from "../types/nodes";
-
-import { extractNextVariablesFromNode } from "./extract-next-variables-from-node";
 
 export function visitReference(
   ctx: HandlingContext,
@@ -14,5 +13,5 @@ export function visitReference(
     return [];
   }
 
-  return extractNextVariablesFromNode(ctx, relatedExpression);
+  return handleNode(ctx, relatedExpression);
 }
