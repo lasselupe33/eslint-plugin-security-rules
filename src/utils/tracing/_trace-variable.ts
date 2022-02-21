@@ -36,6 +36,7 @@ export function traceVariable(
   }
 
   const abortedMap: WeakMap<Scope.Variable, boolean> = new WeakMap();
+  const encounteredMap: WeakMap<Scope.Variable, boolean> = new WeakMap();
 
   // Bootstrap the tracing queue by handling the node passed by the integration.
   const remainingVariables = handleNode(
@@ -88,6 +89,13 @@ export function traceVariable(
     }
 
     const { variable, meta, scope } = traceNode;
+
+    if (encounteredMap.has(variable)) {
+      console.error("traceVariable(): Cycles are not supported");
+      return;
+    }
+
+    encounteredMap.set(variable, true);
 
     const handlingContext: HandlingContext = {
       ruleContext: ctx.context,
