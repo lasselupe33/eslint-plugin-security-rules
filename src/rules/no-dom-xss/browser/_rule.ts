@@ -1,8 +1,13 @@
 import { TSESTree } from "@typescript-eslint/utils";
 import { RuleCreator } from "@typescript-eslint/utils/dist/eslint-utils";
-import { RuleFix, RuleFixer } from "@typescript-eslint/utils/dist/ts-eslint";
+import {
+  RuleFix,
+  RuleFixer,
+  Scope,
+} from "@typescript-eslint/utils/dist/ts-eslint";
 
 import { isNewExpression } from "../../../utils/ast/guards";
+import { hasImportDeclaration } from "../../../utils/ast/has-import-declaration";
 import { createImportFix } from "../../../utils/create-import-fix";
 import { resolveDocsRoute } from "../../../utils/resolve-docs-route";
 import { getTypeProgram } from "../../../utils/types/get-type-program";
@@ -123,7 +128,12 @@ export const noDomXSSRule = createRule<Options, MessageIds>({
           suggest: [
             {
               fix: (fixer: RuleFixer) =>
-                addSanitazionAtSink(sanitationOptions, fixer, node.right),
+                addSanitazionAtSink(
+                  sanitationOptions,
+                  fixer,
+                  node.right,
+                  context.getScope()
+                ),
               messageId: MessageIds.ADD_SANITATION_FIX,
             },
           ],
@@ -182,7 +192,8 @@ export const noDomXSSRule = createRule<Options, MessageIds>({
                   for (const fix of addSanitazionAtSink(
                     sanitationOptions,
                     fixer,
-                    node
+                    node,
+                    context.getScope()
                   )) {
                     yield fix;
                   }
@@ -200,16 +211,26 @@ export const noDomXSSRule = createRule<Options, MessageIds>({
 function* addSanitazionAtSink(
   options: SanitationOptions,
   fixer: RuleFixer,
-  unsafeNode: TSESTree.Node
+  unsafeNode: TSESTree.Node,
+  moduleScope: Scope.Scope
 ): Generator<RuleFix> {
   const toInsertBefore = options.sanitation.usage.split("<%")[0] ?? "";
   const toInsertAfter = options.sanitation.usage.split("%>")[1] ?? "";
 
   yield fixer.insertTextBefore(unsafeNode, toInsertBefore);
   yield fixer.insertTextAfter(unsafeNode, toInsertAfter);
-  yield createImportFix(
-    fixer,
-    options.sanitation.method,
-    options.sanitation.package
-  );
+
+  if (
+    !hasImportDeclaration(
+      moduleScope,
+      options.sanitation.package,
+      options.sanitation.method
+    )
+  ) {
+    yield createImportFix(
+      fixer,
+      options.sanitation.package,
+      options.sanitation.method
+    );
+  }
 }

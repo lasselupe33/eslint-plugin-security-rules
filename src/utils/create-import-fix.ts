@@ -2,8 +2,8 @@ import { RuleFix, RuleFixer } from "@typescript-eslint/utils/dist/ts-eslint";
 
 export function createImportFix(
   fixer: RuleFixer,
-  method: string,
-  pkg: string
+  pkg: string,
+  method: string
 ): RuleFix {
   return fixer.insertTextBeforeRange(
     [0, 0],
