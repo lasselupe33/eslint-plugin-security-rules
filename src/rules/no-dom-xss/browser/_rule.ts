@@ -25,7 +25,7 @@ import { isSourceSafe } from "./source/is-source-safe";
  *  [-] Fulfilling configuration options
  */
 
-enum MessageIds {
+export enum MessageIds {
   VULNERABLE_SINK = "vulnerable-sink",
   ADD_SANITATION_FIX = "add-sanitation-fix",
 }
@@ -51,7 +51,7 @@ export const noDomXSSRule = createRule<Options, MessageIds>({
   defaultOptions: [
     {
       sanitation: {
-        package: "dom-purify",
+        package: "dompurify",
         method: "sanitize",
         usage: "sanitize(<% html %>, { USE_PROFILES: { html: true } })",
       },
@@ -62,7 +62,7 @@ export const noDomXSSRule = createRule<Options, MessageIds>({
     fixable: "code",
     messages: {
       [MessageIds.VULNERABLE_SINK]:
-        "This assignment is vulnerable to XSS attacks, it acts as a {{ sinkType }} sink",
+        "[{{sinkType}} sink] This assignment is vulnerable to XSS attacks.",
       [MessageIds.ADD_SANITATION_FIX]:
         "Add sanitation before assigning vulnerable value",
     },
@@ -75,7 +75,7 @@ export const noDomXSSRule = createRule<Options, MessageIds>({
     schema: [
       {
         type: "object",
-        properties: {
+        items: {
           sanitation: {
             type: "object",
             required: false,
@@ -86,7 +86,6 @@ export const noDomXSSRule = createRule<Options, MessageIds>({
             },
           },
         },
-        additionalProperties: false,
       },
     ],
   },
@@ -166,7 +165,7 @@ export const noDomXSSRule = createRule<Options, MessageIds>({
 
         context.report({
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-          node: index ? node.arguments[index]! : node,
+          node: vulnerableNodes[0]!,
           messageId: MessageIds.VULNERABLE_SINK,
           data: {
             sinkType: sink.type,

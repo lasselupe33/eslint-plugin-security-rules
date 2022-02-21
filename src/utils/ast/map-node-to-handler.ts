@@ -3,7 +3,13 @@ import { Node, AST_NODE_TYPES } from "@typescript-eslint/types/dist/ast-spec";
 import { warnOnce } from "../warn-once";
 
 export function makeMapNodeToHandler(
-  { disableWarnings }: { disableWarnings: boolean } = { disableWarnings: false }
+  {
+    disableWarnings,
+    withLogs,
+  }: { disableWarnings?: boolean; withLogs?: boolean } = {
+    disableWarnings: false,
+    withLogs: false,
+  }
 ) {
   return function mapNodeToHandler<
     Context extends Record<string, unknown>,
@@ -36,6 +42,10 @@ export function makeMapNodeToHandler(
         `mapNodeToHandler(%s): No handler associated to type.`,
         node.type,
       ]);
+    }
+
+    if (withLogs) {
+      console.warn("Handling ", node.type);
     }
 
     // @ts-expect-error Typings are not ideal for the internal implementation of

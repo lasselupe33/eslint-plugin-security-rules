@@ -14,7 +14,7 @@ export function printTrace(trace: TraceNode[]): void {
 function nodeToString(node: TraceNode): string {
   if (isConstantTerminalNode(node)) {
     return `"${
-      isPrimitive(node.value) ? node.value : JSON.stringify(node.value)
+      isPrimitive(node.value) ? String(node.value) : JSON.stringify(node.value)
     }" (Terminal/${node.type})`;
   } else if (isUnresolvedTerminalNode(node)) {
     return `"${node.reason}" (Terminal/${node.type})`;
@@ -25,8 +25,8 @@ function nodeToString(node: TraceNode): string {
       ? `, in ${node.connection?.nodeType}`
       : "";
 
-    return `${node.variable.name} (${node.variable.defs[0]?.type}${nodeType}${
-      node.connection?.type ? `/${node.connection.type}` : ""
-    })`;
+    return `${node.variable.name} (${
+      node.variable.defs[0]?.type ?? ""
+    }${nodeType}${node.connection?.type ? `/${node.connection.type}` : ""})`;
   }
 }

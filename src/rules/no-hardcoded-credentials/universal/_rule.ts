@@ -1,4 +1,4 @@
-import { TSESLint, TSESTree, AST_NODE_TYPES } from "@typescript-eslint/utils";
+import { TSESLint, TSESTree } from "@typescript-eslint/utils";
 
 import {
   isArrayExpression,
@@ -6,9 +6,7 @@ import {
   isIdentifier,
   isLiteral,
   isObjectExpression,
-  isObjectPattern,
   isProperty,
-  isStringLiteral,
 } from "../../../utils/ast/guards";
 import { isSafeValue } from "../utils/is-safe-value";
 

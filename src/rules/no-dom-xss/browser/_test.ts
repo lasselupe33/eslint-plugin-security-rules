@@ -1,33 +1,39 @@
-// import fs from "fs";
-// import path from "path";
+import fs from "fs";
+import path from "path";
 
-// import { RuleTester } from "eslint";
+import { ESLintUtils } from "@typescript-eslint/utils";
 
-// import { multiFileRule } from "../../rules/multi-file-rule";
+import { MessageIds, noDomXSSRule } from "./_rule";
 
-// const filesRoot = path.join(__dirname, "..", "files", "multi-file-rule");
+function getCode(name: string): string {
+  return fs.readFileSync(
+    require.resolve(path.join(__dirname, "tests", name)),
+    "utf-8"
+  );
+}
 
-// const ruleTester = new RuleTester({
-//   parser: require.resolve("@typescript-eslint/parser"),
-// });
+function repeat<T>(it: T, times: number): T[] {
+  return new Array(times).fill(it) as T[];
+}
 
-// ruleTester.run("multi-file-rule", multiFileRule, {
-//   valid: [
-//     {
-//       code: fs.readFileSync(
-//         require.resolve(path.join(filesRoot, "entry")),
-//         "utf8"
-//       ),
-//     },
-//   ],
+const ruleTester = new ESLintUtils.RuleTester({
+  parser: "@typescript-eslint/parser",
+  parserOptions: {
+    project: "./tsconfig.json",
+    tsconfigRootDir: path.resolve(__dirname, "..", "..", "..", ".."),
+  },
+});
 
-//   invalid: [
-//     // {
-//     //   code: fs.readFileSync(
-//     // require.resolve(path.join(filesRoot, "too-long")),
-//     // "utf8"
-//     //   ),
-//     //   errors: [{}],
-//     // },
-//   ],
-// });
+ruleTester.run("browser/no-dom-xss", noDomXSSRule, {
+  valid: [
+    {
+      code: getCode("allow-assign-safe-value"),
+    },
+  ],
+  invalid: [
+    {
+      code: getCode("error-assign-unsafe-value"),
+      errors: repeat({ messageId: MessageIds.VULNERABLE_SINK }, 27),
+    },
+  ],
+});

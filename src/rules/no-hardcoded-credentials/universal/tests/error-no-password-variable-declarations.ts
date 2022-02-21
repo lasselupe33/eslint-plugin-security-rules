@@ -1,1 +1,3 @@
 const password = "secret";
+
+export {};

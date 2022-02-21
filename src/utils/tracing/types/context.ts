@@ -26,7 +26,7 @@ export type Meta = {
    * If set to true, then when handling an identifier we will simply return the
    * literal instead of the resolved variable
    */
-  forceIdentifierLiteral?: boolean;
+  forceIdentifierLiteral?: boolean | undefined;
 };
 
 /**

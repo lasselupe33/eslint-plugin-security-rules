@@ -4,6 +4,7 @@
       "dom",
       "esnext"
     ],
+    "isolatedModules": true,
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
@@ -22,7 +23,7 @@
     "exactOptionalPropertyTypes": true,
     "target": "ESNext",
   },
-  "include": ["src/**/*", "dummy/**/*"],
+  "include": ["src/**/*", "dummy/**/*", "file.ts"],
   "exclude": [
     "**/lib",
     "**/node_modules"

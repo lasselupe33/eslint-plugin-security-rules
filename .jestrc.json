@@ -1,5 +1,6 @@
 {
   "roots": ["<rootDir>/src"],
+  "testMatch": ["**/_test.ts"],
   "modulePathIgnorePatterns": ["/lib/"],
   "coverageDirectory": "<rootDir>/.coverage",
 

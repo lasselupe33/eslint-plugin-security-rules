@@ -9,9 +9,9 @@ export enum IdentifierTypes {
 }
 
 export enum SinkTypes {
-  DOCUMENT = "document",
-  LOCATION = "location",
-  EXECUTION = "execution",
+  DOCUMENT = "Document",
+  LOCATION = "Location",
+  EXECUTION = "Execution",
 }
 
 /**
@@ -157,7 +157,7 @@ export const CALL_EXPRESSION_SINKS: CallExpressionSink[] = [
     type: SinkTypes.DOCUMENT,
     identifier: [
       { name: "__irrelevant__", type: IdentifierTypes.ANY_ELEMENT },
-      { name: "insertAdjecentHTML" },
+      { name: "insertAdjacentHTML" },
     ],
     paramterIndex: 1,
   },

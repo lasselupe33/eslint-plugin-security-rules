@@ -2,12 +2,13 @@ import { TSESTree } from "@typescript-eslint/utils";
 import { getInnermostScope } from "@typescript-eslint/utils/dist/ast-utils";
 import { RuleContext } from "@typescript-eslint/utils/dist/ts-eslint";
 
+import { getImportMeta } from "../../../../utils/ast/get-import-meta";
 import { traceVariable } from "../../../../utils/tracing/_trace-variable";
 import { makeTraceCallbacksWithTrace } from "../../../../utils/tracing/callbacks/with-current-trace";
 import { ConnectionTypes } from "../../../../utils/tracing/types/connection";
 import {
+  isNodeTerminalNode,
   isTerminalNode,
-  isVariableNode,
 } from "../../../../utils/tracing/types/nodes";
 import { printTrace } from "../../../../utils/tracing/utils/printTrace";
 import { SanitationOptions } from "../_rule";
@@ -19,7 +20,7 @@ type Context = {
 
 export function isSourceSafe(
   node: TSESTree.Node | undefined,
-  { context }: Context
+  { context, options }: Context
 ): boolean {
   if (!node) {
     return true;
@@ -47,10 +48,20 @@ export function isSourceSafe(
     },
     makeTraceCallbacksWithTrace({
       onNodeVisited: (trace, traceNode) => {
-        if (
-          isVariableNode(traceNode) &&
-          SAFE_FUNCTIONS_NAMES.includes(traceNode.variable.name)
-        ) {
+        if (isNodeTerminalNode(traceNode)) {
+          const importMeta = getImportMeta(traceNode.node);
+
+          // In case we cannot resolve import data from the terminal node, then
+          // we will not have encountered a sanitation terminal, since
+          // sanitsation methods will always have to be imported!
+          if (
+            !importMeta ||
+            importMeta.source !== options.sanitation.package ||
+            importMeta.imported !== options.sanitation.method
+          ) {
+            return;
+          }
+
           const hasModificationInTrace = trace.some(
             (node) => node.connection?.type === ConnectionTypes.MODIFICATION
           );
@@ -84,5 +95,3 @@ export function isSourceSafe(
 
   return isSafe;
 }
-
-const SAFE_FUNCTIONS_NAMES = ["safe"];

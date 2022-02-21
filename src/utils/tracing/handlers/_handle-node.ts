@@ -1,8 +1,8 @@
 import { AST_NODE_TYPES, TSESTree } from "@typescript-eslint/utils";
 
-import { mapNodeToHandler } from "../../ast/map-node-to-handler";
+import { makeMapNodeToHandler } from "../../ast/map-node-to-handler";
 import { HandlingContext } from "../types/context";
-import { TraceNode } from "../types/nodes";
+import { makeUnresolvedTerminalNode, TraceNode } from "../types/nodes";
 
 import { handleBinaryExpression } from "./binary-expression";
 import { handleCallExpression } from "./call-expression";
@@ -14,6 +14,8 @@ import { handleMemberExpression } from "./member-expression";
 import { handleObjectExpression } from "./object-expression";
 import { handleTemplateElement } from "./template-element";
 import { handleTemplateLiteral } from "./template-literal";
+
+const mapNodeToHandler = makeMapNodeToHandler({ withLogs: false });
 
 export function handleNode(
   context: HandlingContext,
@@ -32,6 +34,12 @@ export function handleNode(
       [AST_NODE_TYPES.ObjectExpression]: handleObjectExpression,
       [AST_NODE_TYPES.ImportSpecifier]: handleImportSpecifier,
       [AST_NODE_TYPES.ImportDeclaration]: handleImportDeclaration,
+      fallback: (ctx, node) => [
+        makeUnresolvedTerminalNode({
+          reason: `No handler for ${node.type}`,
+          connection: ctx.connection,
+        }),
+      ],
     },
     context
   );
