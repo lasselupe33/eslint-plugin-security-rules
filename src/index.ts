@@ -28,10 +28,7 @@ export const configs = {
   browser: {
     plugins: ["security-rules"],
     rules: {
-      "security-rules/browser/no-dom-xss": [
-        "error",
-        { sanitation: { method: "string", package: "test" } },
-      ],
+      "security-rules/browser/no-dom-xss": ["error"],
     },
   },
   universal: {

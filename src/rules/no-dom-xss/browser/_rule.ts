@@ -51,7 +51,7 @@ export const noDomXSSRule = createRule<Options, MessageIds>({
   defaultOptions: [
     {
       sanitation: {
-        package: "dom-purify",
+        package: "dompurify",
         method: "sanitize",
         usage: "sanitize(<% html %>, { USE_PROFILES: { html: true } })",
       },

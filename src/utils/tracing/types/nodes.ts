@@ -11,7 +11,7 @@ type BaseTerminalNode = {
 
 type ConstantTerminalNode = BaseTerminalNode & {
   type: "constant";
-  value: unknown;
+  value: string;
 };
 
 type UnresolvedTerminalNode = BaseTerminalNode & {

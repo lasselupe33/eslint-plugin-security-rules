@@ -15,10 +15,7 @@ export function handleMemberExpression(
     memberExpression.property
   )[0];
 
-  if (
-    !isConstantTerminalNode(pathTerminal) ||
-    typeof pathTerminal.value !== "string"
-  ) {
+  if (!isConstantTerminalNode(pathTerminal)) {
     throw new Error(
       "handleMemberExpression(): Unable to extract the pathName to follow. This is not intentional, please file a bug report."
     );
