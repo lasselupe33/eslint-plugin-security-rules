@@ -3,6 +3,7 @@ import { RuleCreator } from "@typescript-eslint/utils/dist/eslint-utils";
 import { RuleFix, RuleFixer } from "@typescript-eslint/utils/dist/ts-eslint";
 
 import { isNewExpression } from "../../../utils/ast/guards";
+import { createImportFix } from "../../../utils/create-import-fix";
 import { resolveDocsRoute } from "../../../utils/resolve-docs-route";
 import { getTypeProgram } from "../../../utils/types/get-type-program";
 
@@ -20,9 +21,9 @@ import { isSourceSafe } from "./source/is-source-safe";
  *  [X] Detection
  *  [X] Automatic fix / Suggestions
  *  [X] Reduction of false positives
- *  [ ] Fulfilling unit testing
+ *  [-] Fulfilling unit testing
  *  [ ] Extensive documentation
- *  [-] Fulfilling configuration options
+ *  [X] Fulfilling configuration options
  */
 
 export enum MessageIds {
@@ -64,7 +65,7 @@ export const noDomXSSRule = createRule<Options, MessageIds>({
       [MessageIds.VULNERABLE_SINK]:
         "[{{sinkType}} sink] This assignment is vulnerable to XSS attacks.",
       [MessageIds.ADD_SANITATION_FIX]:
-        "Add sanitation before assigning vulnerable value",
+        "Add sanitation before assigning unsafe value",
     },
     docs: {
       description: "TODO",
@@ -206,4 +207,9 @@ function* addSanitazionAtSink(
 
   yield fixer.insertTextBefore(unsafeNode, toInsertBefore);
   yield fixer.insertTextAfter(unsafeNode, toInsertAfter);
+  yield createImportFix(
+    fixer,
+    options.sanitation.method,
+    options.sanitation.package
+  );
 }
