@@ -1,5 +1,9 @@
 import { AST_NODE_TYPES, TSESTree } from "@typescript-eslint/utils";
-import { getInnermostScope } from "@typescript-eslint/utils/dist/ast-utils";
+import {
+  getInnermostScope,
+  isVariableDeclarator,
+} from "@typescript-eslint/utils/dist/ast-utils";
+import { isTemplateLiteral } from "typescript";
 
 import { isIdentifier, isProperty } from "../../../../utils/ast/guards";
 import { makeMapNodeToHandler } from "../../../../utils/ast/map-node-to-handler";
@@ -12,7 +16,7 @@ const mapNodeToHandler = makeMapNodeToHandler({ disableWarnings: true });
 
 export function extractQuery(
   context: HandlingContext,
-  node: TSESTree.Node | undefined
+  node: TSESTree.Node | undefined | null
 ): TSESTree.Literal | TSESTree.TemplateLiteral | undefined {
   if (!node) {
     return;
@@ -26,6 +30,8 @@ export function extractQuery(
       [AST_NODE_TYPES.Identifier]: (ctx, id) => traceIdentifier(ctx, id),
       [AST_NODE_TYPES.ObjectExpression]: (ctx, objExp) =>
         extractQuery(ctx, handleObjArgs(objExp.properties)),
+      [AST_NODE_TYPES.VariableDeclarator]: (ctx, dec) =>
+        extractQuery(ctx, dec.init),
     },
     context
   );
@@ -36,9 +42,9 @@ export function extractQuery(
 function traceIdentifier(
   context: HandlingContext,
   node: TSESTree.Identifier
-): TSESTree.Literal | undefined {
+): TSESTree.Literal | TSESTree.TemplateLiteral | undefined {
   // trace the string of a potential identifier
-
+  let maybeNode = undefined;
   traceVariable(
     {
       context: context.ruleContext,
@@ -47,18 +53,14 @@ function traceIdentifier(
     },
     makeTraceCallbacksWithTrace({
       onNodeVisited: (trace, traceNode) => {
-        // console.log(traceNode);
-        // return { stopFollowingVariable: true }
-      },
-      onTraceFinished: (trace) => {
-        printTrace(trace);
-        const finalNode = trace[trace.length - 1];
-        // console.log(finalNode);
-        // No op
+        if (traceNode.connection?.nodeType === "TemplateLiteral") {
+          maybeNode = traceNode.connection.variable?.defs[0]?.node;
+          return { stopFollowingVariable: true };
+        }
       },
     })
   );
-  return undefined;
+  return extractQuery(context, maybeNode);
 }
 
 function handleObjArgs(

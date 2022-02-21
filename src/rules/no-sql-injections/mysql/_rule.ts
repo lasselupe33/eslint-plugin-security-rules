@@ -16,7 +16,7 @@ import { extractQuery } from "./utils/extract-query";
  * Progress
  *  [-] Detection
  *  [-] Automatic fix / Suggestions
- *  [ ] Reduction of false positives
+ *  [-] Reduction of false positives
  *  [ ] Fulfilling unit testing
  *  [ ] Extensive documentation
  *  [ ] Fulfilling configuration options
@@ -74,7 +74,12 @@ export const mysqlNoSQLInjections = createRule<never[], MessageIds>({
 
         // Assuming that query is always the first argument
         const queryParam = node.arguments[0];
-        const queryLiteral = extractQuery(queryParam);
+        if (!queryParam) {
+          return;
+        }
+
+        // handleQuery({ ruleContext: context }, queryParam);
+        const queryLiteral = extractQuery({ ruleContext: context }, queryParam);
 
         if (!isTemplateLiteral(queryLiteral)) {
           return;
@@ -102,7 +107,8 @@ export const mysqlNoSQLInjections = createRule<never[], MessageIds>({
                 suggest: [
                   {
                     messageId: MessageIds.ESCAPE_FIX,
-                    fix: (fixer: TSESLint.RuleFixer) => escapeFix(fixer, node),
+                    fix: (fixer: TSESLint.RuleFixer) =>
+                      escapeFix(fixer, node, idLeft),
                   },
                 ],
               });
@@ -124,9 +130,14 @@ export function report(node: TSESTree.Node, ctx: HandlingContext) {
 
 function* escapeFix(
   fixer: TSESLint.RuleFixer,
-  node: TSESTree.Expression
+  node: TSESTree.Expression,
+  escapeIdentifier: TSESTree.Identifier | undefined
 ): Generator<TSESLint.RuleFix> {
-  yield fixer.insertTextBefore(node, "connection.escape(");
+  if (!escapeIdentifier) {
+    return;
+  }
+  const leftString = escapeIdentifier.name + ".escape(";
+  yield fixer.insertTextBefore(node, leftString);
   yield fixer.insertTextAfter(node, ")");
 
   // No op
