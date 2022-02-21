@@ -2,15 +2,15 @@ import { TSESTree } from "@typescript-eslint/utils";
 import { getInnermostScope } from "@typescript-eslint/utils/dist/ast-utils";
 import { RuleContext } from "@typescript-eslint/utils/dist/ts-eslint";
 
-import { traceVariable } from "../../../../utils/tracing/_trace-variable";
-import { makeTraceCallbacksWithTrace } from "../../../../utils/tracing/callbacks/with-current-trace";
-import { ConnectionTypes } from "../../../../utils/tracing/types/connection";
+import { traceVariable } from "../../../utils/tracing/_trace-variable";
+import { makeTraceCallbacksWithTrace } from "../../../utils/tracing/callbacks/with-current-trace";
+import { ConnectionTypes } from "../../../utils/tracing/types/connection";
 import {
   isConstantTerminalNode,
   isImportTerminalNode,
-} from "../../../../utils/tracing/types/nodes";
-import { printTrace } from "../../../../utils/tracing/utils/printTrace";
-import { SanitationOptions } from "../_rule";
+} from "../../../utils/tracing/types/nodes";
+import { printTrace } from "../../../utils/tracing/utils/printTrace";
+import { SanitationOptions } from "../browser/_rule";
 
 type Context = {
   context: RuleContext<string, unknown[]>;

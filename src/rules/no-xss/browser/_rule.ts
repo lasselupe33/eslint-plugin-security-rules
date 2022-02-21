@@ -11,15 +11,15 @@ import { hasImportDeclaration } from "../../../utils/ast/has-import-declaration"
 import { createImportFix } from "../../../utils/create-import-fix";
 import { resolveDocsRoute } from "../../../utils/resolve-docs-route";
 import { getTypeProgram } from "../../../utils/types/get-type-program";
+import { getRelevantSinks } from "../sink/get-relevant-sinks";
+import { isCallRelevant } from "../sink/is-call-relevant";
+import { isSourceSafe } from "../source/is-source-safe";
 
 import {
   ASSIGNMENT_EXPRESSION_SINKS,
   CALL_EXPRESSION_SINKS,
   NEW_EXPRESSION_SINKS,
-} from "./sink/data";
-import { getRelevantSinks } from "./sink/get-relevant-sinks";
-import { isCallRelevant } from "./sink/is-call-relevant";
-import { isSourceSafe } from "./source/is-source-safe";
+} from "./data";
 
 /**
  * Progress

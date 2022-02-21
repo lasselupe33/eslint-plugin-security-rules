@@ -2,14 +2,14 @@ import { TSESTree } from "@typescript-eslint/utils";
 import { getInnermostScope } from "@typescript-eslint/utils/dist/ast-utils";
 import { RuleContext } from "@typescript-eslint/utils/dist/ts-eslint";
 
-import { traceVariable } from "../../../../utils/tracing/_trace-variable";
-import { makeTraceGenerator } from "../../../../utils/tracing/callbacks/generate-traces";
+import { traceVariable } from "../../../utils/tracing/_trace-variable";
+import { makeTraceGenerator } from "../../../utils/tracing/callbacks/generate-traces";
 import {
   isConstantTerminalNode,
   TraceNode,
-} from "../../../../utils/tracing/types/nodes";
+} from "../../../utils/tracing/types/nodes";
 
-import { CallExpressionSink } from "./data";
+import { CallExpressionSink } from "./types";
 
 export function isCallRelevant(
   context: RuleContext<string, unknown[]>,

@@ -4,12 +4,12 @@ import {
   isCallExpression,
   isIdentifier,
   isMemberExpression,
-} from "../../../../utils/ast/guards";
-import { TypeProgram } from "../../../../utils/types/get-type-program";
+} from "../../../utils/ast/guards";
+import { TypeProgram } from "../../../utils/types/get-type-program";
 
-import { RawSink } from "./data";
 import { findConclusionSink } from "./find-conclusion-sink";
 import { findMatchingSinks } from "./find-matching-sinks";
+import { RawSink } from "./types";
 
 /**
  * Takes an expression to determine if it assigns data to an XSS sink.

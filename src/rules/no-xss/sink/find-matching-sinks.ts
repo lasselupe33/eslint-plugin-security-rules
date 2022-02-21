@@ -1,9 +1,9 @@
 import { TSESTree } from "@typescript-eslint/utils";
 
-import { TypeProgram } from "../../../../utils/types/get-type-program";
+import { TypeProgram } from "../../../utils/types/get-type-program";
 
-import { RawSink } from "./data";
 import { isSinkRelevant } from "./is-sink-relevant";
+import { RawSink } from "./types";
 
 /**
  * Iterates over a list of potential sinks that the current node may be.
