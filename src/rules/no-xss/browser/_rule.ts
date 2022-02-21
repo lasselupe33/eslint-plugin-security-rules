@@ -1,19 +1,15 @@
 import { TSESTree } from "@typescript-eslint/utils";
 import { RuleCreator } from "@typescript-eslint/utils/dist/eslint-utils";
-import {
-  RuleFix,
-  RuleFixer,
-  Scope,
-} from "@typescript-eslint/utils/dist/ts-eslint";
+import { RuleFixer } from "@typescript-eslint/utils/dist/ts-eslint";
 
 import { isNewExpression } from "../../../utils/ast/guards";
-import { hasImportDeclaration } from "../../../utils/ast/has-import-declaration";
-import { createImportFix } from "../../../utils/create-import-fix";
 import { resolveDocsRoute } from "../../../utils/resolve-docs-route";
 import { getTypeProgram } from "../../../utils/types/get-type-program";
-import { getRelevantSinks } from "../sink/get-relevant-sinks";
-import { isCallRelevant } from "../sink/is-call-relevant";
-import { isSourceSafe } from "../source/is-source-safe";
+import { addSanitazionAtSink } from "../utils/fixes/add-sanitation-sink";
+import { NoXssOptions } from "../utils/options";
+import { getRelevantSinks } from "../utils/sink/get-relevant-sinks";
+import { isCallRelevant } from "../utils/sink/is-call-relevant";
+import { isSourceSafe } from "../utils/source/is-source-safe";
 
 import {
   ASSIGNMENT_EXPRESSION_SINKS,
@@ -36,23 +32,13 @@ export enum MessageIds {
   ADD_SANITATION_FIX = "add-sanitation-fix",
 }
 
-export type SanitationOptions = {
-  sanitation: {
-    package: string;
-    method: string;
-    usage: string;
-  };
-};
-
-type Options = [SanitationOptions];
-
 const createRule = RuleCreator(resolveDocsRoute);
 
 /**
  * Detects and reports if any expressions assign unsafe values to known vanilla
  * XSS injection sinks.
  */
-export const noBrowserXSSRule = createRule<Options, MessageIds>({
+export const noBrowserXSSRule = createRule<NoXssOptions, MessageIds>({
   name: "no-xss/browser",
   defaultOptions: [
     {
@@ -207,30 +193,3 @@ export const noBrowserXSSRule = createRule<Options, MessageIds>({
     };
   },
 });
-
-function* addSanitazionAtSink(
-  options: SanitationOptions,
-  fixer: RuleFixer,
-  unsafeNode: TSESTree.Node,
-  moduleScope: Scope.Scope
-): Generator<RuleFix> {
-  const toInsertBefore = options.sanitation.usage.split("<%")[0] ?? "";
-  const toInsertAfter = options.sanitation.usage.split("%>")[1] ?? "";
-
-  yield fixer.insertTextBefore(unsafeNode, toInsertBefore);
-  yield fixer.insertTextAfter(unsafeNode, toInsertAfter);
-
-  if (
-    !hasImportDeclaration(
-      moduleScope,
-      options.sanitation.package,
-      options.sanitation.method
-    )
-  ) {
-    yield createImportFix(
-      fixer,
-      options.sanitation.package,
-      options.sanitation.method
-    );
-  }
-}

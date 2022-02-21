@@ -1,7 +1,7 @@
 import { TSESTree } from "@typescript-eslint/utils";
 
-import { getNodeType } from "../../../utils/types/get-node-type";
-import { TypeProgram } from "../../../utils/types/get-type-program";
+import { getNodeType } from "../../../../utils/types/get-node-type";
+import { TypeProgram } from "../../../../utils/types/get-type-program";
 
 import { RawSink } from "./types";
 
