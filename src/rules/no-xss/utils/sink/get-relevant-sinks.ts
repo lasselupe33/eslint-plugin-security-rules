@@ -3,6 +3,7 @@ import { TSESTree } from "@typescript-eslint/utils";
 import {
   isCallExpression,
   isIdentifier,
+  isJSXIdentifier,
   isMemberExpression,
 } from "../../../../utils/ast/guards";
 import { TypeProgram } from "../../../../utils/types/get-type-program";
@@ -22,13 +23,13 @@ import { RawSink } from "./types";
  */
 export function getRelevantSinks<Sink extends RawSink>(
   typeProgram: TypeProgram,
-  expression: TSESTree.Expression,
+  expression: TSESTree.Expression | TSESTree.JSXIdentifier,
   matchIn: Sink[]
 ): Sink[] {
   // Once the expression has been reduced to an identifier, then we've reached
   // the root and thus we determine if a conclusion sink exists for the given
   // traversal.
-  if (isIdentifier(expression)) {
+  if (isIdentifier(expression) || isJSXIdentifier(expression)) {
     const sinks = findConclusionSink(
       typeProgram,
       expression,

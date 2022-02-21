@@ -60,6 +60,16 @@ export const isFunctionDeclaration = isNodeOfType(
 export const isProgram = isNodeOfType(AST_NODE_TYPES.Program);
 export const isTSTypeReference = isNodeOfType(AST_NODE_TYPES.TSTypeReference);
 export const isTSTypeAnnotation = isNodeOfType(AST_NODE_TYPES.TSTypeAnnotation);
+export const isJSXExpressionContainer = isNodeOfType(
+  AST_NODE_TYPES.JSXExpressionContainer
+);
+export const isJSXEmptyExpression = isNodeOfType(
+  AST_NODE_TYPES.JSXEmptyExpression
+);
+export const isJSXIdentifier = isNodeOfType(AST_NODE_TYPES.JSXIdentifier);
+export const isJSXNamespacedName = isNodeOfType(
+  AST_NODE_TYPES.JSXNamespacedName
+);
 
 // Custom guards
 

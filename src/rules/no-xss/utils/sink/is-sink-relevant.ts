@@ -11,7 +11,7 @@ import { RawSink } from "./types";
  */
 export function isSinkRelevant<Sink extends RawSink>(
   typeProgram: TypeProgram,
-  node: TSESTree.Expression,
+  node: TSESTree.Expression | TSESTree.JSXIdentifier,
   currentIdentifierName: string,
   sink: Sink
 ): boolean {

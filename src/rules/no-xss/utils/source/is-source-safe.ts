@@ -42,7 +42,6 @@ export function isSourceSafe(
   traceVariable(
     {
       context,
-      rootScope: getInnermostScope(context.getScope(), node),
       node,
     },
     makeTraceCallbacksWithTrace({

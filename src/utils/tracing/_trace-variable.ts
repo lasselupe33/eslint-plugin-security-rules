@@ -12,7 +12,7 @@ import { visitReference } from "./visitors/reference";
 
 export type TraceContext = {
   context: RuleContext<string, unknown[]>;
-  rootScope: Scope.Scope;
+  rootScope?: Scope.Scope;
   node?: Node | null | undefined;
 };
 
@@ -42,7 +42,7 @@ export function traceVariable(
   const remainingVariables = handleNode(
     {
       ruleContext: ctx.context,
-      scope: ctx.rootScope,
+      scope: ctx.rootScope ?? ctx.context.getScope(),
       connection: {},
       meta: {
         parameterToArgumentMap: undefined,

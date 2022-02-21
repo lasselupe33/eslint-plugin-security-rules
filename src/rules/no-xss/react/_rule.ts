@@ -1,16 +1,38 @@
+import { TSESTree } from "@typescript-eslint/utils";
 import { RuleCreator } from "@typescript-eslint/utils/dist/eslint-utils";
+import {
+  RuleContext,
+  RuleFixer,
+} from "@typescript-eslint/utils/dist/ts-eslint";
 
+import {
+  isIdentifier,
+  isJSXEmptyExpression,
+  isJSXExpressionContainer,
+  isJSXNamespacedName,
+  isObjectExpression,
+  isProperty,
+} from "../../../utils/ast/guards";
 import { resolveDocsRoute } from "../../../utils/resolve-docs-route";
+import { traceVariable } from "../../../utils/tracing/_trace-variable";
+import { makeTraceCallbacksWithTrace } from "../../../utils/tracing/callbacks/with-current-trace";
+import { isNodeTerminalNode } from "../../../utils/tracing/types/nodes";
+import { getTypeProgram } from "../../../utils/types/get-type-program";
+import { addSanitazionAtSink } from "../utils/fixes/add-sanitation-sink";
 import { NoXssOptions } from "../utils/options";
+import { getRelevantSinks } from "../utils/sink/get-relevant-sinks";
+import { isSourceSafe } from "../utils/source/is-source-safe";
+
+import { ASSIGNMENT_SINKS } from "./data";
 
 /**
  * Progress
- *  [ ] Detection
- *  [ ] Automatic fix / Suggestions
- *  [ ] Reduction of false positives
- *  [ ] Fulfilling unit testing
+ *  [X] Detection
+ *  [X] Automatic fix / Suggestions
+ *  [X] Reduction of false positives
+ *  [-] Fulfilling unit testing
  *  [ ] Extensive documentation
- *  [ ] Fulfilling configuration options
+ *  [X] Fulfilling configuration options
  */
 
 export enum MessageIds {
@@ -67,7 +89,109 @@ export const noReactXSSRule = createRule<NoXssOptions, MessageIds>({
       },
     ],
   },
-  create: () => {
-    return {};
+  create: (context, [sanitationOptions]) => {
+    const typeProgram = getTypeProgram(context);
+
+    return {
+      JSXAttribute: (node) => {
+        if (
+          isJSXNamespacedName(node.name) ||
+          !isJSXExpressionContainer(node.value)
+        ) {
+          return;
+        }
+
+        const expression = node.value.expression;
+
+        if (isJSXEmptyExpression(expression)) {
+          return;
+        }
+
+        const sink = getRelevantSinks(
+          typeProgram,
+          node.name,
+          ASSIGNMENT_SINKS
+        )[0];
+
+        if (!sink) {
+          return;
+        }
+
+        const value =
+          "property" in sink
+            ? getObjectProperty(context, expression, sink.property)
+            : expression;
+
+        if (!value) {
+          return;
+        }
+
+        const isSafe = isSourceSafe(value, {
+          context,
+          options: sanitationOptions,
+        });
+
+        if (isSafe) {
+          return;
+        }
+
+        context.report({
+          node: node.value,
+          messageId: MessageIds.VULNERABLE_SINK,
+          data: {
+            sinkType: sink.type,
+          },
+          suggest: [
+            {
+              fix: (fixer: RuleFixer) =>
+                addSanitazionAtSink(
+                  sanitationOptions,
+                  fixer,
+                  value,
+                  context.getScope()
+                ),
+              messageId: MessageIds.ADD_SANITATION_FIX,
+            },
+          ],
+        });
+      },
+    };
   },
 });
+
+function getObjectProperty(
+  context: RuleContext<MessageIds, NoXssOptions>,
+  maybeObj: TSESTree.Node,
+  property: string
+): TSESTree.Node | undefined {
+  let obj: TSESTree.Node = maybeObj;
+
+  traceVariable(
+    {
+      node: maybeObj,
+      context,
+    },
+    makeTraceCallbacksWithTrace({
+      onTraceFinished: (trace) => {
+        const terminal = trace[trace.length - 1];
+
+        if (isNodeTerminalNode(terminal) && isObjectExpression(terminal.node)) {
+          obj = terminal.node;
+
+          // @TODO: Consider if we should check all traces to identify multiple
+          // assignments to expressions.
+          return { halt: true };
+        }
+      },
+    })
+  );
+
+  if (!isObjectExpression(obj)) {
+    return;
+  }
+
+  return obj.properties.find(
+    (it): it is TSESTree.Property =>
+      isProperty(it) && isIdentifier(it.key) && it.key.name === property
+  )?.value;
+}

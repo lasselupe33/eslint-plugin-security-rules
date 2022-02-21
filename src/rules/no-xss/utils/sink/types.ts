@@ -44,3 +44,6 @@ export type CallExpressionSink = RawSink & {
   paramterIndex: number | "any" | "last";
   if?: { paramaterIndex: number; equals: string; isPrefix?: boolean };
 };
+export type ObjectAssignmentSink = RawSink & {
+  property: string;
+};

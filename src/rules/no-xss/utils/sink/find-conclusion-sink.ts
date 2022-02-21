@@ -12,7 +12,7 @@ import { RawSink } from "./types";
  */
 export function findConclusionSink<Sink extends RawSink>(
   typeProgram: TypeProgram,
-  node: TSESTree.Expression,
+  node: TSESTree.Expression | TSESTree.JSXIdentifier,
   currentIdentifierName: string,
   matchIn: Sink[]
 ) {
