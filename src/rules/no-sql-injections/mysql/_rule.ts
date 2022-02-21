@@ -1,6 +1,11 @@
 import { TSESLint, TSESTree } from "@typescript-eslint/utils";
+import { RuleCreator } from "@typescript-eslint/utils/dist/eslint-utils";
 
-import { isTemplateLiteral } from "../../../utils/ast/guards";
+import {
+  isTemplateElement,
+  isTemplateLiteral,
+} from "../../../utils/ast/guards";
+import { resolveDocsRoute } from "../../../utils/resolve-docs-route";
 
 import { handleIdentifier } from "./handlers/handle-identifier";
 import { handleTemplateLiteral } from "./handlers/handle-template-literal";
@@ -9,8 +14,8 @@ import { extractQuery } from "./utils/extract-query";
 
 /**
  * Progress
- *  [ ] Detection
- *  [ ] Automatic fix / Suggestions
+ *  [-] Detection
+ *  [-] Automatic fix / Suggestions
  *  [ ] Reduction of false positives
  *  [ ] Fulfilling unit testing
  *  [ ] Extensive documentation
@@ -18,43 +23,56 @@ import { extractQuery } from "./utils/extract-query";
  */
 
 export type HandlingContext = {
-  ruleContext: Readonly<TSESLint.RuleContext<MessageIds, []>>;
+  ruleContext: Readonly<TSESLint.RuleContext<MessageIds, unknown[]>>;
 };
+
+const createRule = RuleCreator(resolveDocsRoute);
 
 enum MessageIds {
   VULNERABLE_QUERY = "vulnerable-query",
   PARAMTERIZED_FIX = "parameterized-fix",
+  ESCAPE_FIX = "escape-fix",
 }
 
-export const mysqlNoSQLInjections: TSESLint.RuleModule<MessageIds> = {
+export const mysqlNoSQLInjections = createRule<never[], MessageIds>({
+  name: "mysql/no-sql-injections",
+  defaultOptions: [],
   meta: {
     type: "problem",
+    fixable: "code",
     messages: {
       [MessageIds.VULNERABLE_QUERY]:
         "The query is vulnerable to SQL injections",
-      [MessageIds.PARAMTERIZED_FIX]: "",
+      [MessageIds.PARAMTERIZED_FIX]:
+        "(Recommended) Replace arguments with placeholders",
+      [MessageIds.ESCAPE_FIX]: "Escape arguments",
     },
     docs: {
       recommended: "error",
       description: "Description",
+      suggestion: true,
     },
+    hasSuggestions: true,
     schema: {},
   },
-
   create: (context) => {
     return {
       CallExpression: (node) => {
-        const id = extractIdentifier(node);
+        // We need to extract connection as well, as users may
+        // have defined some other name for it.
+        // connection.query
+        const [idLeft, idRight] = extractIdentifier(node);
 
         const didMatchIdentifierName = handleIdentifier(
           { ruleContext: context },
-          id
+          idRight
         );
 
         if (!didMatchIdentifierName) {
           return;
         }
 
+        // Assuming that query is always the first argument
         const queryParam = node.arguments[0];
         const queryLiteral = extractQuery(queryParam);
 
@@ -72,11 +90,21 @@ export const mysqlNoSQLInjections: TSESLint.RuleModule<MessageIds> = {
         // one, even though it spans multiple lines.
         if (templateLiteralArray.length > 1) {
           for (const [node, isEscaped] of templateLiteralArray) {
-            if (isEscaped !== undefined && !isEscaped) {
+            if (
+              isEscaped !== undefined &&
+              !isTemplateElement(node) &&
+              !isEscaped
+            ) {
               context.report({
                 node: node,
                 messageId: MessageIds.VULNERABLE_QUERY,
-                data: { queryLiteral },
+                data: { node },
+                suggest: [
+                  {
+                    messageId: MessageIds.ESCAPE_FIX,
+                    fix: (fixer: TSESLint.RuleFixer) => escapeFix(fixer, node),
+                  },
+                ],
               });
             }
           }
@@ -84,7 +112,7 @@ export const mysqlNoSQLInjections: TSESLint.RuleModule<MessageIds> = {
       },
     };
   },
-};
+});
 
 export function report(node: TSESTree.Node, ctx: HandlingContext) {
   ctx.ruleContext.report({
@@ -92,4 +120,14 @@ export function report(node: TSESTree.Node, ctx: HandlingContext) {
     messageId: MessageIds.VULNERABLE_QUERY,
     data: { node },
   });
+}
+
+function* escapeFix(
+  fixer: TSESLint.RuleFixer,
+  node: TSESTree.Expression
+): Generator<TSESLint.RuleFix> {
+  yield fixer.insertTextBefore(node, "connection.escape(");
+  yield fixer.insertTextAfter(node, ")");
+
+  // No op
 }

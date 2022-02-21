@@ -1,6 +1,5 @@
 import { TSESTree } from "@typescript-eslint/utils";
 
-import { isTemplateElement } from "../../../../utils/ast/guards";
 import { isRangeAfter } from "../../../../utils/ast/is-range-after";
 import { HandlingContext } from "../_rule";
 import { isEscapedExpression } from "../utils/is-escaped-identifier";
