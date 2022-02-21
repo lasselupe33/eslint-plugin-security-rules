@@ -41,7 +41,7 @@ export function handleCallExpression(
     // publicly.
     foundNodes.push(
       makeUnresolvedTerminalNode({
-        reason: "Broken program",
+        reason: "Unable to resolve callee",
         connection: ctx.connection,
       })
     );

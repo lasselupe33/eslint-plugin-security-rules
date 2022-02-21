@@ -57,6 +57,7 @@ export const isFunctionExpression = isNodeOfType(
 export const isFunctionDeclaration = isNodeOfType(
   AST_NODE_TYPES.FunctionDeclaration
 );
+export const isProgram = isNodeOfType(AST_NODE_TYPES.Program);
 export const isTSTypeReference = isNodeOfType(AST_NODE_TYPES.TSTypeReference);
 export const isTSTypeAnnotation = isNodeOfType(AST_NODE_TYPES.TSTypeAnnotation);
 

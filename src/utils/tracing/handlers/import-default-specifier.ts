@@ -12,18 +12,19 @@ import {
 
 import { handleNode } from "./_handle-node";
 
-export function handleImportSpecifier(
+export function handleImportDefaultSpecifier(
   ctx: HandlingContext,
-  importSpecifier: TSESTree.ImportSpecifier
+  importDefaultSpecifier: TSESTree.ImportDefaultSpecifier
 ): TraceNode[] {
   const nextCtx = deepMerge(ctx, {
     connection: {
-      nodeType: AST_NODE_TYPES.ImportSpecifier,
+      nodeType: AST_NODE_TYPES.ImportDefaultSpecifier,
     },
   });
 
-  const imported = importSpecifier.imported.name;
-  const sourceNode = handleNode(nextCtx, importSpecifier.parent)[0];
+  const imported =
+    nextCtx.meta.memberPath.pop() ?? importDefaultSpecifier.local.name;
+  const sourceNode = handleNode(nextCtx, importDefaultSpecifier.parent)[0];
 
   if (
     !isNodeTerminalNode(sourceNode) ||
@@ -36,8 +37,6 @@ export function handleImportSpecifier(
       }),
     ];
   }
-
-  // @TODO: handle following variable if not in node modules..
 
   return [
     makeImportTerminalNode({
