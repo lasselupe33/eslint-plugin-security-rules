@@ -91,8 +91,8 @@ export function traceVariable(
     const { variable, meta, scope } = traceNode;
 
     if (encounteredMap.has(variable)) {
-      console.error("traceVariable(): Cycles are not supported");
-      return;
+      console.error("traceVariable(): Encountered cycle, skipping");
+      continue;
     }
 
     encounteredMap.set(variable, true);
