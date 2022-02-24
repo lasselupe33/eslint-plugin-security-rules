@@ -3,7 +3,7 @@ import { RuleContext } from "@typescript-eslint/utils/dist/ts-eslint";
 
 import { traceVariable } from "../../../../utils/tracing/_trace-variable";
 import { makeTraceCallbacksWithTrace } from "../../../../utils/tracing/callbacks/with-current-trace";
-import { ConnectionTypes } from "../../../../utils/tracing/types/connection";
+import { ConnectionFlags } from "../../../../utils/tracing/types/connection";
 import {
   isConstantTerminalNode,
   isImportTerminalNode,
@@ -45,24 +45,24 @@ export function isSourceSafe(
     },
     makeTraceCallbacksWithTrace({
       onNodeVisited: (trace, traceNode) => {
-        if (isImportTerminalNode(traceNode)) {
-          if (
-            traceNode.source !== options.sanitation.package ||
-            traceNode.imported !== options.sanitation.method
-          ) {
-            return;
-          }
+        // Once we encounter a modification connection in the current trace we
+        // know that we
+        if (traceNode.connection.flags.has(ConnectionFlags.MODIFICATION)) {
+          const hasSanitationInTrace = trace.some((node) => {
+            if (!isImportTerminalNode(node)) {
+              return false;
+            }
 
-          const hasModificationInTrace = trace.some(
-            (node) => node.connection?.type === ConnectionTypes.MODIFICATION
-          );
+            return (
+              node.source === options.sanitation.package &&
+              node.imported === options.sanitation.method
+            );
+          });
 
           // We can conclude that the current trace is safe if we encounter a
           // safe function without having previously modification connections.
-          if (!hasModificationInTrace) {
-            isCurrentTraceSafelySanitzed = true;
-            return { stopFollowingVariable: true };
-          }
+          isCurrentTraceSafelySanitzed = hasSanitationInTrace;
+          return { stopFollowingVariable: true };
         }
       },
       onTraceFinished: (trace) => {

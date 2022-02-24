@@ -10,7 +10,7 @@ type BaseNode = {
 
 type BaseTerminalNode = BaseNode & {
   __isTerminalNode: true;
-  connection: Connection | undefined;
+  connection: Connection;
 };
 
 export type ConstantTerminalNode = BaseTerminalNode & {
@@ -47,7 +47,7 @@ export type VariableNode = BaseNode & {
   __isVariableNode: true;
 
   variable: Scope.Variable;
-  connection: Connection | undefined;
+  connection: Connection;
   scope: Scope.Scope;
   meta: Meta;
 };

@@ -6,9 +6,8 @@ import {
   isCallExpression,
   isVariableDeclarator,
 } from "../../ast/guards";
-import { deepMerge } from "../../deep-merge";
 import { handleNode } from "../handlers/_handle-node";
-import { ConnectionTypes } from "../types/connection";
+import { ConnectionFlags } from "../types/connection";
 import { HandlingContext } from "../types/context";
 import { ImportTerminalNode, isVariableNode } from "../types/nodes";
 
@@ -40,16 +39,9 @@ export function getReactOverrides(
       return;
     }
 
-    const nextCtx = deepMerge(ctx, {
-      connection: {
-        type: ConnectionTypes.OVERRIDE,
-      },
-    });
+    ctx.connection.flags.add(ConnectionFlags.OVERRIDE);
 
-    const setterVariableNode = handleNode(
-      nextCtx,
-      declarator.id.elements[1]
-    )[0];
+    const setterVariableNode = handleNode(ctx, declarator.id.elements[1])[0];
 
     if (!isVariableNode(setterVariableNode)) {
       return;
@@ -70,7 +62,7 @@ export function getReactOverrides(
     });
 
     return {
-      nextCtx,
+      nextCtx: ctx,
       nodes: [declarator.init.arguments[0], ...relevantArgumentNodes],
     };
   }

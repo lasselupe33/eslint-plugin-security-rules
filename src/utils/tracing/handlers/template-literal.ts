@@ -2,7 +2,7 @@ import { TSESTree } from "@typescript-eslint/utils";
 
 import { isRangeAfter } from "../../ast/is-range-after";
 import { deepMerge } from "../../deep-merge";
-import { ConnectionTypes } from "../types/connection";
+import { ConnectionFlags } from "../types/connection";
 import { HandlingContext } from "../types/context";
 import { TraceNode } from "../types/nodes";
 
@@ -15,9 +15,9 @@ export function handleTemplateLiteral(
   const nextCtx = deepMerge(ctx, {
     connection: {
       astNodes: [...ctx.connection.astNodes, templateLiteral],
-      type: ConnectionTypes.MODIFICATION,
     },
   });
+  nextCtx.connection.flags.add(ConnectionFlags.MODIFICATION);
 
   const nodes = [
     ...templateLiteral.expressions,

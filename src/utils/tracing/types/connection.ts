@@ -1,7 +1,7 @@
-import { AST_NODE_TYPES, TSESTree } from "@typescript-eslint/utils";
+import { TSESTree } from "@typescript-eslint/utils";
 import { Scope } from "@typescript-eslint/utils/dist/ts-eslint";
 
-export enum ConnectionTypes {
+export enum ConnectionFlags {
   MODIFICATION = "modification",
   OVERRIDE = "override",
 }
@@ -12,6 +12,6 @@ export enum ConnectionTypes {
  */
 export type Connection = {
   astNodes: TSESTree.Node[];
+  flags: Set<ConnectionFlags>;
   variable?: Scope.Variable | undefined;
-  type?: ConnectionTypes | undefined;
 };

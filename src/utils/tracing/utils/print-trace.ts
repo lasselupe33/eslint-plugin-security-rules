@@ -40,6 +40,10 @@ function nodeToString(node: TraceNode): string {
   } else {
     return `${node.variable.name} (${node.variable.defs[0]?.type ?? ""}/${
       node.astNodes.length
-    }${node.connection?.type ? `/${node.connection.type}` : ""})`;
+    }${
+      node.connection.flags.size > 0
+        ? `/${Array.from(node.connection.flags).join("-")}`
+        : ""
+    })`;
   }
 }
