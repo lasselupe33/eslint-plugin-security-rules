@@ -4,6 +4,7 @@ import { findVariable } from "@typescript-eslint/utils/dist/ast-utils";
 import { HandlingContext } from "../types/context";
 import {
   makeConstantTerminalNode,
+  makeUnresolvedTerminalNode,
   makeVariableNode,
   TraceNode,
 } from "../types/nodes";
@@ -12,6 +13,16 @@ export function handleIdentifier(
   ctx: HandlingContext,
   identifier: TSESTree.Identifier
 ): TraceNode[] {
+  if (ctx.meta.forceIdentifierLiteral) {
+    return [
+      makeConstantTerminalNode({
+        astNodes: [...ctx.connection.astNodes, identifier],
+        value: identifier.name,
+        connection: ctx.connection,
+      }),
+    ];
+  }
+
   const variable = !ctx.meta.forceIdentifierLiteral
     ? findVariable(ctx.scope, identifier)
     : undefined;
@@ -25,9 +36,9 @@ export function handleIdentifier(
         }),
       ]
     : [
-        makeConstantTerminalNode({
+        makeUnresolvedTerminalNode({
+          reason: "Unable to resolve identifier to variable",
           astNodes: [...ctx.connection.astNodes, identifier],
-          value: identifier.name,
           connection: ctx.connection,
         }),
       ];

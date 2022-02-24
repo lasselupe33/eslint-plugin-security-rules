@@ -11,7 +11,7 @@ function useMyCustomHook(): string {
   const [evil, setEvil] = useState("hello");
 
   useEffect(() => {
-    setEvil(evil() as string);
+    setEvil(evilCall() as string);
   }, []);
 
   return evil;

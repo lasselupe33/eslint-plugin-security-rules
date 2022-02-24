@@ -1,15 +1,12 @@
 import { Scope } from "@typescript-eslint/utils/dist/ts-eslint";
 
-import { getFunctionName } from "../../ast/ast";
 import {
   isArrowFunctionExpression,
   isFunctionDeclaration,
   isFunctionExpression,
 } from "../../ast/guards";
 import { deepMerge } from "../../deep-merge";
-import { getNodeName } from "../get-node-name";
 import { handleNode } from "../handlers/_handle-node";
-import { toParameterToArgumentKey } from "../parameter-to-argument";
 import { HandlingContext } from "../types/context";
 import { makeUnresolvedTerminalNode, TraceNode } from "../types/nodes";
 
@@ -26,9 +23,10 @@ export function visitParameter(
   parameter: Scope.Definition
 ): TraceNode[] {
   if (
-    !isArrowFunctionExpression(parameter.node) &&
-    !isFunctionDeclaration(parameter.node) &&
-    !isFunctionExpression(parameter.node)
+    (!isArrowFunctionExpression(parameter.node) &&
+      !isFunctionDeclaration(parameter.node) &&
+      !isFunctionExpression(parameter.node)) ||
+    !parameter.node.id
   ) {
     return [
       makeUnresolvedTerminalNode({
@@ -39,11 +37,13 @@ export function visitParameter(
     ];
   }
 
+  const relevantArguments = ctx.meta.activeArguments[parameter.node.id.name];
+  const earliestCallArguments = relevantArguments?.shift();
   const indexOfParam = parameter.node.params.findIndex(
     (param) => param === parameter.name
   );
 
-  const argument = ctx.meta.activeArguments[indexOfParam];
+  const argument = earliestCallArguments?.[indexOfParam];
 
   if (!argument?.argument) {
     return [

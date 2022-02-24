@@ -9,6 +9,7 @@ import { handleAssignmentExpression } from "./assignment-expression";
 import { handleAwaitExpression } from "./await-expression";
 import { handleBinaryExpression } from "./binary-expression";
 import { handleCallExpression } from "./call-expression";
+import { handleProperty } from "./handle-property";
 import { handleIdentifier } from "./identifier";
 import { handleImportDeclaration } from "./import-declaration";
 import { handleImportDefaultSpecifier } from "./import-default-specifier";
@@ -40,6 +41,7 @@ export function handleNode(
       [AST_NODE_TYPES.TemplateElement]: handleTemplateElement,
       [AST_NODE_TYPES.MemberExpression]: handleMemberExpression,
       [AST_NODE_TYPES.ObjectExpression]: handleObjectExpression,
+      [AST_NODE_TYPES.Property]: handleProperty,
       [AST_NODE_TYPES.AwaitExpression]: handleAwaitExpression,
       [AST_NODE_TYPES.ImportSpecifier]: handleImportSpecifier,
       [AST_NODE_TYPES.ImportDeclaration]: handleImportDeclaration,

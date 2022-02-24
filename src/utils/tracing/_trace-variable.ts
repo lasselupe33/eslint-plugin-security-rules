@@ -6,7 +6,12 @@ import { isFunctionName, isImportBinding, isParameter } from "../ast/guards";
 import { getRelevantReferences } from "./get-relevant-references";
 import { handleNode } from "./handlers/_handle-node";
 import { HandlingContext } from "./types/context";
-import { isTerminalNode, isVariableNode, TraceNode } from "./types/nodes";
+import {
+  isTerminalNode,
+  isVariableNode,
+  makeUnresolvedTerminalNode,
+  TraceNode,
+} from "./types/nodes";
 import { visitFunctionName } from "./visitors/function-name";
 import { visitImportBinding } from "./visitors/import-binding";
 import { visitParameter } from "./visitors/parameter";
@@ -50,8 +55,8 @@ export function traceVariable(
         flags: new Set(),
       },
       meta: {
-        parameterToArgumentMap: undefined,
         memberPath: [],
+        activeArguments: {},
       },
     },
     ctx.node
@@ -95,13 +100,6 @@ export function traceVariable(
 
     const { variable, meta, scope } = traceNode;
 
-    if (encounteredMap.has(variable)) {
-      console.error("traceVariable(): Encountered cycle, skipping");
-      continue;
-    }
-
-    encounteredMap.set(variable, true);
-
     const handlingContext: HandlingContext = {
       ruleContext: ctx.context,
       scope,
@@ -112,6 +110,19 @@ export function traceVariable(
       },
       meta,
     };
+
+    if (encounteredMap.has(variable)) {
+      onNodeVisited?.(
+        makeUnresolvedTerminalNode({
+          reason: "Encountered cycle, skipping",
+          connection: handlingContext.connection,
+          astNodes: [],
+        })
+      );
+      continue;
+    }
+
+    encounteredMap.set(variable, true);
 
     // In case we've encountered a parameter, then we cannot handle it simply be
     // tracing its references since we need to be context aware in this case.

@@ -1,8 +1,6 @@
 import { CallExpressionArgument } from "@typescript-eslint/types/dist/ast-spec";
 import { RuleContext, Scope } from "@typescript-eslint/utils/dist/ts-eslint";
 
-import { ParameterToArgumentMap } from "../parameter-to-argument";
-
 import { Connection } from "./connection";
 
 type Argument = {
@@ -16,13 +14,10 @@ type Argument = {
  */
 export type Meta = {
   /**
-   * Mapping between parameters and arguments which is useful when entering
-   * and exiting functions, where we need to ensure we exit back to the
-   * correct argument.
+   * Specification of the currently active arguments that a function call has
+   * been performed from.
    */
-  parameterToArgumentMap: ParameterToArgumentMap | undefined;
-
-  activeArguments: Argument[];
+  activeArguments: Record<string, Argument[][]>;
 
   /**
    * Specifies the identifiers that we have traversed on a member that is yet
