@@ -11,7 +11,11 @@ function useMyCustomHook(): string {
   const [evil, setEvil] = useState("hello");
 
   useEffect(() => {
-    setEvil(evilCall() as string);
+    const update = async () => {
+      setEvil(await (await fetch("evil")).text());
+    };
+
+    update();
   }, []);
 
   return evil;

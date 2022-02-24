@@ -1,7 +1,7 @@
 import { sanitize } from "dompurify";
 
-export function DangerComp(): JSX.Element {
-  const unsafeConstant = evilCall() as string;
+export async function DangerComp(): Promise<JSX.Element> {
+  const unsafeConstant = await (await fetch("evil")).text();
   const ohNo = { __html: unsafeConstant };
 
   return (
