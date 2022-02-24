@@ -175,8 +175,11 @@ function getObjectProperty(
       onTraceFinished: (trace) => {
         const terminal = trace[trace.length - 1];
 
-        if (isNodeTerminalNode(terminal) && isObjectExpression(terminal.node)) {
-          obj = terminal.node;
+        if (
+          isNodeTerminalNode(terminal) &&
+          isObjectExpression(terminal.astNode)
+        ) {
+          obj = terminal.astNode;
 
           // @TODO: Consider if we should check all traces to identify multiple
           // assignments to expressions.

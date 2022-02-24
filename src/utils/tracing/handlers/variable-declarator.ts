@@ -1,4 +1,4 @@
-import { AST_NODE_TYPES, TSESTree } from "@typescript-eslint/utils";
+import { TSESTree } from "@typescript-eslint/utils";
 
 import { deepMerge } from "../../deep-merge";
 import { HandlingContext } from "../types/context";
@@ -12,7 +12,7 @@ export function handleVariableDeclarator(
 ): TraceNode[] {
   const nextCtx = deepMerge(ctx, {
     connection: {
-      nodeType: AST_NODE_TYPES.VariableDeclarator,
+      astNodes: [...ctx.connection.astNodes, variableDeclarator],
     },
   });
 

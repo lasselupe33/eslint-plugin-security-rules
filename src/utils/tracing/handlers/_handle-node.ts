@@ -42,6 +42,7 @@ export function handleNode(
       [AST_NODE_TYPES.ImportDefaultSpecifier]: handleImportDefaultSpecifier,
       fallback: (ctx, node) => [
         makeUnresolvedTerminalNode({
+          astNodes: [...ctx.connection.astNodes, node],
           reason: `No handler for ${node.type}`,
           connection: ctx.connection,
         }),

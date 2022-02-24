@@ -1,10 +1,14 @@
-import { AST_NODE_TYPES, TSESTree } from "@typescript-eslint/utils";
+import { TSESTree } from "@typescript-eslint/utils";
 import { Scope } from "@typescript-eslint/utils/dist/ts-eslint";
 
 import { Connection } from "./connection";
 import { Meta } from "./context";
 
-type BaseTerminalNode = {
+type BaseNode = {
+  astNodes: TSESTree.Node[];
+};
+
+type BaseTerminalNode = BaseNode & {
   __isTerminalNode: true;
   connection: Connection | undefined;
 };
@@ -25,12 +29,10 @@ export type UnresolvedTerminalNode = BaseTerminalNode & {
   reason: string;
 };
 
-export type NodeTerminalNode<NodeType extends AST_NODE_TYPES = AST_NODE_TYPES> =
-  BaseTerminalNode & {
-    type: "node";
-    nodeType: NodeType;
-    node: TSESTree.Node & { type: NodeType };
-  };
+export type NodeTerminalNode = BaseTerminalNode & {
+  type: "node";
+  astNode: TSESTree.Node;
+};
 
 /**
  * Specification of nodes that can be returned while tracing
@@ -41,7 +43,7 @@ export type TerminalNode =
   | UnresolvedTerminalNode
   | NodeTerminalNode;
 
-export type VariableNode = {
+export type VariableNode = BaseNode & {
   __isVariableNode: true;
 
   variable: Scope.Variable;
@@ -82,9 +84,9 @@ export function makeUnresolvedTerminalNode(
   };
 }
 
-export function makeNodeTerminalNode<NodeType extends AST_NODE_TYPES>(
-  node: Omit<NodeTerminalNode<NodeType>, "type" | "__isTerminalNode">
-): NodeTerminalNode<NodeType> {
+export function makeNodeTerminalNode(
+  node: Omit<NodeTerminalNode, "type" | "__isTerminalNode">
+): NodeTerminalNode {
   return {
     __isTerminalNode: true,
     type: "node",

@@ -1,5 +1,5 @@
 import { ReturnStatement } from "@typescript-eslint/types/dist/ast-spec";
-import { TSESTree, AST_NODE_TYPES } from "@typescript-eslint/utils";
+import { TSESTree } from "@typescript-eslint/utils";
 import { getInnermostScope } from "@typescript-eslint/utils/dist/ast-utils";
 
 import { isFunctionDeclaration, isReturnStatement } from "../../ast/guards";
@@ -42,6 +42,7 @@ export function handleCallExpression(
     // publicly.
     foundNodes.push(
       makeUnresolvedTerminalNode({
+        astNodes: [...ctx.connection.astNodes, callExpression],
         reason: "Unable to resolve callee",
         connection: ctx.connection,
       })
@@ -52,7 +53,6 @@ export function handleCallExpression(
 
   // Initially we extract the variable of the function call
   const calleeVariable = calleeNode.variable;
-
   foundNodes.push(calleeNode);
 
   // ... then we look at the declaration of the function to determine its return
@@ -83,8 +83,12 @@ export function handleCallExpression(
     handleNode(
       deepMerge(ctx, {
         connection: {
+          astNodes: [
+            ...ctx.connection.astNodes,
+            callExpression,
+            ...calleeNode.astNodes,
+          ],
           variable: calleeVariable,
-          nodeType: AST_NODE_TYPES.CallExpression,
         },
         meta: {
           parameterToArgumentMap,

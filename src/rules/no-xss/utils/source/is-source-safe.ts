@@ -1,5 +1,4 @@
 import { TSESTree } from "@typescript-eslint/utils";
-import { getInnermostScope } from "@typescript-eslint/utils/dist/ast-utils";
 import { RuleContext } from "@typescript-eslint/utils/dist/ts-eslint";
 
 import { traceVariable } from "../../../../utils/tracing/_trace-variable";
@@ -9,7 +8,7 @@ import {
   isConstantTerminalNode,
   isImportTerminalNode,
 } from "../../../../utils/tracing/types/nodes";
-import { printTrace } from "../../../../utils/tracing/utils/printTrace";
+import { printTrace } from "../../../../utils/tracing/utils/print-trace";
 import { SanitationOptions } from "../options";
 
 type Context = {

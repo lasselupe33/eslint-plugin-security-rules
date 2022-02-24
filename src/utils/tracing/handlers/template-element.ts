@@ -9,6 +9,7 @@ export function handleTemplateElement(
 ): TraceNode[] {
   return [
     makeConstantTerminalNode({
+      astNodes: [...ctx.connection.astNodes, templateElement],
       value: templateElement.value.raw,
       connection: ctx.connection,
     }),

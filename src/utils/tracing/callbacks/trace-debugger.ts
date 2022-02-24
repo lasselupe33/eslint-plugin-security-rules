@@ -1,6 +1,6 @@
 import { TraceCallbacks } from "../_trace-variable";
 import { TraceNode } from "../types/nodes";
-import { printTrace } from "../utils/printTrace";
+import { printTrace } from "../utils/print-trace";
 
 /**
  * Basic utility to print the trace that our variable tracing algorithm

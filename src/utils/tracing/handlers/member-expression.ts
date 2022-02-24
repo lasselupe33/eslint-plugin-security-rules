@@ -1,4 +1,4 @@
-import { AST_NODE_TYPES, TSESTree } from "@typescript-eslint/utils";
+import { TSESTree } from "@typescript-eslint/utils";
 
 import { deepMerge } from "../../deep-merge";
 import { HandlingContext } from "../types/context";
@@ -10,8 +10,14 @@ export function handleMemberExpression(
   ctx: HandlingContext,
   memberExpression: TSESTree.MemberExpression
 ): TraceNode[] {
+  const baseNextCtx = deepMerge(ctx, {
+    connection: {
+      astNodes: [...ctx.connection.astNodes, memberExpression],
+    },
+  });
+
   const pathTerminal = handleNode(
-    deepMerge(ctx, { meta: { forceIdentifierLiteral: true } }),
+    deepMerge(baseNextCtx, { meta: { forceIdentifierLiteral: true } }),
     memberExpression.property
   )[0];
 
@@ -23,10 +29,9 @@ export function handleMemberExpression(
 
   const pathName = pathTerminal.value;
 
-  const nextCtx = deepMerge(ctx, {
+  const nextCtx = deepMerge(baseNextCtx, {
     connection: {
-      variable: ctx.connection?.variable,
-      nodeType: AST_NODE_TYPES.MemberExpression,
+      astNodes: [...baseNextCtx.connection.astNodes, ...pathTerminal.astNodes],
     },
     meta: {
       // Update context to notify future handlers which parts of objects
@@ -35,5 +40,5 @@ export function handleMemberExpression(
     },
   });
 
-  return handleNode(nextCtx, memberExpression.object);
+  return [pathTerminal, ...handleNode(nextCtx, memberExpression.object)];
 }

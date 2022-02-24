@@ -2,6 +2,7 @@ import { Scope } from "@typescript-eslint/utils/dist/ts-eslint";
 
 import { getFunctionName } from "../../ast/ast";
 import { isFunctionDeclaration } from "../../ast/guards";
+import { deepMerge } from "../../deep-merge";
 import { getNodeName } from "../get-node-name";
 import { handleNode } from "../handlers/_handle-node";
 import { toParameterToArgumentKey } from "../parameter-to-argument";
@@ -32,21 +33,19 @@ export function visitParameter(
   const key = toParameterToArgumentKey(functionName, parameterName);
   const argument = ctx.meta.parameterToArgumentMap.get(key);
 
-  if (!argument) {
+  if (!argument?.argument) {
     console.warn(`Failed to map parameter (${key}) to initialising argument`);
 
     return [];
   }
 
   return handleNode(
-    {
-      ...ctx,
+    deepMerge(ctx, {
       connection: {
-        ...ctx.connection,
-        nodeType: "Argument",
+        astNodes: [...ctx.connection.astNodes, argument.argument],
       },
       scope: argument.scope,
-    },
+    }),
     argument.argument
   );
 }

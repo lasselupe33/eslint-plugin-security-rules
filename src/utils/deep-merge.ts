@@ -4,7 +4,7 @@ type DeepPartial<T> = T extends object
     }
   : T;
 
-const keysToSkip = ["variable"];
+const keysToSkip = ["variable", "astNode", "scope"];
 
 export function deepMerge<T extends Record<string, unknown>>(
   a: T,

@@ -1,4 +1,4 @@
-import { AST_NODE_TYPES, TSESTree } from "@typescript-eslint/utils";
+import { TSESTree } from "@typescript-eslint/utils";
 
 import { deepMerge } from "../../deep-merge";
 import { ConnectionTypes } from "../types/connection";
@@ -13,7 +13,7 @@ export function handleBinaryExpression(
 ): TraceNode[] {
   const nextCtx = deepMerge(ctx, {
     connection: {
-      nodeType: AST_NODE_TYPES.BinaryExpression,
+      astNodes: [...ctx.connection.astNodes, expression],
       type: ConnectionTypes.MODIFICATION,
     },
   });

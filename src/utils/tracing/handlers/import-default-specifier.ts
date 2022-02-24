@@ -1,4 +1,4 @@
-import { AST_NODE_TYPES, TSESTree } from "@typescript-eslint/utils";
+import { TSESTree } from "@typescript-eslint/utils";
 
 import { isImportDeclaration } from "../../ast/guards";
 import { deepMerge } from "../../deep-merge";
@@ -18,7 +18,7 @@ export function handleImportDefaultSpecifier(
 ): TraceNode[] {
   const nextCtx = deepMerge(ctx, {
     connection: {
-      nodeType: AST_NODE_TYPES.ImportDefaultSpecifier,
+      astNodes: [...ctx.connection.astNodes, importDefaultSpecifier],
     },
   });
 
@@ -28,10 +28,11 @@ export function handleImportDefaultSpecifier(
 
   if (
     !isNodeTerminalNode(sourceNode) ||
-    !isImportDeclaration(sourceNode.node)
+    !isImportDeclaration(sourceNode.astNode)
   ) {
     return [
       makeUnresolvedTerminalNode({
+        astNodes: nextCtx.connection.astNodes,
         reason: "Unable to extract source",
         connection: nextCtx.connection,
       }),
@@ -40,8 +41,9 @@ export function handleImportDefaultSpecifier(
 
   return [
     makeImportTerminalNode({
+      astNodes: [...nextCtx.connection.astNodes, sourceNode.astNode],
       imported,
-      source: sourceNode.node.source.value,
+      source: sourceNode.astNode.source.value,
       connection: nextCtx.connection,
     }),
   ];

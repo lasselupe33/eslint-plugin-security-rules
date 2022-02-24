@@ -1,4 +1,4 @@
-import { AST_NODE_TYPES, TSESTree } from "@typescript-eslint/utils";
+import { TSESTree } from "@typescript-eslint/utils";
 
 import { isProperty } from "../../ast/guards";
 import { deepMerge } from "../../deep-merge";
@@ -17,14 +17,15 @@ export function handleObjectExpression(
   objectExpression: TSESTree.ObjectExpression
 ): TraceNode[] {
   const { memberPath } = ctx.meta;
+  const astNodes = [...ctx.connection.astNodes, objectExpression];
 
   // In case we're not attempting to resolve a specific value in the objecet
   // expression, then we must simply resolve the object as a terminal
   if (memberPath.length === 0) {
     return [
       makeNodeTerminalNode({
-        node: objectExpression,
-        nodeType: objectExpression.type,
+        astNodes,
+        astNode: objectExpression,
         connection: ctx.connection,
       }),
     ];
@@ -32,7 +33,7 @@ export function handleObjectExpression(
 
   const nextCtx = deepMerge(ctx, {
     connection: {
-      nodeType: AST_NODE_TYPES.ObjectExpression,
+      astNodes,
     },
   });
 
@@ -53,6 +54,7 @@ export function handleObjectExpression(
   // terminal.
   return [
     makeUnresolvedTerminalNode({
+      astNodes,
       reason: "unable to follow object expression",
       connection: ctx.connection,
     }),
