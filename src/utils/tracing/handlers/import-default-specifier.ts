@@ -24,7 +24,10 @@ export function handleImportDefaultSpecifier(
 
   const imported =
     nextCtx.meta.memberPath.pop() ?? importDefaultSpecifier.local.name;
-  const sourceNode = handleNode(nextCtx, importDefaultSpecifier.parent)[0];
+  const sourceNode = handleNode(
+    deepMerge(nextCtx, { connection: { astNodes: [] } }),
+    importDefaultSpecifier.parent
+  )[0];
 
   if (
     !isNodeTerminalNode(sourceNode) ||
@@ -41,10 +44,10 @@ export function handleImportDefaultSpecifier(
 
   return [
     makeImportTerminalNode({
-      astNodes: [...nextCtx.connection.astNodes, sourceNode.astNode],
       imported,
       source: sourceNode.astNode.source.value,
       connection: nextCtx.connection,
+      astNodes: [...nextCtx.connection.astNodes, sourceNode.astNode],
     }),
   ];
 }

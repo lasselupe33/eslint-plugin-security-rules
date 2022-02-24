@@ -86,6 +86,12 @@ export const isImportBinding = (
   type: typeof Scope.DefinitionType.ImportBinding;
 } => def?.type === Scope.DefinitionType.ImportBinding;
 
+export const isFunctionName = (
+  def?: Scope.Definition | null
+): def is Scope.Definition & {
+  type: typeof Scope.DefinitionType.FunctionName;
+} => def?.type === Scope.DefinitionType.FunctionName;
+
 // Basic guards
 
 export function isPrimitive(

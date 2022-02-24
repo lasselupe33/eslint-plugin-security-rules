@@ -8,7 +8,7 @@ import {
   isConstantTerminalNode,
   isNodeTerminalNode,
 } from "../../../../utils/tracing/types/nodes";
-import { printTrace } from "../../../../utils/tracing/utils/printTrace";
+import { printTrace } from "../../../../utils/tracing/utils/print-trace";
 import { HandlingContext } from "../_rule";
 
 export function handleQuery(
@@ -33,22 +33,19 @@ export function handleQuery(
         */
 
       onNodeVisited: (trace, traceNode) => {
-        if (traceNode.connection?.nodeType === "TemplateElement") {
-          // console.log(traceNode);
-        }
-
-        if (!isVariableNode(traceNode)) {
-          return;
-        }
-
-        // console.log(traceNode);
-
-        if (traceNode.connection?.nodeType === "MemberExpression") {
-          if (traceNode.meta.memberPath[0] === "escape") {
-            isCurrentTraceSafelySanitzed = true;
-            return { stopFollowingVariable: true };
-          }
-        }
+        // if (traceNode.connection?.nodeType === "TemplateElement") {
+        //   // console.log(traceNode);
+        // }
+        // if (!isVariableNode(traceNode)) {
+        //   return;
+        // }
+        // // console.log(traceNode);
+        // if (traceNode.connection?.nodeType === "MemberExpression") {
+        //   if (traceNode.meta.memberPath[0] === "escape") {
+        //     isCurrentTraceSafelySanitzed = true;
+        //     return { stopFollowingVariable: true };
+        //   }
+        // }
       },
       onTraceFinished: (trace) => {
         printTrace(trace);

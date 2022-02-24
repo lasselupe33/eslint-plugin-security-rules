@@ -1,8 +1,14 @@
+import { CallExpressionArgument } from "@typescript-eslint/types/dist/ast-spec";
 import { RuleContext, Scope } from "@typescript-eslint/utils/dist/ts-eslint";
 
 import { ParameterToArgumentMap } from "../parameter-to-argument";
 
 import { Connection } from "./connection";
+
+type Argument = {
+  argument: CallExpressionArgument | undefined;
+  scope: Scope.Scope;
+};
 
 /**
  * Specification of data that will be passed through the entire tracing
@@ -15,6 +21,8 @@ export type Meta = {
    * correct argument.
    */
   parameterToArgumentMap: ParameterToArgumentMap | undefined;
+
+  activeArguments: Argument[];
 
   /**
    * Specifies the identifiers that we have traversed on a member that is yet

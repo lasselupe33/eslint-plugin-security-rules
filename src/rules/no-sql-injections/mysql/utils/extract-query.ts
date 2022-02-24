@@ -9,7 +9,7 @@ import { isIdentifier, isProperty } from "../../../../utils/ast/guards";
 import { makeMapNodeToHandler } from "../../../../utils/ast/map-node-to-handler";
 import { traceVariable } from "../../../../utils/tracing/_trace-variable";
 import { makeTraceCallbacksWithTrace } from "../../../../utils/tracing/callbacks/with-current-trace";
-import { printTrace } from "../../../../utils/tracing/utils/printTrace";
+import { printTrace } from "../../../../utils/tracing/utils/print-trace";
 import { HandlingContext } from "../_rule";
 
 const mapNodeToHandler = makeMapNodeToHandler({ disableWarnings: true });
@@ -44,7 +44,7 @@ function traceIdentifier(
   node: TSESTree.Identifier
 ): TSESTree.Literal | TSESTree.TemplateLiteral | undefined {
   // trace the string of a potential identifier
-  let maybeNode = undefined;
+  const maybeNode = undefined;
   traceVariable(
     {
       context: context.ruleContext,
@@ -53,10 +53,10 @@ function traceIdentifier(
     },
     makeTraceCallbacksWithTrace({
       onNodeVisited: (trace, traceNode) => {
-        if (traceNode.connection?.nodeType === "TemplateLiteral") {
-          maybeNode = traceNode.connection.variable?.defs[0]?.node;
-          return { stopFollowingVariable: true };
-        }
+        // if (traceNode.connection?.nodeType === "TemplateLiteral") {
+        //   maybeNode = traceNode.connection.variable?.defs[0]?.node;
+        //   return { stopFollowingVariable: true };
+        // }
       },
     })
   );

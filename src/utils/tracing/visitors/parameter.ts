@@ -1,13 +1,17 @@
 import { Scope } from "@typescript-eslint/utils/dist/ts-eslint";
 
 import { getFunctionName } from "../../ast/ast";
-import { isFunctionDeclaration } from "../../ast/guards";
+import {
+  isArrowFunctionExpression,
+  isFunctionDeclaration,
+  isFunctionExpression,
+} from "../../ast/guards";
 import { deepMerge } from "../../deep-merge";
 import { getNodeName } from "../get-node-name";
 import { handleNode } from "../handlers/_handle-node";
 import { toParameterToArgumentKey } from "../parameter-to-argument";
 import { HandlingContext } from "../types/context";
-import { TraceNode } from "../types/nodes";
+import { makeUnresolvedTerminalNode, TraceNode } from "../types/nodes";
 
 /**
  * When a variable is a parameter, then it means that we've reached a state
@@ -22,21 +26,33 @@ export function visitParameter(
   parameter: Scope.Definition
 ): TraceNode[] {
   if (
-    !isFunctionDeclaration(parameter.node) ||
-    !ctx.meta.parameterToArgumentMap
+    !isArrowFunctionExpression(parameter.node) &&
+    !isFunctionDeclaration(parameter.node) &&
+    !isFunctionExpression(parameter.node)
   ) {
-    return [];
+    return [
+      makeUnresolvedTerminalNode({
+        reason: "Unable to resolve parameter to argument",
+        astNodes: ctx.connection.astNodes,
+        connection: ctx.connection,
+      }),
+    ];
   }
 
-  const functionName = getFunctionName(parameter.node);
-  const parameterName = getNodeName(parameter.name);
-  const key = toParameterToArgumentKey(functionName, parameterName);
-  const argument = ctx.meta.parameterToArgumentMap.get(key);
+  const indexOfParam = parameter.node.params.findIndex(
+    (param) => param === parameter.name
+  );
+
+  const argument = ctx.meta.activeArguments[indexOfParam];
 
   if (!argument?.argument) {
-    console.warn(`Failed to map parameter (${key}) to initialising argument`);
-
-    return [];
+    return [
+      makeUnresolvedTerminalNode({
+        reason: "Unable to resolve parameter index",
+        astNodes: ctx.connection.astNodes,
+        connection: ctx.connection,
+      }),
+    ];
   }
 
   return handleNode(

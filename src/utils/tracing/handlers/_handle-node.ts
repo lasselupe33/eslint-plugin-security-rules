@@ -4,7 +4,9 @@ import { makeMapNodeToHandler } from "../../ast/map-node-to-handler";
 import { HandlingContext } from "../types/context";
 import { makeUnresolvedTerminalNode, TraceNode } from "../types/nodes";
 
+import { handleArrowFunctionExpression } from "./arrow-function-expression";
 import { handleAssignmentExpression } from "./assignment-expression";
+import { handleAwaitExpression } from "./await-expression";
 import { handleBinaryExpression } from "./binary-expression";
 import { handleCallExpression } from "./call-expression";
 import { handleIdentifier } from "./identifier";
@@ -33,10 +35,12 @@ export function handleNode(
       [AST_NODE_TYPES.VariableDeclarator]: handleVariableDeclarator,
       [AST_NODE_TYPES.CallExpression]: handleCallExpression,
       [AST_NODE_TYPES.BinaryExpression]: handleBinaryExpression,
+      [AST_NODE_TYPES.ArrowFunctionExpression]: handleArrowFunctionExpression,
       [AST_NODE_TYPES.TemplateLiteral]: handleTemplateLiteral,
       [AST_NODE_TYPES.TemplateElement]: handleTemplateElement,
       [AST_NODE_TYPES.MemberExpression]: handleMemberExpression,
       [AST_NODE_TYPES.ObjectExpression]: handleObjectExpression,
+      [AST_NODE_TYPES.AwaitExpression]: handleAwaitExpression,
       [AST_NODE_TYPES.ImportSpecifier]: handleImportSpecifier,
       [AST_NODE_TYPES.ImportDeclaration]: handleImportDeclaration,
       [AST_NODE_TYPES.ImportDefaultSpecifier]: handleImportDefaultSpecifier,

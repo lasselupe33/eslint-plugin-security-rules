@@ -80,12 +80,12 @@ export function isSourceEscaped(
           return;
         }
 
-        if (traceNode.connection?.nodeType === "MemberExpression") {
-          if (traceNode.meta.memberPath[0] === "escape") {
-            isCurrentTraceSafelySanitzed = true;
-            return { stopFollowingVariable: true };
-          }
-        }
+        // if (traceNode.connection?.nodeType === "MemberExpression") {
+        //   if (traceNode.meta.memberPath[0] === "escape") {
+        //     isCurrentTraceSafelySanitzed = true;
+        //     return { stopFollowingVariable: true };
+        //   }
+        // }
       },
       onTraceFinished: (trace) => {
         const finalNode = trace[trace.length - 1];

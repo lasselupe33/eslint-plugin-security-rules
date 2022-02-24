@@ -17,7 +17,10 @@ export function handleMemberExpression(
   });
 
   const pathTerminal = handleNode(
-    deepMerge(baseNextCtx, { meta: { forceIdentifierLiteral: true } }),
+    deepMerge(baseNextCtx, {
+      connection: { astNodes: [] },
+      meta: { forceIdentifierLiteral: true },
+    }),
     memberExpression.property
   )[0];
 
@@ -40,5 +43,5 @@ export function handleMemberExpression(
     },
   });
 
-  return [pathTerminal, ...handleNode(nextCtx, memberExpression.object)];
+  return handleNode(nextCtx, memberExpression.object);
 }
