@@ -1,9 +1,17 @@
 import fs from "fs";
-import path from "path";
+
+import resolve from "enhanced-resolve";
+
+const resolver = resolve.create.sync({
+  extensions: [".ts", ".tsx", ".js", ".jsx"],
+});
 
 export function getCode(dirname: string, name: string): string {
-  return fs.readFileSync(
-    require.resolve(path.join(dirname, "tests", name)),
-    "utf-8"
-  );
+  const resolvedPath = resolver(dirname, `./tests/${name}`);
+
+  if (!resolvedPath) {
+    throw new Error("getCode(): Unable to resolve path");
+  }
+
+  return fs.readFileSync(resolvedPath, "utf-8");
 }

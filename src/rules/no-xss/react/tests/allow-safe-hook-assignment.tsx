@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 
 export function SafeComp(): JSX.Element {
-  const value = useMyCustomHook();
+  const value = useMyCustomHookk();
   const safe = { __html: value };
 
   return <div dangerouslySetInnerHTML={safe}>Hejsa verden</div>;

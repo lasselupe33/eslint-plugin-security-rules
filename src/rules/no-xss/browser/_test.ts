@@ -12,6 +12,9 @@ const ruleTester = new ESLintUtils.RuleTester({
   parserOptions: {
     project: "./tsconfig.json",
     tsconfigRootDir: path.resolve(__dirname, "..", "..", "..", ".."),
+    ecmaFeatures: {
+      jsx: true,
+    },
   },
 });
 
