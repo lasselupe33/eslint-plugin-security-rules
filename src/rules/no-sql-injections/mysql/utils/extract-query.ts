@@ -1,15 +1,10 @@
 import { AST_NODE_TYPES, TSESTree } from "@typescript-eslint/utils";
-import {
-  getInnermostScope,
-  isVariableDeclarator,
-} from "@typescript-eslint/utils/dist/ast-utils";
-import { isTemplateLiteral } from "typescript";
+import { getInnermostScope } from "@typescript-eslint/utils/dist/ast-utils";
 
 import { isIdentifier, isProperty } from "../../../../utils/ast/guards";
 import { makeMapNodeToHandler } from "../../../../utils/ast/map-node-to-handler";
 import { traceVariable } from "../../../../utils/tracing/_trace-variable";
 import { makeTraceCallbacksWithTrace } from "../../../../utils/tracing/callbacks/with-current-trace";
-import { printTrace } from "../../../../utils/tracing/utils/print-trace";
 import { HandlingContext } from "../_rule";
 
 const mapNodeToHandler = makeMapNodeToHandler({ disableWarnings: true });
