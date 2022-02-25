@@ -2,7 +2,7 @@ import {
   AssignmentExpressionSink,
   ObjectAssignmentSink,
   SinkTypes,
-} from "../utils/sink/types";
+} from "../_utils/sink/types";
 
 export const ASSIGNMENT_SINKS: (
   | AssignmentExpressionSink

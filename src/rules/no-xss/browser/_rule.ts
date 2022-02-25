@@ -5,11 +5,11 @@ import { RuleFixer } from "@typescript-eslint/utils/dist/ts-eslint";
 import { isNewExpression } from "../../../utils/ast/guards";
 import { resolveDocsRoute } from "../../../utils/resolve-docs-route";
 import { getTypeProgram } from "../../../utils/types/get-type-program";
-import { addSanitazionAtSink } from "../utils/fixes/add-sanitation-sink";
-import { NoXssOptions } from "../utils/options";
-import { getRelevantSinks } from "../utils/sink/get-relevant-sinks";
-import { isCallRelevant } from "../utils/sink/is-call-relevant";
-import { isSourceSafe } from "../utils/source/is-source-safe";
+import { addSanitazionAtSink } from "../_utils/fixes/add-sanitation-sink";
+import { NoXssOptions } from "../_utils/options";
+import { getRelevantSinks } from "../_utils/sink/get-relevant-sinks";
+import { isCallRelevant } from "../_utils/sink/is-call-relevant";
+import { isSourceSafe } from "../_utils/source/is-source-safe";
 
 import {
   ASSIGNMENT_EXPRESSION_SINKS,

@@ -18,10 +18,10 @@ import { traceVariable } from "../../../utils/tracing/_trace-variable";
 import { makeTraceCallbacksWithTrace } from "../../../utils/tracing/callbacks/with-current-trace";
 import { isNodeTerminalNode } from "../../../utils/tracing/types/nodes";
 import { getTypeProgram } from "../../../utils/types/get-type-program";
-import { addSanitazionAtSink } from "../utils/fixes/add-sanitation-sink";
-import { NoXssOptions } from "../utils/options";
-import { getRelevantSinks } from "../utils/sink/get-relevant-sinks";
-import { isSourceSafe } from "../utils/source/is-source-safe";
+import { addSanitazionAtSink } from "../_utils/fixes/add-sanitation-sink";
+import { NoXssOptions } from "../_utils/options";
+import { getRelevantSinks } from "../_utils/sink/get-relevant-sinks";
+import { isSourceSafe } from "../_utils/source/is-source-safe";
 
 import { ASSIGNMENT_SINKS } from "./data";
 

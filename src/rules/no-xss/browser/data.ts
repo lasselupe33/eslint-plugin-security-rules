@@ -3,7 +3,7 @@ import {
   CallExpressionSink,
   IdentifierTypes,
   SinkTypes,
-} from "../utils/sink/types";
+} from "../_utils/sink/types";
 
 export const ASSIGNMENT_EXPRESSION_SINKS: AssignmentExpressionSink[] = [
   {
