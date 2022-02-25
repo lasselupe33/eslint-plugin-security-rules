@@ -39,7 +39,7 @@ function isEscapeFunction(
   context: HandlingContext,
   node: TSESTree.Identifier
 ): boolean {
-  if (node.name === "escape") {
+  if (node.name === "escape" || node.name === "escapeId") {
     const typeProgram = getTypeProgram(context.ruleContext);
     if (typeProgram) {
       const { fullyQualifiedName } = getNodeModule(typeProgram, node);
