@@ -1,4 +1,3 @@
-// import { createConnection } from "mysql";
 import * as mysql from "mysql";
 
 export const connection = mysql.createConnection({

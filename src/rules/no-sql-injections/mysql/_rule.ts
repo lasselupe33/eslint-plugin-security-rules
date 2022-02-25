@@ -28,7 +28,7 @@ export type HandlingContext = {
 
 const createRule = RuleCreator(resolveDocsRoute);
 
-enum MessageIds {
+export enum MessageIds {
   VULNERABLE_QUERY = "vulnerable-query",
   PARAMTERIZED_FIX = "parameterized-fix",
   ESCAPE_FIX_VALUES = "escape-fix-values",
