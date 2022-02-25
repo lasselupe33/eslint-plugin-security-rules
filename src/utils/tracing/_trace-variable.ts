@@ -51,7 +51,7 @@ export function traceVariable(
       ruleContext: ctx.context,
       scope: ctx.rootScope ?? ctx.context.getScope(),
       connection: {
-        astNodes: [ctx.node],
+        astNodes: [],
         flags: new Set(),
       },
       meta: {
