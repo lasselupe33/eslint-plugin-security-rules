@@ -8,3 +8,5 @@ export const connection = createConnection({
   password: process.env["ADMIN_PASSWORD"],
   multipleStatements: true,
 });
+
+export const unsafe = "Test";

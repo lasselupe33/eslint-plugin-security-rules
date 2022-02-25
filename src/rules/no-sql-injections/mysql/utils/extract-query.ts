@@ -1,7 +1,11 @@
 import { AST_NODE_TYPES, TSESTree } from "@typescript-eslint/utils";
-import { getInnermostScope } from "@typescript-eslint/utils/dist/ast-utils";
 
-import { isIdentifier, isProperty } from "../../../../utils/ast/guards";
+import {
+  isIdentifier,
+  isProperty,
+  isTemplateLiteral,
+  isVariableDeclarator,
+} from "../../../../utils/ast/guards";
 import { makeMapNodeToHandler } from "../../../../utils/ast/map-node-to-handler";
 import { traceVariable } from "../../../../utils/tracing/_trace-variable";
 import { makeTraceCallbacksWithTrace } from "../../../../utils/tracing/callbacks/with-current-trace";
@@ -39,19 +43,29 @@ function traceIdentifier(
   node: TSESTree.Identifier
 ): TSESTree.Literal | TSESTree.TemplateLiteral | undefined {
   // trace the string of a potential identifier
-  const maybeNode = undefined;
+  let maybeNode = undefined;
   traceVariable(
     {
       context: context.ruleContext,
-      rootScope: getInnermostScope(context.ruleContext.getScope(), node),
       node,
     },
     makeTraceCallbacksWithTrace({
       onNodeVisited: (trace, traceNode) => {
-        // if (traceNode.connection?.nodeType === "TemplateLiteral") {
-        //   maybeNode = traceNode.connection.variable?.defs[0]?.node;
-        //   return { stopFollowingVariable: true };
-        // }
+        const valueToCheck = traceNode.astNodes[0];
+
+        // Checking if the first node is a variable declaration, before
+        // continueing the loop. May need to be removed if specific cases proves
+        // otherwise?
+        if (!isVariableDeclarator(valueToCheck)) {
+          return;
+        }
+
+        for (let i = 1; i < traceNode.astNodes.length; i++) {
+          if (isTemplateLiteral(traceNode.astNodes[i])) {
+            maybeNode = traceNode.astNodes[i];
+            return { halt: true };
+          }
+        }
       },
     })
   );

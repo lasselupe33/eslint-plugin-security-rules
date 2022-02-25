@@ -28,10 +28,11 @@ export type HandlingContext = {
 
 const createRule = RuleCreator(resolveDocsRoute);
 
-enum MessageIds {
+export enum MessageIds {
   VULNERABLE_QUERY = "vulnerable-query",
   PARAMTERIZED_FIX = "parameterized-fix",
-  ESCAPE_FIX = "escape-fix",
+  ESCAPE_FIX_VALUES = "escape-fix-values",
+  ESCAPE_FIX_IDENTIFIERS = "escape-fix-identifiers",
 }
 
 export const mysqlNoSQLInjections = createRule<never[], MessageIds>({
@@ -45,7 +46,8 @@ export const mysqlNoSQLInjections = createRule<never[], MessageIds>({
         "The query is vulnerable to SQL injections",
       [MessageIds.PARAMTERIZED_FIX]:
         "(Recommended) Replace arguments with placeholders",
-      [MessageIds.ESCAPE_FIX]: "Escape arguments",
+      [MessageIds.ESCAPE_FIX_VALUES]: "Escape as query values",
+      [MessageIds.ESCAPE_FIX_IDENTIFIERS]: "Escape as query identifiers",
     },
     docs: {
       recommended: "error",
@@ -78,7 +80,6 @@ export const mysqlNoSQLInjections = createRule<never[], MessageIds>({
           return;
         }
 
-        // handleQuery({ ruleContext: context }, queryParam);
         const queryLiteral = extractQuery({ ruleContext: context }, queryParam);
 
         if (!isTemplateLiteral(queryLiteral)) {
@@ -93,26 +94,33 @@ export const mysqlNoSQLInjections = createRule<never[], MessageIds>({
         // If it's a template literal, we want to check that it actually
         // uses template expressions. If it's just a string, it has the length
         // one, even though it spans multiple lines.
-        if (templateLiteralArray.length > 1) {
-          for (const [node, isEscaped] of templateLiteralArray) {
-            if (
-              isEscaped !== undefined &&
-              !isTemplateElement(node) &&
-              !isEscaped
-            ) {
-              context.report({
-                node: node,
-                messageId: MessageIds.VULNERABLE_QUERY,
-                data: { node },
-                suggest: [
-                  {
-                    messageId: MessageIds.ESCAPE_FIX,
-                    fix: (fixer: TSESLint.RuleFixer) =>
-                      escapeFix(fixer, node, idLeft),
-                  },
-                ],
-              });
-            }
+        if (templateLiteralArray.length <= 1) {
+          return;
+        }
+
+        for (const [node, isEscaped] of templateLiteralArray) {
+          if (
+            isEscaped !== undefined &&
+            !isTemplateElement(node) &&
+            !isEscaped
+          ) {
+            context.report({
+              node: node,
+              messageId: MessageIds.VULNERABLE_QUERY,
+              data: { node },
+              suggest: [
+                {
+                  messageId: MessageIds.ESCAPE_FIX_VALUES,
+                  fix: (fixer: TSESLint.RuleFixer) =>
+                    escapeQueryValuesFix(fixer, node, idLeft),
+                },
+                {
+                  messageId: MessageIds.ESCAPE_FIX_IDENTIFIERS,
+                  fix: (fixer: TSESLint.RuleFixer) =>
+                    escapeQueryIdentifiersFix(fixer, node, idLeft),
+                },
+              ],
+            });
           }
         }
       },
@@ -128,7 +136,7 @@ export function report(node: TSESTree.Node, ctx: HandlingContext) {
   });
 }
 
-function* escapeFix(
+function* escapeQueryValuesFix(
   fixer: TSESLint.RuleFixer,
   node: TSESTree.Expression,
   escapeIdentifier: TSESTree.Identifier | undefined
@@ -139,6 +147,17 @@ function* escapeFix(
   const leftString = escapeIdentifier.name + ".escape(";
   yield fixer.insertTextBefore(node, leftString);
   yield fixer.insertTextAfter(node, ")");
+}
 
-  // No op
+function* escapeQueryIdentifiersFix(
+  fixer: TSESLint.RuleFixer,
+  node: TSESTree.Expression,
+  escapeIdentifier: TSESTree.Identifier | undefined
+): Generator<TSESLint.RuleFix> {
+  if (!escapeIdentifier) {
+    return;
+  }
+  const leftString = escapeIdentifier.name + ".escapeId(";
+  yield fixer.insertTextBefore(node, leftString);
+  yield fixer.insertTextAfter(node, ")");
 }
