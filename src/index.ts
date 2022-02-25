@@ -1,6 +1,7 @@
 import { mysqlNoHardcodedCredentials } from "./rules/no-hardcoded-credentials/mysql/_rule";
 import { uniNoHardcodedCredentials } from "./rules/no-hardcoded-credentials/universal/_rule";
 import { mysqlNoSQLInjections } from "./rules/no-sql-injections/mysql/_rule";
+import { noUniversalVulnerableDependencies } from "./rules/no-vulnerable-dependencies/universal/_rule";
 import { noBrowserXSSRule } from "./rules/no-xss/browser/_rule";
 import { noEjsXSSRule } from "./rules/no-xss/ejs/_rule";
 import { noReactXSSRule } from "./rules/no-xss/react/_rule";
@@ -10,6 +11,7 @@ export const rules = {
   "react/no-xss": noReactXSSRule,
   "ejs/no-xss": noEjsXSSRule,
   "universal/no-hc-credentials": uniNoHardcodedCredentials,
+  "universal/no-vulnerable-dependencies": noUniversalVulnerableDependencies,
   "mysql/no-hardcoded-credentials": mysqlNoHardcodedCredentials,
   "mysql/no-sql-injections": mysqlNoSQLInjections,
 };
@@ -53,6 +55,7 @@ export const configs = {
     plugins: ["security-rules"],
     rules: {
       "security-rules/universal/no-hc-credentials": ["error"],
+      "security-rules/universal/no-vulnerable-dependencies": ["error"],
     },
   },
   mysql: {
