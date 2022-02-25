@@ -21,7 +21,7 @@ import { handleTemplateElement } from "./template-element";
 import { handleTemplateLiteral } from "./template-literal";
 import { handleVariableDeclarator } from "./variable-declarator";
 
-const mapNodeToHandler = makeMapNodeToHandler({ withLogs: false });
+const mapNodeToHandler = makeMapNodeToHandler({ withLogs: true });
 
 export function handleNode(
   context: HandlingContext,

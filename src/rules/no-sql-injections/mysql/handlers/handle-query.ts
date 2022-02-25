@@ -1,21 +1,18 @@
 import { TSESTree } from "@typescript-eslint/utils";
-import { getInnermostScope } from "@typescript-eslint/utils/dist/ast-utils";
 
 import { traceVariable } from "../../../../utils/tracing/_trace-variable";
 import { makeTraceCallbacksWithTrace } from "../../../../utils/tracing/callbacks/with-current-trace";
 import {
   isVariableNode,
   isConstantTerminalNode,
-  isNodeTerminalNode,
 } from "../../../../utils/tracing/types/nodes";
-import { printTrace } from "../../../../utils/tracing/utils/print-trace";
 import { HandlingContext } from "../_rule";
 
 export function handleQuery(
   ctx: HandlingContext,
   node: TSESTree.CallExpressionArgument
 ): boolean {
-  const foundTemplateLiteral = false;
+  // const foundTemplateLiteral = false;
 
   let isCurrentTraceSafelySanitzed = false;
   let isSafe = true;
@@ -33,22 +30,25 @@ export function handleQuery(
         */
 
       onNodeVisited: (trace, traceNode) => {
-        // if (traceNode.connection?.nodeType === "TemplateElement") {
-        //   // console.log(traceNode);
-        // }
-        // if (!isVariableNode(traceNode)) {
-        //   return;
-        // }
-        // // console.log(traceNode);
-        // if (traceNode.connection?.nodeType === "MemberExpression") {
-        //   if (traceNode.meta.memberPath[0] === "escape") {
-        //     isCurrentTraceSafelySanitzed = true;
-        //     return { stopFollowingVariable: true };
-        //   }
-        // }
+        /* 
+        if (traceNode.connection?.nodeType === "TemplateLiteral") {
+          foundTemplateLiteral = true;
+        }
+
+        if (!isVariableNode(traceNode)) {
+          return;
+        }
+
+        if (traceNode.connection?.nodeType === "MemberExpression") {
+          if (traceNode.meta.memberPath[0] === "escape") {
+            isCurrentTraceSafelySanitzed = true;
+            return { stopFollowingVariable: true };
+          }
+        }
+        */
       },
       onTraceFinished: (trace) => {
-        printTrace(trace);
+        // printTrace(trace);
         const finalNode = trace[trace.length - 1];
 
         const isTraceSafe =
