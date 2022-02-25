@@ -1,13 +1,15 @@
 import { AST_NODE_TYPES, TSESTree } from "@typescript-eslint/utils";
 import { getInnermostScope } from "@typescript-eslint/utils/dist/ast-utils";
 
+import {
+  isIdentifier,
+  isMemberExpression,
+  isVariableDeclarator,
+} from "../../../../utils/ast/guards";
 import { mapNodeToHandler } from "../../../../utils/ast/map-node-to-handler";
 import { traceVariable } from "../../../../utils/tracing/_trace-variable";
 import { makeTraceCallbacksWithTrace } from "../../../../utils/tracing/callbacks/with-current-trace";
-import {
-  isConstantTerminalNode,
-  isVariableNode,
-} from "../../../../utils/tracing/types/nodes";
+import { isConstantTerminalNode } from "../../../../utils/tracing/types/nodes";
 import { getNodeModule } from "../../../../utils/types/get-node-module";
 import { getTypeProgram } from "../../../../utils/types/get-type-program";
 import { HandlingContext } from "../_rule";
@@ -76,16 +78,22 @@ export function isSourceEscaped(
     },
     makeTraceCallbacksWithTrace({
       onNodeVisited: (trace, traceNode) => {
-        if (!isVariableNode(traceNode)) {
+        if (!isVariableDeclarator(traceNode.astNodes[0])) {
           return;
         }
 
-        // if (traceNode.connection?.nodeType === "MemberExpression") {
-        //   if (traceNode.meta.memberPath[0] === "escape") {
-        //     isCurrentTraceSafelySanitzed = true;
-        //     return { stopFollowingVariable: true };
-        //   }
-        // }
+        for (let i = 1; i < traceNode.astNodes.length; i++) {
+          const node = traceNode.astNodes[i];
+          if (isMemberExpression(node) && isIdentifier(node.property)) {
+            if (
+              node.property.name === "escape" ||
+              node.property.name === "escapeId"
+            ) {
+              isCurrentTraceSafelySanitzed = true;
+              return { stopFollowingVariable: true };
+            }
+          }
+        }
       },
       onTraceFinished: (trace) => {
         const finalNode = trace[trace.length - 1];
