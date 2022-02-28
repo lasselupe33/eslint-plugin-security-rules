@@ -6,51 +6,11 @@ import {
   isMemberExpression,
   isVariableDeclarator,
 } from "../../../../utils/ast/guards";
-import { mapNodeToHandler } from "../../../../utils/ast/map-node-to-handler";
 import { traceVariable } from "../../../../utils/tracing/_trace-variable";
 import { makeTraceCallbacksWithTrace } from "../../../../utils/tracing/callbacks/with-current-trace";
 import { isConstantTerminalNode } from "../../../../utils/tracing/types/nodes";
-import { getNodeModule } from "../../../../utils/types/get-node-module";
-import { getTypeProgram } from "../../../../utils/types/get-type-program";
+import { printTrace } from "../../../../utils/tracing/utils/print-trace";
 import { HandlingContext } from "../_rule";
-
-export function isEscapedExpression(
-  context: HandlingContext,
-  node: TSESTree.Node
-): boolean | undefined {
-  const cases = mapNodeToHandler(
-    node,
-    {
-      [AST_NODE_TYPES.Identifier]: (ctx, identifier) =>
-        isEscapeFunction(ctx, identifier),
-      [AST_NODE_TYPES.MemberExpression]: (ctx, memExp) =>
-        isEscapedExpression(ctx, memExp.property),
-      [AST_NODE_TYPES.CallExpression]: (ctx, callExp) =>
-        isEscapedExpression(ctx, callExp.callee),
-      [AST_NODE_TYPES.TemplateElement]: () => undefined,
-    },
-    context
-  );
-
-  return cases;
-}
-
-function isEscapeFunction(
-  context: HandlingContext,
-  node: TSESTree.Identifier
-): boolean {
-  if (node.name === "escape" || node.name === "escapeId") {
-    const typeProgram = getTypeProgram(context.ruleContext);
-    if (typeProgram) {
-      const { fullyQualifiedName } = getNodeModule(typeProgram, node);
-      if (!fullyQualifiedName?.includes("@types/mysql/index")) {
-        return false;
-      }
-    }
-    return true;
-  }
-  return isSourceEscaped(context, node);
-}
 
 export function isSourceEscaped(
   context: HandlingContext,

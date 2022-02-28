@@ -9,6 +9,7 @@ import {
 import { makeMapNodeToHandler } from "../../../../utils/ast/map-node-to-handler";
 import { traceVariable } from "../../../../utils/tracing/_trace-variable";
 import { makeTraceCallbacksWithTrace } from "../../../../utils/tracing/callbacks/with-current-trace";
+import { printTrace } from "../../../../utils/tracing/utils/print-trace";
 import { HandlingContext } from "../_rule";
 
 const mapNodeToHandler = makeMapNodeToHandler({ disableWarnings: true });
@@ -67,6 +68,9 @@ function traceIdentifier(
           }
         }
       },
+      /* onTraceFinished: (trace) => {
+        printTrace(trace);
+      },*/
     })
   );
   return extractQuery(context, maybeNode);
