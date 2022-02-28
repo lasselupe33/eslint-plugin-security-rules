@@ -3,7 +3,6 @@ import { RuleContext } from "@typescript-eslint/utils/dist/ts-eslint";
 
 import { traceVariable } from "../../../../utils/tracing/_trace-variable";
 import { makeTraceCallbacksWithTrace } from "../../../../utils/tracing/callbacks/with-current-trace";
-import { ConnectionFlags } from "../../../../utils/tracing/types/connection";
 import {
   isConstantTerminalNode,
   isImportTerminalNode,
@@ -43,14 +42,6 @@ export function isSourceSafe(
       node,
     },
     makeTraceCallbacksWithTrace({
-      onNodeVisited: (trace, traceNode) => {
-        // Once we encounter a modification connection in the current trace we
-        // know that we do not need to continue. Sanitation MUST have occured
-        // before this point, which will be checked in onTraceFinished.
-        if (traceNode.connection.flags.has(ConnectionFlags.MODIFICATION)) {
-          return { stopFollowingVariable: true };
-        }
-      },
       onTraceFinished: (trace) => {
         printTrace(trace);
 
