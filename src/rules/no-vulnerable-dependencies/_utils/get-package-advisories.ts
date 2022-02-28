@@ -10,11 +10,13 @@ import { Package, PackageLocationMeta } from "./find-relevant-packages";
 const BULK_ADVISORY_API =
   "https://registry.npmjs.org/-/npm/v1/security/advisories/bulk";
 
+export type AdvisorySeverity = "low" | "moderate" | "high" | "critical";
+
 export type Advisory = {
   id: number;
   url: string;
   title: string;
-  severity: "low" | "moderate" | "high" | "critical";
+  severity: AdvisorySeverity;
   vulnerable_versions: string;
 };
 

@@ -1,9 +1,11 @@
 import { TSESTree } from "@typescript-eslint/utils";
 import { RuleCreator } from "@typescript-eslint/utils/dist/eslint-utils";
+import { coerce, diff, gt, SemVer } from "semver";
 
 import { isLiteral } from "../../../utils/ast/guards";
 import { resolveDocsRoute } from "../../../utils/resolve-docs-route";
 import { getAdvisories } from "../_utils/get-dependency-advisories";
+import { AdvisorySeverity } from "../_utils/get-package-advisories";
 
 /**
  * Progress
@@ -16,7 +18,7 @@ import { getAdvisories } from "../_utils/get-dependency-advisories";
  */
 
 export enum MessageIds {
-  temp = "tmep",
+  FOUND_VULNERABLE_DEPENDENCY = "found-vulnerable-dependency",
 }
 
 const createRule = RuleCreator(resolveDocsRoute);
@@ -42,7 +44,8 @@ export const noUniversalVulnerableDependencies = createRule<
     type: "problem",
     fixable: "code",
     messages: {
-      [MessageIds.temp]: "[{{ severity }}] {{ title }} ({{ versions }})",
+      [MessageIds.FOUND_VULNERABLE_DEPENDENCY]:
+        "[{{ severity }}/{{ patch }}] Please upgrade '{{ dependency }}' to at least to version {{ minVersion }}, currently on {{ currentVersion }}",
     },
     docs: {
       description: "TODO",
@@ -53,7 +56,7 @@ export const noUniversalVulnerableDependencies = createRule<
     schema: {},
   },
   create: (context) => {
-    const dependencies = new Set<string>();
+    const dependenciesInFile = new Set<string>();
     const depToNode = new Map<string, TSESTree.Node>();
 
     return {
@@ -64,7 +67,7 @@ export const noUniversalVulnerableDependencies = createRule<
           return;
         }
 
-        dependencies.add(String(node.source.value));
+        dependenciesInFile.add(String(node.source.value));
         depToNode.set(String(node.source.value), node);
       },
       "CallExpression[callee.name='require']": (
@@ -76,22 +79,24 @@ export const noUniversalVulnerableDependencies = createRule<
           return;
         }
 
-        dependencies.add(String(importSource.value));
+        dependenciesInFile.add(String(importSource.value));
         depToNode.set(String(importSource.value), node);
       },
       "Program:exit": () => {
-        if (dependencies.size === 0) {
+        if (dependenciesInFile.size === 0) {
           return;
         }
 
         const advisories = getAdvisories(
           context.getPhysicalFilename?.() ?? context.getFilename(),
-          dependencies
+          dependenciesInFile
         );
 
-        for (const dependency of dependencies) {
+        for (const dependency of dependenciesInFile) {
           const advisoriesForDep = advisories.get(dependency);
 
+          // In case there exists an advisory for the current dependency, then
+          // we need to flag it!
           if (advisoriesForDep) {
             const node = depToNode.get(dependency);
 
@@ -99,20 +104,63 @@ export const noUniversalVulnerableDependencies = createRule<
               continue;
             }
 
-            for (const advisory of advisoriesForDep) {
-              context.report({
-                node,
-                messageId: MessageIds.temp,
-                data: {
-                  versions: advisory.vulnerable_versions,
-                  title: advisory.title,
-                  severity: advisory.severity,
-                },
-              });
+            const currentVersion = coerce(
+              {
+                ...advisoriesForDep.relatedPackage.devDependencies,
+                ...advisoriesForDep.relatedPackage.dependencies,
+              }[dependency]
+            );
+
+            let minFixedVersion: SemVer | null = null;
+            let maxSeverity: AdvisorySeverity = "low";
+
+            // For simplicity sake, and to not overwhelm developers, we simply
+            // concatenate all found advisories into a single report, urging
+            // developers to upgrade to at least the lowest version that fixes
+            // the problem.
+            for (const advisory of advisoriesForDep.advisories) {
+              const advisoryFixedAt = coerce(
+                advisory.vulnerable_versions.split("<")[1]
+              );
+
+              if (
+                !minFixedVersion ||
+                (advisoryFixedAt && gt(advisoryFixedAt, minFixedVersion))
+              ) {
+                minFixedVersion = advisoryFixedAt;
+                maxSeverity = getMaxSeverity(maxSeverity, advisory.severity);
+              }
             }
+
+            context.report({
+              node,
+              messageId: MessageIds.FOUND_VULNERABLE_DEPENDENCY,
+              data: {
+                severity: maxSeverity,
+                minVersion: minFixedVersion?.version,
+                currentVersion,
+                dependency,
+                patch: diff(minFixedVersion ?? "", currentVersion ?? ""),
+              },
+            });
           }
         }
       },
     };
   },
 });
+
+function getMaxSeverity(
+  a: AdvisorySeverity,
+  b: AdvisorySeverity
+): AdvisorySeverity {
+  if (a === "critical" || b === "critical") {
+    return "critical";
+  } else if (a === "high" || b === "high") {
+    return "high";
+  } else if (a === "moderate" || b === "moderate") {
+    return "moderate";
+  } else {
+    return "low";
+  }
+}

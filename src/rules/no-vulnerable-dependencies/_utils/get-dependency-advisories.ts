@@ -1,14 +1,21 @@
-import { getRequiredPackages } from "./find-relevant-packages";
+import { getRequiredPackages, Package } from "./find-relevant-packages";
 import { Advisory, getPackageAdvisories } from "./get-package-advisories";
+
+type Report = {
+  packagePath: string;
+  relatedPackage: Package;
+  advisories: Advisory[];
+};
 
 export function getAdvisories(
   filePath: string,
   dependencies: Set<string>
-): Map<string, Advisory[]> {
+): Map<string, Report> {
   const relevantPackages = getRequiredPackages(filePath, dependencies);
 
   const allAdvisories: {
     path: string;
+    pkg: Package;
     advisories: Record<string, Advisory[]>;
   }[] = [];
 
@@ -21,20 +28,24 @@ export function getAdvisories(
       continue;
     }
 
-    allAdvisories.push({ advisories, path: pkgPath.path });
+    allAdvisories.push({ advisories, pkg: pkg.pkg, path: pkgPath.path });
   }
 
   // Sort our advisories in order such that the most prioritsed package comes
   // first.
   allAdvisories.sort((a, b) => b.path.length - a.path.length);
-  const output = new Map<string, Advisory[]>();
+  const output = new Map<string, Report>();
 
   for (const dep of dependencies) {
     for (const bulkAdvisory of allAdvisories) {
-      const advisory = bulkAdvisory.advisories[dep];
+      const advisories = bulkAdvisory.advisories[dep];
 
-      if (advisory) {
-        output.set(dep, advisory);
+      if (advisories) {
+        output.set(dep, {
+          packagePath: bulkAdvisory.path,
+          relatedPackage: bulkAdvisory.pkg,
+          advisories,
+        });
         continue;
       }
     }
