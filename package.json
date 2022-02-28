@@ -72,6 +72,6 @@
   "dependencies": {
     "@typescript-eslint/utils": "^5.12.1",
     "semver": "^7.3.5",
-    "sync-fetch": "^0.3.1"
+    "sync-fetch": "https://github.com/lasselupe33/sync-fetch.git"
   }
 }
