@@ -2,7 +2,7 @@ import { TSESTree } from "@typescript-eslint/utils";
 
 import { isRangeAfter } from "../../../../utils/ast/is-range-after";
 import { HandlingContext } from "../_rule";
-import { isEscapedExpression } from "../utils/is-escaped-identifier";
+import { isSourceEscaped } from "../utils/is-escaped-identifier";
 
 export function handleTemplateLiteral(
   context: HandlingContext,
@@ -16,7 +16,7 @@ export function handleTemplateLiteral(
   const boolNodes: [
     TSESTree.Expression | TSESTree.TemplateElement,
     boolean | undefined
-  ][] = nodes.map((val) => [val, isEscapedExpression(context, val)]);
+  ][] = nodes.map((val) => [val, isSourceEscaped(context, val)]);
 
   return boolNodes;
 }

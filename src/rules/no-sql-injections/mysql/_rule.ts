@@ -1,7 +1,10 @@
+import { template } from "@babel/core";
 import { TSESLint, TSESTree } from "@typescript-eslint/utils";
 import { RuleCreator } from "@typescript-eslint/utils/dist/eslint-utils";
 
 import {
+  isArrayExpression,
+  isLiteral,
   isTemplateElement,
   isTemplateLiteral,
 } from "../../../utils/ast/guards";
@@ -9,15 +12,16 @@ import { resolveDocsRoute } from "../../../utils/resolve-docs-route";
 
 import { handleIdentifier } from "./handlers/handle-identifier";
 import { handleTemplateLiteral } from "./handlers/handle-template-literal";
+import { countPlaceholders } from "./utils/count-placeholders";
 import { extractIdentifier } from "./utils/extract-identifier";
 import { extractQuery } from "./utils/extract-query";
 
 /**
  * Progress
- *  [-] Detection
- *  [-] Automatic fix / Suggestions
+ *  [x] Detection
+ *  [x] Automatic fix / Suggestions
  *  [-] Reduction of false positives
- *  [ ] Fulfilling unit testing
+ *  [-] Fulfilling unit testing
  *  [ ] Extensive documentation
  *  [ ] Fulfilling configuration options
  */
@@ -30,7 +34,8 @@ const createRule = RuleCreator(resolveDocsRoute);
 
 export enum MessageIds {
   VULNERABLE_QUERY = "vulnerable-query",
-  PARAMTERIZED_FIX = "parameterized-fix",
+  PARAMTERIZED_FIX_VALUES = "parameterized-fix-values",
+  PARAMTERIZED_FIX_IDENTIFIERS = "parameterized-fix-identifiers",
   ESCAPE_FIX_VALUES = "escape-fix-values",
   ESCAPE_FIX_IDENTIFIERS = "escape-fix-identifiers",
 }
@@ -44,8 +49,10 @@ export const mysqlNoSQLInjections = createRule<never[], MessageIds>({
     messages: {
       [MessageIds.VULNERABLE_QUERY]:
         "The query is vulnerable to SQL injections",
-      [MessageIds.PARAMTERIZED_FIX]:
-        "(Recommended) Replace arguments with placeholders",
+      [MessageIds.PARAMTERIZED_FIX_VALUES]:
+        "(R) Replace argument with value placeholders",
+      [MessageIds.PARAMTERIZED_FIX_IDENTIFIERS]:
+        "Replace argument with identifier placeholders",
       [MessageIds.ESCAPE_FIX_VALUES]: "Escape as query values",
       [MessageIds.ESCAPE_FIX_IDENTIFIERS]: "Escape as query identifiers",
     },
@@ -75,12 +82,21 @@ export const mysqlNoSQLInjections = createRule<never[], MessageIds>({
         }
 
         // Assuming that query is always the first argument
-        const queryParam = node.arguments[0];
-        if (!queryParam) {
+        const query = node.arguments[0];
+
+        let paramsArray: TSESTree.ArrayExpression | undefined = undefined;
+
+        // If it has paramterized arguments
+        // TODO: Handle Literal!
+        if (isArrayExpression(node.arguments[1])) {
+          paramsArray = node.arguments[1];
+        }
+
+        if (!query) {
           return;
         }
 
-        const queryLiteral = extractQuery({ ruleContext: context }, queryParam);
+        const queryLiteral = extractQuery({ ruleContext: context }, query);
 
         if (!isTemplateLiteral(queryLiteral)) {
           return;
@@ -97,27 +113,53 @@ export const mysqlNoSQLInjections = createRule<never[], MessageIds>({
         if (templateLiteralArray.length <= 1) {
           return;
         }
-
-        for (const [node, isEscaped] of templateLiteralArray) {
+        let indexCount = 0;
+        for (const [arrayNode, isEscaped] of templateLiteralArray) {
           if (
+            arrayNode &&
             isEscaped !== undefined &&
-            !isTemplateElement(node) &&
+            !isTemplateElement(arrayNode) &&
             !isEscaped
           ) {
+            indexCount++;
             context.report({
-              node: node,
+              node: arrayNode,
               messageId: MessageIds.VULNERABLE_QUERY,
-              data: { node },
+              data: { arrayNode },
               suggest: [
+                {
+                  messageId: MessageIds.PARAMTERIZED_FIX_VALUES,
+                  fix: (fixer: TSESLint.RuleFixer) =>
+                    paramterizeQueryFix(
+                      { ruleContext: context },
+                      fixer,
+                      arrayNode,
+                      node,
+                      countPlaceholders(templateLiteralArray, indexCount),
+                      false
+                    ),
+                },
+                {
+                  messageId: MessageIds.PARAMTERIZED_FIX_IDENTIFIERS,
+                  fix: (fixer: TSESLint.RuleFixer) =>
+                    paramterizeQueryFix(
+                      { ruleContext: context },
+                      fixer,
+                      arrayNode,
+                      node,
+                      countPlaceholders(templateLiteralArray, indexCount),
+                      true
+                    ),
+                },
                 {
                   messageId: MessageIds.ESCAPE_FIX_VALUES,
                   fix: (fixer: TSESLint.RuleFixer) =>
-                    escapeQueryValuesFix(fixer, node, idLeft),
+                    escapeQueryValuesFix(fixer, arrayNode, idLeft),
                 },
                 {
                   messageId: MessageIds.ESCAPE_FIX_IDENTIFIERS,
                   fix: (fixer: TSESLint.RuleFixer) =>
-                    escapeQueryIdentifiersFix(fixer, node, idLeft),
+                    escapeQueryIdentifiersFix(fixer, arrayNode, idLeft),
                 },
               ],
             });
@@ -160,4 +202,64 @@ function* escapeQueryIdentifiersFix(
   const leftString = escapeIdentifier.name + ".escapeId(";
   yield fixer.insertTextBefore(node, leftString);
   yield fixer.insertTextAfter(node, ")");
+}
+
+function* paramterizeQueryFix(
+  ctx: HandlingContext,
+  fixer: TSESLint.RuleFixer,
+  arrayNode: TSESTree.Node,
+  node: TSESTree.CallExpression,
+  // index: number,
+  totalPlaceholders: number,
+  replaceWithIdentifier: boolean
+): Generator<TSESLint.RuleFix> {
+  const query = node.arguments[0];
+  const paramsArray = node.arguments[1];
+
+  if (!query) {
+    return;
+  }
+  const nodeText = ctx.ruleContext.getSourceCode().getText(arrayNode);
+  // Include the "${" characters
+  const startR = arrayNode.range[0] - 2;
+  // Include the "}" character
+  const endR = arrayNode.range[1] + 1;
+
+  yield fixer.replaceTextRange([startR, endR], "?");
+
+  if (!isArrayExpression(paramsArray) && !isLiteral(paramsArray)) {
+    yield fixer.insertTextAfter(query, ", [" + nodeText + "]");
+    return;
+  } else if (isLiteral(paramsArray)) {
+    yield fixer.replaceText(paramsArray, "[" + nodeText + "]");
+    return;
+  }
+
+  const paramsLength = paramsArray.elements.length;
+
+  if (paramsLength === 0) {
+    yield fixer.insertTextAfterRange([0, paramsArray.range[0] + 1], nodeText);
+  } else if (paramsLength > totalPlaceholders) {
+    const replacableNode = paramsArray.elements[totalPlaceholders];
+    if (!replacableNode) {
+      return;
+    }
+    yield fixer.replaceText(replacableNode, nodeText);
+  } else if (paramsLength === totalPlaceholders) {
+    const prevNode = paramsArray.elements[totalPlaceholders - 1];
+    if (!prevNode) {
+      return;
+    }
+    yield fixer.insertTextAfter(prevNode, ", " + nodeText);
+  } else {
+    let insertText = "";
+    const prevNode = paramsArray.elements[paramsLength - 1];
+    if (!prevNode) {
+      return;
+    }
+    for (let i = paramsLength; i < totalPlaceholders; i++) {
+      insertText += ", undefined";
+    }
+    yield fixer.insertTextAfter(prevNode, insertText + ", " + nodeText);
+  }
 }
