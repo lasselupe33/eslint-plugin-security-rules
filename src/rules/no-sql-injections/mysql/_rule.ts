@@ -225,7 +225,11 @@ function* paramterizeQueryFix(
   // Include the "}" character
   const endR = arrayNode.range[1] + 1;
 
-  yield fixer.replaceTextRange([startR, endR], "?");
+  if (replaceWithIdentifier) {
+    yield fixer.replaceTextRange([startR, endR], "??");
+  } else {
+    yield fixer.replaceTextRange([startR, endR], "?");
+  }
 
   if (!isArrayExpression(paramsArray) && !isLiteral(paramsArray)) {
     yield fixer.insertTextAfter(query, ", [" + nodeText + "]");
