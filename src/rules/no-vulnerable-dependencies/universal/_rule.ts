@@ -1,9 +1,11 @@
 import { TSESTree } from "@typescript-eslint/utils";
 import { RuleCreator } from "@typescript-eslint/utils/dist/eslint-utils";
-import { coerce, diff, gt, SemVer } from "semver";
+import chalk from "chalk";
+import { coerce, diff } from "semver";
 
 import { isLiteral } from "../../../utils/ast/guards";
 import { resolveDocsRoute } from "../../../utils/resolve-docs-route";
+import { upgradeDependency } from "../_utils/fixes/upgrade-dependency";
 import { getAdvisories } from "../_utils/get-dependency-advisories";
 import { AdvisorySeverity } from "../_utils/get-package-advisories";
 
@@ -19,6 +21,7 @@ import { AdvisorySeverity } from "../_utils/get-package-advisories";
 
 export enum MessageIds {
   FOUND_VULNERABLE_DEPENDENCY = "found-vulnerable-dependency",
+  UPGRADE_PACKAGE_FIX = "upgrade-package-fix",
 }
 
 const createRule = RuleCreator(resolveDocsRoute);
@@ -44,8 +47,9 @@ export const noUniversalVulnerableDependencies = createRule<
     type: "problem",
     fixable: "code",
     messages: {
-      [MessageIds.FOUND_VULNERABLE_DEPENDENCY]:
-        "[{{ severity }}/{{ patch }}] Please upgrade '{{ dependency }}' to at least to version {{ minVersion }}, currently on {{ currentVersion }}",
+      [MessageIds.FOUND_VULNERABLE_DEPENDENCY]: `{{ severity }} {{ id }} {{ title }} ({{ vulnerable_versions }})`,
+      [MessageIds.UPGRADE_PACKAGE_FIX]:
+        "[{{ patch }} patch] Upgrade '{{ dependency }}' to version {{ minVersion }} from {{ currentVersion }}. Please re-install packages afterwards",
     },
     docs: {
       description: "TODO",
@@ -111,38 +115,43 @@ export const noUniversalVulnerableDependencies = createRule<
               }[dependency]
             );
 
-            let minFixedVersion: SemVer | null = null;
-            let maxSeverity: AdvisorySeverity = "low";
-
-            // For simplicity sake, and to not overwhelm developers, we simply
-            // concatenate all found advisories into a single report, urging
-            // developers to upgrade to at least the lowest version that fixes
-            // the problem.
             for (const advisory of advisoriesForDep.advisories) {
               const advisoryFixedAt = coerce(
                 advisory.vulnerable_versions.split("<")[1]
               );
 
-              if (
-                !minFixedVersion ||
-                (advisoryFixedAt && gt(advisoryFixedAt, minFixedVersion))
-              ) {
-                minFixedVersion = advisoryFixedAt;
-                maxSeverity = getMaxSeverity(maxSeverity, advisory.severity);
-              }
-            }
+              const idArr = advisory.url.split("/");
 
-            context.report({
-              node,
-              messageId: MessageIds.FOUND_VULNERABLE_DEPENDENCY,
-              data: {
-                severity: maxSeverity,
-                minVersion: minFixedVersion?.version,
-                currentVersion,
-                dependency,
-                patch: diff(minFixedVersion ?? "", currentVersion ?? ""),
-              },
-            });
+              context.report({
+                node,
+                messageId: MessageIds.FOUND_VULNERABLE_DEPENDENCY,
+                data: {
+                  id: chalk.dim(`[${idArr[idArr.length - 1]}]`),
+                  severity: getSeverityString(advisory.severity),
+                  title: advisory.title,
+                  url: advisory.url,
+                  vulnerable_versions: advisory.vulnerable_versions,
+                },
+                suggest: [
+                  {
+                    messageId: MessageIds.UPGRADE_PACKAGE_FIX,
+                    data: {
+                      minVersion: advisoryFixedAt?.version,
+                      currentVersion,
+                      dependency,
+                      patch: diff(advisoryFixedAt ?? "", currentVersion ?? ""),
+                    },
+                    fix: (fixer) =>
+                      upgradeDependency(
+                        fixer,
+                        advisoriesForDep.packagePath,
+                        dependency,
+                        advisoryFixedAt?.version ?? ""
+                      ),
+                  },
+                ],
+              });
+            }
           }
         }
       },
@@ -150,17 +159,18 @@ export const noUniversalVulnerableDependencies = createRule<
   },
 });
 
-function getMaxSeverity(
-  a: AdvisorySeverity,
-  b: AdvisorySeverity
-): AdvisorySeverity {
-  if (a === "critical" || b === "critical") {
-    return "critical";
-  } else if (a === "high" || b === "high") {
-    return "high";
-  } else if (a === "moderate" || b === "moderate") {
-    return "moderate";
-  } else {
-    return "low";
+function getSeverityString(severity: AdvisorySeverity): string {
+  switch (severity) {
+    case "critical":
+      return chalk.magenta(severity);
+
+    case "high":
+      return chalk.red(severity);
+
+    case "moderate":
+      return chalk.yellow(severity);
+
+    case "low":
+      return chalk.green(severity);
   }
 }
