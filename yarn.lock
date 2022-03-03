@@ -7744,9 +7744,9 @@ symbol-tree@^3.2.4:
   resolved "https://registry.yarnpkg.com/symbol-tree/-/symbol-tree-3.2.4.tgz#430637d248ba77e078883951fb9aa0eed7c63fa2"
   integrity sha512-9QNk5KwDF+Bvz+PyObkmSYjI5ksVUYtjW7AU22r2NKcfLJcXp96hkDWU3+XndOsUb+AQ9QhfzfCT2O+CNWT5Tw==
 
-"sync-fetch@https://github.com/lasselupe33/sync-fetch.git":
+"sync-fetch@git://github.com/lasselupe33/sync-fetch.git#fbcc9245270ed8f59c0911e9620a0e09b6198ab3":
   version "0.3.1"
-  resolved "https://github.com/lasselupe33/sync-fetch.git#7dc392a1a369c6788e6820fd75496c6be80abe4e"
+  resolved "git://github.com/lasselupe33/sync-fetch.git#fbcc9245270ed8f59c0911e9620a0e09b6198ab3"
   dependencies:
     buffer "^5.7.0"
     node-fetch "^2.6.1"
