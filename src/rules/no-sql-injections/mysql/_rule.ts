@@ -9,12 +9,12 @@ import {
   isTemplateLiteral,
 } from "../../../utils/ast/guards";
 import { resolveDocsRoute } from "../../../utils/resolve-docs-route";
+import { extractIdentifier } from "../utils/extract-identifier";
 import { MessageIds, errorMessages } from "../utils/messages";
 
 import { handleIdentifier } from "./handlers/handle-identifier";
 import { handleTemplateLiteral } from "./handlers/handle-template-literal";
 import { countPlaceholders } from "./utils/count-placeholders";
-import { extractIdentifier } from "./utils/extract-identifier";
 import { extractQuery } from "./utils/extract-query";
 
 /**
