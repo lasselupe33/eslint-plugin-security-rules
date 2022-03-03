@@ -3,8 +3,9 @@ import path from "path";
 import { ESLintUtils } from "@typescript-eslint/utils";
 
 import { getCode } from "../../../utils/testing/get-code";
+import { MessageIds } from "../utils/messages";
 
-import { MessageIds, mysqlNoSQLInjections } from "./_rule";
+import { mysqlNoSQLInjections } from "./_rule";
 
 enum validTests {
   ADVANCED_QUERY_PARAMETERIZED_ARGS_1 = "allow-advanced-query-parameterized-args-1",

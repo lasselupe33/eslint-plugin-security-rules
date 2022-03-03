@@ -9,6 +9,7 @@ import {
   isTemplateLiteral,
 } from "../../../utils/ast/guards";
 import { resolveDocsRoute } from "../../../utils/resolve-docs-route";
+import { MessageIds, errorMessages } from "../utils/messages";
 
 import { handleIdentifier } from "./handlers/handle-identifier";
 import { handleTemplateLiteral } from "./handlers/handle-template-literal";
@@ -32,30 +33,13 @@ export type HandlingContext = {
 
 const createRule = RuleCreator(resolveDocsRoute);
 
-export enum MessageIds {
-  VULNERABLE_QUERY = "vulnerable-query",
-  PARAMTERIZED_FIX_VALUES = "parameterized-fix-values",
-  PARAMTERIZED_FIX_IDENTIFIERS = "parameterized-fix-identifiers",
-  ESCAPE_FIX_VALUES = "escape-fix-values",
-  ESCAPE_FIX_IDENTIFIERS = "escape-fix-identifiers",
-}
-
 export const mysqlNoSQLInjections = createRule<never[], MessageIds>({
   name: "mysql/no-sql-injections",
   defaultOptions: [],
   meta: {
     type: "problem",
     fixable: "code",
-    messages: {
-      [MessageIds.VULNERABLE_QUERY]:
-        "The query is vulnerable to SQL injections",
-      [MessageIds.PARAMTERIZED_FIX_VALUES]:
-        "(R) Replace argument with value placeholders",
-      [MessageIds.PARAMTERIZED_FIX_IDENTIFIERS]:
-        "Replace argument with identifier placeholders",
-      [MessageIds.ESCAPE_FIX_VALUES]: "Escape as query values",
-      [MessageIds.ESCAPE_FIX_IDENTIFIERS]: "Escape as query identifiers",
-    },
+    messages: errorMessages,
     docs: {
       recommended: "error",
       description: "Description",
@@ -83,14 +67,6 @@ export const mysqlNoSQLInjections = createRule<never[], MessageIds>({
 
         // Assuming that query is always the first argument
         const query = node.arguments[0];
-
-        let paramsArray: TSESTree.ArrayExpression | undefined = undefined;
-
-        // If it has paramterized arguments
-        // TODO: Handle Literal!
-        if (isArrayExpression(node.arguments[1])) {
-          paramsArray = node.arguments[1];
-        }
 
         if (!query) {
           return;
