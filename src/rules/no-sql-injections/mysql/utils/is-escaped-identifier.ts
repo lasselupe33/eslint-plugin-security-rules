@@ -5,6 +5,7 @@ import {
   isIdentifier,
   isMemberExpression,
   isVariableDeclarator,
+  isCallExpression,
 } from "../../../../utils/ast/guards";
 import { traceVariable } from "../../../../utils/tracing/_trace-variable";
 import { makeTraceCallbacksWithTrace } from "../../../../utils/tracing/callbacks/with-current-trace";
@@ -38,7 +39,10 @@ export function isSourceEscaped(
     },
     makeTraceCallbacksWithTrace({
       onNodeVisited: (trace, traceNode) => {
-        if (!isVariableDeclarator(traceNode.astNodes[0])) {
+        if (
+          !isVariableDeclarator(traceNode.astNodes[0]) &&
+          !isCallExpression(traceNode.astNodes[0])
+        ) {
           return;
         }
 
