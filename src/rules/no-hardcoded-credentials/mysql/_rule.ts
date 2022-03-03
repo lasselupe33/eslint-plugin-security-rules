@@ -1,10 +1,10 @@
 import { TSESLint, TSESTree } from "@typescript-eslint/utils";
 
 import { resolveDocsRoute } from "../../../utils/resolve-docs-route";
+import { extractIdentifier } from "../utils/extract-identifier";
 
 import { handleIdentifier } from "./handlers/handle-identifier";
 import { checkArgumentsForPassword } from "./utils/check-arguments-for-password";
-import { extractIdentifier } from "./utils/extract-identifier";
 import { extractObjectProperties } from "./utils/extract-object-properties";
 
 // TODO : Check on AST properties instead of only type properties
