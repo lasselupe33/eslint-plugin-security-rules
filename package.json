@@ -49,13 +49,13 @@
     "@types/node": "^17.0.21",
     "@types/react": "^17.0.39",
     "@types/semver": "^7.3.9",
-    "@typescript-eslint/eslint-plugin": "^5.12.1",
-    "@typescript-eslint/parser": "^5.12.1",
-    "@typescript-eslint/scope-manager": "^5.12.1",
+    "@typescript-eslint/eslint-plugin": "^5.13.0",
+    "@typescript-eslint/parser": "^5.13.0",
+    "@typescript-eslint/scope-manager": "^5.13.0",
     "core-js": "^3.21.1",
-    "enhanced-resolve": "^5.9.1",
-    "eslint": "^8.9.0",
-    "eslint-config-prettier": "^8.4.0",
+    "enhanced-resolve": "^5.9.2",
+    "eslint": "^8.10.0",
+    "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-comment-length": "^0.5.1",
     "eslint-plugin-import": "^2.25.4",
     "eslint-plugin-prettier": "^4.0.0",
@@ -65,13 +65,13 @@
     "jest": "^27.5.1",
     "lint-staged": "^12.3.4",
     "prettier": "^2.5.1",
-    "typescript": "^4.5.5"
+    "typescript": "^4.6.2"
   },
   "peerDependencies": {
     "eslint": ">=8.0.0"
   },
   "dependencies": {
-    "@typescript-eslint/utils": "^5.12.1",
+    "@typescript-eslint/utils": "^5.13.0",
     "chalk": "^4.1.2",
     "semver": "^7.3.5",
     "sync-fetch": "git://github.com/lasselupe33/sync-fetch.git#fbcc9245270ed8f59c0911e9620a0e09b6198ab3"

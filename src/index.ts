@@ -3,6 +3,7 @@ import { pgNoHardcodedCredentials } from "./rules/no-hardcoded-credentials/pg/_r
 import { uniNoHardcodedCredentials } from "./rules/no-hardcoded-credentials/universal/_rule";
 import { mysqlNoSQLInjections } from "./rules/no-sql-injections/mysql/_rule";
 import { pgNoSQLInjections } from "./rules/no-sql-injections/pg/_rule";
+import { noPackageVulnerableDependencies } from "./rules/no-vulnerable-dependencies/package/_rule";
 import { noUniversalVulnerableDependencies } from "./rules/no-vulnerable-dependencies/universal/_rule";
 import { noBrowserXSSRule } from "./rules/no-xss/browser/_rule";
 import { noEjsXSSRule } from "./rules/no-xss/ejs/_rule";
@@ -13,11 +14,12 @@ export const rules = {
   "react/no-xss": noReactXSSRule,
   "ejs/no-xss": noEjsXSSRule,
   "universal/no-hc-credentials": uniNoHardcodedCredentials,
-  "universal/no-vulnerable-dependencies": noUniversalVulnerableDependencies,
+  "universal/no-vuln-deps": noUniversalVulnerableDependencies,
   "mysql/no-hardcoded-credentials": mysqlNoHardcodedCredentials,
   "mysql/no-sql-injections": mysqlNoSQLInjections,
   "pg/no-hardcoded-credentials": pgNoHardcodedCredentials,
   "pg/no-sql-injections": pgNoSQLInjections,
+  "package/no-vuln-deps": noPackageVulnerableDependencies,
 };
 
 export const configs = {
@@ -29,14 +31,9 @@ export const configs = {
       "plugin:security-rules/universal",
       "plugin:security-rules/mysql",
       "plugin:security-rules/pg",
+      "plugin:security-rules/package",
     ],
     plugins: ["security-rules"],
-
-    overrides: [
-      {
-        files: ["*.ts", "*.tsx"],
-      },
-    ],
   },
   browser: {
     plugins: ["security-rules"],
@@ -60,7 +57,7 @@ export const configs = {
     plugins: ["security-rules"],
     rules: {
       "security-rules/universal/no-hc-credentials": ["error"],
-      "security-rules/universal/no-vulnerable-dependencies": ["error"],
+      "security-rules/universal/no-vuln-deps": ["error"],
     },
   },
   mysql: {
@@ -75,6 +72,12 @@ export const configs = {
     rules: {
       "security-rules/pg/no-hardcoded-credentials": ["error"],
       "security-rules/pg/no-sql-injections": ["error"],
+    },
+  },
+  package: {
+    plugins: ["security-rules"],
+    rules: {
+      "security-rules/package/no-vuln-deps": ["error"],
     },
   },
 };
