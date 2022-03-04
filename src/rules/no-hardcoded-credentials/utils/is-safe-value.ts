@@ -22,7 +22,7 @@ export function isSafeValue(
     },
     makeTraceCallbacksWithTrace({
       onTraceFinished: (trace) => {
-        printTrace(trace);
+        // printTrace(trace);
         const finalNode = trace[trace.length - 1];
 
         const safeValues = /^test/;

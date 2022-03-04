@@ -41,7 +41,7 @@ export function handleArgs(
           }
         }
 
-        printTrace(trace);
+        // printTrace(trace);
       },
     })
   );
