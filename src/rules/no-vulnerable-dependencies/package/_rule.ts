@@ -1,22 +1,34 @@
+import fs from "fs";
+
 import { TSESTree } from "@typescript-eslint/utils";
 import { RuleCreator } from "@typescript-eslint/utils/dist/eslint-utils";
+import {
+  ReportDescriptor,
+  RuleContext,
+  RuleFixer,
+} from "@typescript-eslint/utils/dist/ts-eslint";
 import chalk from "chalk";
-import { coerce, diff } from "semver";
+import { JSONProperty } from "jsonc-eslint-parser/lib/parser/ast";
+import { coerce, diff, gte } from "semver";
 
-import { isLiteral } from "../../../utils/ast/guards";
 import { resolveDocsRoute } from "../../../utils/resolve-docs-route";
-import { upgradeDependency } from "../_utils/fixes/upgrade-dependency";
-import { getAdvisories } from "../_utils/get-dependency-advisories";
-import { AdvisorySeverity } from "../_utils/get-package-advisories";
+import { Package } from "../_utils/find-relevant-packages";
+import {
+  BulkAdvisoryResponse,
+  getPackageAdvisories,
+} from "../_utils/get-package-advisories";
+import { getSeverityString } from "../_utils/get-severity-string";
+
+import { upgradeDependency } from "./fixes/upgrade-dependency";
 
 /**
  * Progress
  *  [X] Detection
- *  [ ] Automatic fix / Suggestions
- *  [ ] Reduction of false positives
+ *  [X] Automatic fix / Suggestions
+ *  [X] Reduction of false positives
  *  [ ] Fulfilling unit testing
  *  [ ] Extensive documentation
- *  [ ] Fulfilling configuration options
+ *  [?] Fulfilling configuration options
  */
 
 export enum MessageIds {
@@ -49,117 +61,157 @@ export const noPackageVulnerableDependencies = createRule<[], MessageIds>({
     schema: {},
   },
   create: (context) => {
-    const dependenciesInFile = new Set<string>();
-    const depToNode = new Map<string, TSESTree.Node>();
+    const pkgPath = context.getPhysicalFilename?.() ?? context.getFilename();
+
+    // Bail out early if we're not linting a package.json!
+    if (!pkgPath.includes("package.json")) {
+      return {};
+    }
+
+    const dependencies = new Map<
+      string,
+      {
+        version: string;
+        node: JSONProperty;
+      }
+    >();
 
     return {
-      "ImportExpression, ImportDeclaration": (
-        node: TSESTree.ImportDeclaration | TSESTree.ImportExpression
-      ) => {
-        if (!isLiteral(node.source)) {
+      JSONProperty: (node: JSONProperty) => {
+        if (
+          node.key.type !== "JSONLiteral" ||
+          !["dependencies", "devDependencies"].includes(
+            String(node.key.value)
+          ) ||
+          node.value.type !== "JSONObjectExpression"
+        ) {
           return;
         }
 
-        dependenciesInFile.add(String(node.source.value));
-        depToNode.set(String(node.source.value), node);
-      },
-      "CallExpression[callee.name='require']": (
-        node: TSESTree.CallExpression
-      ) => {
-        const importSource = node.arguments[0];
-
-        if (!isLiteral(importSource)) {
-          return;
-        }
-
-        dependenciesInFile.add(String(importSource.value));
-        depToNode.set(String(importSource.value), node);
-      },
-      "Program:exit": () => {
-        if (dependenciesInFile.size === 0) {
-          return;
-        }
-
-        const advisories = getAdvisories(
-          context.getPhysicalFilename?.() ?? context.getFilename(),
-          dependenciesInFile
-        );
-
-        for (const dependency of dependenciesInFile) {
-          const advisoriesForDep = advisories.get(dependency);
-
-          // In case there exists an advisory for the current dependency, then
-          // we need to flag it!
-          if (advisoriesForDep) {
-            const node = depToNode.get(dependency);
-
-            if (!node) {
-              continue;
-            }
-
-            const currentVersion = coerce(
-              {
-                ...advisoriesForDep.relatedPackage.devDependencies,
-                ...advisoriesForDep.relatedPackage.dependencies,
-              }[dependency]
-            );
-
-            for (const advisory of advisoriesForDep.advisories) {
-              const advisoryFixedAt = coerce(
-                advisory.vulnerable_versions.split("<")[1]
-              );
-
-              const idArr = advisory.url.split("/");
-
-              context.report({
-                node,
-                messageId: MessageIds.FOUND_VULNERABLE_DEPENDENCY,
-                data: {
-                  id: chalk.dim(`[${idArr[idArr.length - 1]}]`),
-                  severity: getSeverityString(advisory.severity),
-                  title: advisory.title,
-                  url: advisory.url,
-                  vulnerable_versions: advisory.vulnerable_versions,
-                },
-                suggest: [
-                  {
-                    messageId: MessageIds.UPGRADE_PACKAGE_FIX,
-                    data: {
-                      minVersion: advisoryFixedAt?.version,
-                      currentVersion,
-                      dependency,
-                      patch: diff(advisoryFixedAt ?? "", currentVersion ?? ""),
-                    },
-                    fix: (fixer) =>
-                      upgradeDependency(
-                        fixer,
-                        advisoriesForDep.packagePath,
-                        dependency,
-                        advisoryFixedAt?.version ?? ""
-                      ),
-                  },
-                ],
-              });
-            }
+        for (const dependency of node.value.properties) {
+          if (
+            dependency.key.type !== "JSONLiteral" ||
+            dependency.value.type !== "JSONLiteral"
+          ) {
+            continue;
           }
+
+          dependencies.set(String(dependency.key.value), {
+            version: String(dependency.value.value),
+            node: dependency,
+          });
         }
+      },
+
+      "Program:exit": () => {
+        if (dependencies.size === 0) {
+          return;
+        }
+
+        // Parse dependencies into format required to query advisory database
+        const pkgPath =
+          context.getPhysicalFilename?.() ?? context.getFilename();
+        const pkg: Package = {
+          dependencies: Object.fromEntries(
+            Array.from(dependencies).map(([key, value]) => [key, value.version])
+          ),
+        };
+
+        const advisories =
+          getPackageAdvisories({
+            paths: [
+              {
+                path: context.getPhysicalFilename?.() ?? context.getFilename(),
+                modifiedAt: fs.statSync(pkgPath).mtimeMs,
+              },
+            ],
+            pkg,
+          }) ?? {};
+
+        reportAdvisories(context, advisories, dependencies);
       },
     };
   },
 });
 
-function getSeverityString(severity: AdvisorySeverity): string {
-  switch (severity) {
-    case "critical":
-      return chalk.magenta(severity);
+function reportAdvisories(
+  context: RuleContext<MessageIds, []>,
+  advisories: BulkAdvisoryResponse,
+  dependencies: Map<
+    string,
+    {
+      version: string;
+      node: JSONProperty;
+    }
+  >
+) {
+  for (const [dependency, depAdvisories] of Object.entries(advisories)) {
+    const dependencyContext = dependencies.get(dependency);
 
-    case "high":
-      return chalk.red(severity);
+    if (!dependencyContext) {
+      continue;
+    }
 
-    case "moderate":
-      return chalk.yellow(severity);
+    const { version, node } = dependencyContext;
+    const semverVersion = coerce(version);
 
-    case "low":
-      return chalk.green(severity);
+    // We only wish to report one suggestion, even if a package has multiple
+    // vulnerabilities. This suggestion should attempt to fix to the version
+    // that ensures no (known) vulnerabilities are present in the packages.
+    const highestVulnerableVersion = depAdvisories
+      .map(
+        (advisory) =>
+          coerce(advisory.vulnerable_versions.split("<")[1])?.version
+      )
+      .filter((it): it is string => !!it)
+      .sort((a, b) => b.localeCompare(a))[0];
+    let hasSuggestedFix = false;
+
+    for (const advisory of depAdvisories) {
+      const advisoryFixedAt = coerce(
+        advisory.vulnerable_versions.split("<")[1]
+      );
+      const idArr = advisory.url.split("/");
+
+      // In case we're already at a safe version, then there is no need to
+      // report the current vulnerability.
+      if (gte(semverVersion ?? "", advisoryFixedAt ?? "")) {
+        continue;
+      }
+
+      const report: ReportDescriptor<MessageIds> = {
+        node: node as unknown as TSESTree.Node,
+        messageId: MessageIds.FOUND_VULNERABLE_DEPENDENCY,
+        data: {
+          id: chalk.dim(`[${idArr[idArr.length - 1]}]`),
+          severity: getSeverityString(advisory.severity),
+          title: advisory.title,
+          url: advisory.url,
+          vulnerable_versions: advisory.vulnerable_versions,
+        },
+      };
+
+      if (!hasSuggestedFix && highestVulnerableVersion) {
+        // @ts-expect-error We only wish to add the suggestion once, thus
+        // we have to add the suggest property dynimcally.
+        report.suggest = [
+          {
+            messageId: MessageIds.UPGRADE_PACKAGE_FIX,
+            data: {
+              minVersion: advisoryFixedAt?.version,
+              currentVersion: semverVersion,
+              dependency,
+              patch: diff(advisoryFixedAt ?? "", semverVersion ?? ""),
+            },
+            fix: (fixer: RuleFixer) =>
+              upgradeDependency(fixer, node, highestVulnerableVersion ?? ""),
+          },
+        ];
+      }
+
+      context.report(report);
+
+      hasSuggestedFix = true;
+    }
   }
 }

@@ -3,8 +3,8 @@
   "ignorePatterns": [
     "**/lib/**/*",
     "**/node_modules/**/*",
-    "**/*.json",
-    "!.husky"
+    "!.husky",
+    "!*.json"
   ],
   "extends": [
     "eslint:recommended",
@@ -55,6 +55,12 @@
       "parserOptions": {
         "project": ["./tsconfig.json"]
       }
+    },
+    {
+      "files": [
+        "*.json"
+      ],
+      "parser": "jsonc-eslint-parser"
     }
   ]
 }

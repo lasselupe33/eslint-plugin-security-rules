@@ -1,7 +1,8 @@
 {
   "compilerOptions": {
     "lib": [
-      "dom",
+      "DOM",
+      "DOM.Iterable",
       "esnext"
     ],
     "isolatedModules": true,
@@ -11,6 +12,7 @@
     "jsx": "react-jsx",
     "module": "CommonJS",
     "moduleResolution": "node",
+    "downlevelIteration": true,
     "resolveJsonModule": true,
     "skipLibCheck": true,
     "sourceMap": true,

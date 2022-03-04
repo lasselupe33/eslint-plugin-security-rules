@@ -1,5 +1,3 @@
-import fs from "fs";
-
 import { minVersion } from "semver";
 import fetch from "sync-fetch";
 
@@ -21,7 +19,7 @@ export type Advisory = {
 };
 
 type BulkAdvisoryRequest = Record<string, string[]>;
-type BulkAdvisoryResponse = Record<string, Advisory[]>;
+export type BulkAdvisoryResponse = Record<string, Advisory[]>;
 
 const CACHE_TTL = 1000 * 60 * 60 * 2; // 2 Hours
 
@@ -50,7 +48,7 @@ export function getPackageAdvisories({
   // package, then we can simply return our cached result.
   if (
     cacheEntry?.packageModifiedAt &&
-    cacheEntry.packageModifiedAt === fs.statSync(packagePath.path).mtimeMs &&
+    cacheEntry.packageModifiedAt === packagePath.modifiedAt &&
     cacheEntry.fetchedAt + CACHE_TTL > Date.now()
   ) {
     return cacheEntry.advisories;

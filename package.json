@@ -26,7 +26,7 @@
     "eslint:files": "eslint",
     "eslint:plugin": "yarn eslint:files 'src/**/*.{ts,tsx}' --ignore-pattern '**/tests/**/*.ts' --ignore-pattern '**/tests/**/*.tsx'",
     "eslint:tests": "yarn eslint:files 'src/**/tests/**/*.{ts,tsx}'",
-    "eslint:dummy": "yarn eslint:files 'dummy/**/*.{ts,tsx}'",
+    "eslint:dummy": "yarn eslint:files 'dummy/**/*.{json,ts,tsx}'",
     "prepare": "husky install",
     "test": "jest --cache --config=.jestrc.json",
     "type-check": "tsc --noEmit"
@@ -73,6 +73,7 @@
   "dependencies": {
     "@typescript-eslint/utils": "^5.13.0",
     "chalk": "^4.1.2",
+    "jsonc-eslint-parser": "^2.1.0",
     "semver": "^7.3.5",
     "sync-fetch": "git://github.com/lasselupe33/sync-fetch.git#fbcc9245270ed8f59c0911e9620a0e09b6198ab3"
   }
