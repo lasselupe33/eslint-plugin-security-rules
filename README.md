@@ -37,7 +37,12 @@ To include the recommended `eslint-plugin-security-rules` to your ruleset add th
 - `'plugin:security-rules/mysql'`: security related rules targeting code using the `mysql` package.
 - `'plugin:security-rules/ejs'`: security related rules targeting code using the `ejs` package.
 
-**Key**: ✅ = recommended, 🔧 = fixable with suggestion, 💭 = enchaned with TypeScript type information, 🌩 = requires type information
+**Key**:
+
+- ✅ = recommended,
+- 🔧 = fixable with suggestion,
+- 💭 = enchaned with TypeScript type information,
+- 🌩 = requires TypeScript type information
 
 ### Browser
 
