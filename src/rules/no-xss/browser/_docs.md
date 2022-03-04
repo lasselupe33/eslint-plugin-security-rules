@@ -57,7 +57,7 @@ In case you are certain that you have encountered a false positive, then you can
 
 In order to tailor this rule to your specific project a couple of parameters can be tweaked.
 
-Firstly, in case you wish to **use a library other than ```dom-purify```** you can configure this as follows:
+Firstly, in case you wish to **use a library other than ```dompurify```** you can configure this as follows:
 
 ```json
 "rules": {
