@@ -13,7 +13,7 @@ export const rules = {
   "browser/no-xss": noBrowserXSSRule,
   "react/no-xss": noReactXSSRule,
   "ejs/no-xss": noEjsXSSRule,
-  "universal/no-hc-credentials": uniNoHardcodedCredentials,
+  "universal/no-hardcoded-credentials": uniNoHardcodedCredentials,
   "universal/no-vulnerable-dependencies": noUniversalVulnerableDependencies,
   "mysql/no-hardcoded-credentials": mysqlNoHardcodedCredentials,
   "mysql/no-sql-injections": mysqlNoSQLInjections,
@@ -56,7 +56,7 @@ export const configs = {
   universal: {
     plugins: ["security-rules"],
     rules: {
-      "security-rules/universal/no-hc-credentials": ["error"],
+      "security-rules/universal/no-hardcoded-credentials": ["error"],
       "security-rules/universal/no-vulnerable-dependencies": ["error"],
     },
   },
