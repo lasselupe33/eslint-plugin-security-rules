@@ -1,6 +1,8 @@
 import { mysqlNoHardcodedCredentials } from "./rules/no-hardcoded-credentials/mysql/_rule";
+import { pgNoHardcodedCredentials } from "./rules/no-hardcoded-credentials/pg/_rule";
 import { uniNoHardcodedCredentials } from "./rules/no-hardcoded-credentials/universal/_rule";
 import { mysqlNoSQLInjections } from "./rules/no-sql-injections/mysql/_rule";
+import { pgNoSQLInjections } from "./rules/no-sql-injections/pg/_rule";
 import { noUniversalVulnerableDependencies } from "./rules/no-vulnerable-dependencies/universal/_rule";
 import { noBrowserXSSRule } from "./rules/no-xss/browser/_rule";
 import { noEjsXSSRule } from "./rules/no-xss/ejs/_rule";
@@ -14,6 +16,8 @@ export const rules = {
   "universal/no-vulnerable-dependencies": noUniversalVulnerableDependencies,
   "mysql/no-hardcoded-credentials": mysqlNoHardcodedCredentials,
   "mysql/no-sql-injections": mysqlNoSQLInjections,
+  "pg/no-hardcoded-credentials": pgNoHardcodedCredentials,
+  "pg/no-sql-injections": pgNoSQLInjections,
 };
 
 export const configs = {
@@ -24,6 +28,7 @@ export const configs = {
       "plugin:security-rules/ejs",
       "plugin:security-rules/universal",
       "plugin:security-rules/mysql",
+      "plugin:security-rules/pg",
     ],
     plugins: ["security-rules"],
 
@@ -63,6 +68,13 @@ export const configs = {
     rules: {
       "security-rules/mysql/no-hardcoded-credentials": ["error"],
       "security-rules/mysql/no-sql-injections": ["error"],
+    },
+  },
+  pg: {
+    plugins: ["security-rules"],
+    rules: {
+      "security-rules/pg/no-hardcoded-credentials": ["error"],
+      "security-rules/pg/no-sql-injections": ["error"],
     },
   },
 };
