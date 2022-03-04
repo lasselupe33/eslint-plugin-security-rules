@@ -37,24 +37,24 @@ To include the recommended `eslint-plugin-security-rules` to your ruleset add th
 - `'plugin:security-rules/mysql'`: security related rules targeting code using the `mysql` package.
 - `'plugin:security-rules/ejs'`: security related rules targeting code using the `ejs` package.
 
-**Key**: ✅ = recommended, 🔧 = fixable with suggestion, 💭 = enchaned with TypeScript type information, 💭💭 = requires type information
+**Key**: ✅ = recommended, 🔧 = fixable with suggestion, 💭 = enchaned with TypeScript type information, 🌩 = requires type information
 
 ### Browser
 
-| **Name** | **Description** | ✅ | 🔧 | 💭 | 💭💭 |
+| **Name** | **Description** | ✅ | 🔧 | 💭 | 🌩 |
 |:--------|:------------|:--:|:--:|:--:|:----:|
 | [security-rules/browser/no-xss](https://github.com/lasselupe33/eslint-plugin-security-rules/blob/master/src/rules/no-xss/browser/_docs.md) | Detects DOM-based XSS vulnerabilities | ✅ | 🔧 | 💭 | |
 
 ### Universal
 
-| **Name** | **Description** | ✅ | 🔧 | 💭 | 💭💭 |
+| **Name** | **Description** | ✅ | 🔧 | 💭 | 🌩 |
 |:--------|:------------|:--:|:--:|:--:|:----:|
 | [security-rules/universal/no-hardcoded-credentials](https://github.com/lasselupe33/eslint-plugin-security-rules/blob/master/src/rules/no-hardcoded-credentials/universal/_docs.md) | **TODO** | ✅ | | | |
 | [security-rules/universal/no-vulnerable-dependencies](https://github.com/lasselupe33/eslint-plugin-security-rules/blob/master/src/rules/no-vulnerable-dependencies/universal/_docs.md) | **TODO** | ✅ | | | |
 
 ### Package.json
 
-| **Name** | **Description** | ✅ | 🔧 | 💭 | 💭💭 |
+| **Name** | **Description** | ✅ | 🔧 | 💭 | 🌩 |
 |:--------|:------------|:--:|:--:|:--:|:----:|
 | [security-rules/package/no-vulnerable-dependencies](https://github.com/lasselupe33/eslint-plugin-security-rules/blob/master/src/rules/no-vulnerable-dependencies/package/_docs.md) | **TODO** | ✅ | 🔧 | | |
 
@@ -64,26 +64,26 @@ The following ruleset are related to specific popular packages, scanning for vul
 
 #### React
 
-| **Name** | **Description** | ✅ | 🔧 | 💭 | 💭💭 |
+| **Name** | **Description** | ✅ | 🔧 | 💭 | 🌩 |
 |:--------|:------------|:--:|:--:|:--:|:----:|
 | [security-rules/react/no-xss](https://github.com/lasselupe33/eslint-plugin-security-rules/blob/master/src/rules/no-xss/react/_docs.md) | Detects DOM-based XSS vulnerabilities introduced in JSX | ✅ | 🔧 | 💭 | |
 
 #### Postgres (pg)
 
-| **Name** | **Description** | ✅ | 🔧 | 💭 | 💭💭 |
+| **Name** | **Description** | ✅ | 🔧 | 💭 | 🌩 |
 |:--------|:------------|:--:|:--:|:--:|:----:|
 | [security-rules/pg/no-sql-injections](https://github.com/lasselupe33/eslint-plugin-security-rules/blob/master/src/rules/no-sql-injections/pg/_docs.md) | **TODO** | ✅ | 🔧 | | |
 | [security-rules/pg/no-hardcoded-credentials](https://github.com/lasselupe33/eslint-plugin-security-rules/blob/master/src/rules/no-hardcoded-credentials/pg/_docs.md) | **TODO** | ✅ | 🔧 | | |
 
 #### MySQL
 
-| **Name** | **Description** | ✅ | 🔧 | 💭 | 💭💭 |
+| **Name** | **Description** | ✅ | 🔧 | 💭 | 🌩 |
 |:--------|:------------|:--:|:--:|:--:|:----:|
 | [security-rules/mysql/no-sql-injections](https://github.com/lasselupe33/eslint-plugin-security-rules/blob/master/src/rules/no-sql-injections/mysql/_docs.md) | **TODO** | ✅ | 🔧 | | |
 | [security-rules/mysql/no-hardcoded-credentials](https://github.com/lasselupe33/eslint-plugin-security-rules/blob/master/src/rules/no-hardcoded-credentials/mysql/_docs.md) | **TODO** | ✅ | 🔧 | | |
 
 #### EJS
 
-| **Name** | **Description** | ✅ | 🔧 | 💭 | 💭💭 |
+| **Name** | **Description** | ✅ | 🔧 | 💭 | 🌩 |
 |:--------|:------------|:--:|:--:|:--:|:----:|
 | [security-rules/ejs/no-xss](https://github.com/lasselupe33/eslint-plugin-security-rules/blob/master/src/rules/no-xss/ejs/_docs.md) | Detects Stored/Reflcted XSS vulnerabilities introduced by using EJS | ✅ | 🔧 | 💭 | |
