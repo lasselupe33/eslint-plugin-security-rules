@@ -1,24 +1,27 @@
 import { TSESTree } from "@typescript-eslint/utils";
 import { RuleCreator } from "@typescript-eslint/utils/dist/eslint-utils";
 import chalk from "chalk";
+import { coerce, diff } from "semver";
 
 import { isLiteral } from "../../../utils/ast/guards";
 import { resolveDocsRoute } from "../../../utils/resolve-docs-route";
+import { upgradeDependency } from "../_utils/fixes/upgrade-dependency";
 import { getAdvisories } from "../_utils/get-dependency-advisories";
 import { AdvisorySeverity } from "../_utils/get-package-advisories";
 
 /**
  * Progress
  *  [X] Detection
- *  [/] Automatic fix / Suggestions
- *  [/] Reduction of false positives
+ *  [ ] Automatic fix / Suggestions
+ *  [ ] Reduction of false positives
  *  [ ] Fulfilling unit testing
  *  [ ] Extensive documentation
- *  [?] Fulfilling configuration options
+ *  [ ] Fulfilling configuration options
  */
 
 export enum MessageIds {
   FOUND_VULNERABLE_DEPENDENCY = "found-vulnerable-dependency",
+  UPGRADE_PACKAGE_FIX = "upgrade-package-fix",
 }
 
 const createRule = RuleCreator(resolveDocsRoute);
@@ -26,20 +29,23 @@ const createRule = RuleCreator(resolveDocsRoute);
 /**
  * INTRODUCTION.
  */
-export const noUniversalVulnerableDependencies = createRule<[], MessageIds>({
-  name: "no-vuln-deps/universal",
+export const noPackageVulnerableDependencies = createRule<[], MessageIds>({
+  name: "no-vuln-deps/package",
   defaultOptions: [],
   meta: {
     type: "problem",
     fixable: "code",
     messages: {
       [MessageIds.FOUND_VULNERABLE_DEPENDENCY]: `{{ severity }} {{ id }} {{ title }} ({{ vulnerable_versions }})`,
+      [MessageIds.UPGRADE_PACKAGE_FIX]:
+        "[{{ patch }} patch] Upgrade '{{ dependency }}' to version {{ minVersion }} from {{ currentVersion }}. Please re-install packages afterwards",
     },
     docs: {
       description: "TODO",
       recommended: "error",
+      suggestion: true,
     },
-    hasSuggestions: false,
+    hasSuggestions: true,
     schema: {},
   },
   create: (context) => {
@@ -91,7 +97,18 @@ export const noUniversalVulnerableDependencies = createRule<[], MessageIds>({
               continue;
             }
 
+            const currentVersion = coerce(
+              {
+                ...advisoriesForDep.relatedPackage.devDependencies,
+                ...advisoriesForDep.relatedPackage.dependencies,
+              }[dependency]
+            );
+
             for (const advisory of advisoriesForDep.advisories) {
+              const advisoryFixedAt = coerce(
+                advisory.vulnerable_versions.split("<")[1]
+              );
+
               const idArr = advisory.url.split("/");
 
               context.report({
@@ -104,6 +121,24 @@ export const noUniversalVulnerableDependencies = createRule<[], MessageIds>({
                   url: advisory.url,
                   vulnerable_versions: advisory.vulnerable_versions,
                 },
+                suggest: [
+                  {
+                    messageId: MessageIds.UPGRADE_PACKAGE_FIX,
+                    data: {
+                      minVersion: advisoryFixedAt?.version,
+                      currentVersion,
+                      dependency,
+                      patch: diff(advisoryFixedAt ?? "", currentVersion ?? ""),
+                    },
+                    fix: (fixer) =>
+                      upgradeDependency(
+                        fixer,
+                        advisoriesForDep.packagePath,
+                        dependency,
+                        advisoryFixedAt?.version ?? ""
+                      ),
+                  },
+                ],
               });
             }
           }

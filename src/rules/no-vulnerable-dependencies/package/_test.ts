@@ -2,7 +2,7 @@ import path from "path";
 
 import { ESLintUtils } from "@typescript-eslint/utils";
 
-import { noUniversalVulnerableDependencies } from "./_rule";
+import { noPackageVulnerableDependencies } from "./_rule";
 
 const ruleTester = new ESLintUtils.RuleTester({
   parser: "@typescript-eslint/parser",
@@ -15,7 +15,7 @@ const ruleTester = new ESLintUtils.RuleTester({
   },
 });
 
-ruleTester.run("universal/no-vuln-deps", noUniversalVulnerableDependencies, {
+ruleTester.run("package/no-vuln-deps", noPackageVulnerableDependencies, {
   valid: [
     // {
     //   code: getCode(__dirname, "allow-assign-safe-value"),
