@@ -5,13 +5,13 @@ import chalk from "chalk";
 import { isLiteral } from "../../../utils/ast/guards";
 import { resolveDocsRoute } from "../../../utils/resolve-docs-route";
 import { getAdvisories } from "../_utils/get-dependency-advisories";
-import { AdvisorySeverity } from "../_utils/get-package-advisories";
+import { getSeverityString } from "../_utils/get-severity-string";
 
 /**
  * Progress
  *  [X] Detection
  *  [/] Automatic fix / Suggestions
- *  [/] Reduction of false positives
+ *  [X] Reduction of false positives
  *  [ ] Fulfilling unit testing
  *  [ ] Extensive documentation
  *  [?] Fulfilling configuration options
@@ -112,19 +112,3 @@ export const noUniversalVulnerableDependencies = createRule<[], MessageIds>({
     };
   },
 });
-
-function getSeverityString(severity: AdvisorySeverity): string {
-  switch (severity) {
-    case "critical":
-      return chalk.magenta(severity);
-
-    case "high":
-      return chalk.red(severity);
-
-    case "moderate":
-      return chalk.yellow(severity);
-
-    case "low":
-      return chalk.green(severity);
-  }
-}

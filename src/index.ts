@@ -64,8 +64,14 @@ export const configs = {
   },
   package: {
     plugins: ["security-rules"],
-    rules: {
-      "security-rules/package/no-vuln-deps": ["error"],
-    },
+    overrides: [
+      {
+        parser: "jsonc-eslint-parser",
+        files: ["**/package.json"],
+        rules: {
+          "security-rules/package/no-vuln-deps": ["error"],
+        },
+      },
+    ],
   },
 };
