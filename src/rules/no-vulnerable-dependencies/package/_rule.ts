@@ -42,7 +42,7 @@ const createRule = RuleCreator(resolveDocsRoute);
  * INTRODUCTION.
  */
 export const noPackageVulnerableDependencies = createRule<[], MessageIds>({
-  name: "no-vuln-deps/package",
+  name: "no-vulnerable-dependencies/package",
   defaultOptions: [],
   meta: {
     type: "problem",

@@ -15,16 +15,20 @@ const ruleTester = new ESLintUtils.RuleTester({
   },
 });
 
-ruleTester.run("universal/no-vuln-deps", noUniversalVulnerableDependencies, {
-  valid: [
-    // {
-    //   code: getCode(__dirname, "allow-assign-safe-value"),
-    // },
-  ],
-  invalid: [
-    // {
-    //   code: getCode(__dirname, "error-assign-unsafe-value"),
-    //   errors: repeat({ messageId: MessageIds.VULNERABLE_SINK }, 27),
-    // },
-  ],
-});
+ruleTester.run(
+  "universal/no-vulnerable-dependencies",
+  noUniversalVulnerableDependencies,
+  {
+    valid: [
+      // {
+      //   code: getCode(__dirname, "allow-assign-safe-value"),
+      // },
+    ],
+    invalid: [
+      // {
+      //   code: getCode(__dirname, "error-assign-unsafe-value"),
+      //   errors: repeat({ messageId: MessageIds.VULNERABLE_SINK }, 27),
+      // },
+    ],
+  }
+);
