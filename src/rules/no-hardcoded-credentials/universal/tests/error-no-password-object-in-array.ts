@@ -8,3 +8,5 @@ const clientConfig = [
     port: 3211,
   },
 ];
+
+export {};
