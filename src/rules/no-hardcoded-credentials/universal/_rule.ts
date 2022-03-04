@@ -67,8 +67,7 @@ export const uniNoHardcodedCredentials: TSESLint.RuleModule<MessageIds> = {
               isProperty(property) &&
               isIdentifier(property.key) &&
               isPasswordName(property.key.name) &&
-              isLiteral(property.value) &&
-              !isSafeValue(property.value)
+              !isSafeValue(context, property.value)
             ) {
               report(property.value);
             }
@@ -76,7 +75,10 @@ export const uniNoHardcodedCredentials: TSESLint.RuleModule<MessageIds> = {
         } else if (isArrayPattern(node.id) && isArrayExpression(node.init)) {
           const table = retrieveNameAndValues(node.id, node.init);
           for (const pair of table) {
-            if (isPasswordName(pair.id.name) && !isSafeValue(pair.val)) {
+            if (
+              isPasswordName(pair.id.name) &&
+              !isSafeValue(context, pair.val)
+            ) {
               report(pair.val);
             }
           }
@@ -84,7 +86,7 @@ export const uniNoHardcodedCredentials: TSESLint.RuleModule<MessageIds> = {
           if (
             isPasswordName(node.id.name) &&
             isLiteral(node.init) &&
-            !isSafeValue(node.init)
+            !isSafeValue(context, node.init)
           ) {
             report(node.init);
           }

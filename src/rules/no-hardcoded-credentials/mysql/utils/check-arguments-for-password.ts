@@ -21,7 +21,7 @@ export function checkArgumentsForPassword(
       isIdentifier(property.key) &&
       property.key.name.toLowerCase() === "password"
     ) {
-      if (isLiteral(property.value) && !isSafeValue(property.value)) {
+      if (!isSafeValue(ctx.ruleContext, property.value)) {
         report(property.key, property.value, ctx);
       }
     }
