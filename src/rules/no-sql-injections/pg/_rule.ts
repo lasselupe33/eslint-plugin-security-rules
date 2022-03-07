@@ -15,12 +15,15 @@ import {
   isCallExpression,
   isIdentifier,
   isObjectExpression,
+  isArrowFunctionExpression,
   isProperty,
 } from "../../../utils/ast/guards";
 import { resolveDocsRoute } from "../../../utils/resolve-docs-route";
 import { extractIdentifier } from "../utils/extract-identifier";
 import { MessageIds, errorMessages } from "../utils/messages";
 
+import { countPlaceholders } from "./utils/count-placeholders";
+import { extractValuesArray } from "./utils/extract-values-array";
 import { isPGPackage } from "./utils/is-pg-package";
 import { isQuerySafe } from "./utils/is-query-safe";
 
@@ -71,36 +74,110 @@ export const pgNoSQLInjections = createRule<never[], MessageIds>({
           return;
         }
 
-        let [isCurrentQuerySafe, maybeNode] = isQuerySafe(
+        let [isCurrentQuerySafe, maybeNode, maybeQuery] = isQuerySafe(
           { ruleContext: context },
           queryArgs
         );
 
-        // Handle the specific case, where the query is stored in a obj text
+        let valuesArray: TSESTree.ArrayExpression | undefined = undefined;
+        const objNode = isObjectExpression(maybeNode) ? maybeNode : undefined;
+        // Handle the specific case, where the query is stored in an object
         if (isObjectExpression(maybeNode)) {
           for (const property of maybeNode.properties) {
-            if (
-              isProperty(property) &&
-              isIdentifier(property.key) &&
-              property.key.name === "text"
-            ) {
-              [isCurrentQuerySafe, maybeNode] = isQuerySafe(
-                { ruleContext: context },
-                property.value
-              );
-              break;
+            if (isProperty(property) && isIdentifier(property.key)) {
+              if (property.key.name === "text") {
+                [isCurrentQuerySafe, maybeNode, maybeQuery] = isQuerySafe(
+                  { ruleContext: context },
+                  property.value
+                );
+              } else if (property.key.name === "values") {
+                valuesArray = extractValuesArray(
+                  { ruleContext: context },
+                  property.value
+                );
+              }
             }
           }
         }
 
-        if (!isCurrentQuerySafe && maybeNode) {
-          context.report({
-            node: maybeNode,
-            messageId: MessageIds.VULNERABLE_QUERY,
-            data: { maybeNode },
-          });
+        // Bail out early
+        if (isCurrentQuerySafe || !maybeNode) {
+          return;
         }
+
+        if (!valuesArray) {
+          const queryValues = idRight?.parent?.parent.arguments[1];
+          if (!isArrowFunctionExpression(queryValues)) {
+            valuesArray = extractValuesArray(
+              { ruleContext: context },
+              queryArgs
+            );
+          }
+        }
+        const totalPlaceholders = countPlaceholders(maybeQuery);
+
+        context.report({
+          node: maybeNode,
+          messageId: MessageIds.VULNERABLE_QUERY,
+          data: { maybeNode },
+          suggest: [
+            {
+              messageId: MessageIds.PARAMTERIZED_FIX_VALUES,
+              fix: (fixer: TSESLint.RuleFixer) =>
+                paramterizeQueryFix(
+                  { ruleContext: context },
+                  fixer,
+                  totalPlaceholders,
+                  node,
+                  objNode,
+                  valuesArray,
+                  maybeNode
+                ),
+            },
+          ],
+        });
       },
     };
   },
 });
+
+function* paramterizeQueryFix(
+  ctx: HandlingContext,
+  fixer: TSESLint.RuleFixer,
+  totalPlaceholders: number,
+  queryNode: TSESTree.CallExpression,
+  objNode?: TSESTree.ObjectExpression,
+  arrayNode?: TSESTree.ArrayExpression,
+  replaceNode?: TSESTree.Node
+): Generator<TSESLint.RuleFix> {
+  const queryLocation = queryNode.arguments[0];
+  if (!replaceNode || !queryLocation) {
+    return;
+  }
+  const nodeText = ctx.ruleContext.getSourceCode().getText(replaceNode);
+
+  yield fixer.replaceText(
+    replaceNode,
+    '"$' + (totalPlaceholders + 1).toString() + '"'
+  );
+
+  // No array and not in an object
+  if (!arrayNode && !objNode) {
+    yield fixer.insertTextAfter(queryLocation, ", [" + nodeText + "]");
+  }
+  // No array and in an object
+  else if (!arrayNode && objNode) {
+    yield fixer.insertTextBeforeRange(
+      [objNode.range[1] - 1, 0],
+      ", values: [" + nodeText + "] "
+    );
+  }
+  // Existing placeholder array and not in an object
+  else if (arrayNode && !objNode) {
+    // No op
+  }
+  // Existing placeholder array and in an object
+  else if (arrayNode && objNode) {
+    // No op
+  }
+}

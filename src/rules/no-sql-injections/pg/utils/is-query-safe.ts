@@ -5,22 +5,29 @@ import { makeTraceCallbacksWithTrace } from "../../../../utils/tracing/callbacks
 import {
   isConstantTerminalNode,
   isNodeTerminalNode,
+  isTerminalNode,
   isUnresolvedTerminalNode,
   isVariableNode,
 } from "../../../../utils/tracing/types/nodes";
 import { printTrace } from "../../../../utils/tracing/utils/print-trace";
+import { terminalsToSourceString } from "../../../../utils/tracing/utils/terminals-to-source-string";
 import { HandlingContext } from "../_rule";
 
+/**
+ * @returns {Array} boolean of whether the query is safe and the last node
+ * variable that caused the issue
+ */
 export function isQuerySafe(
   context: HandlingContext,
   node: TSESTree.Node
-): [boolean, TSESTree.Node | undefined] {
+): [boolean, TSESTree.Node | undefined, string] {
   if (!node) {
-    return [true, undefined];
+    return [true, undefined, ""];
   }
 
   let isSafe = true;
   let maybeNode: TSESTree.Node | undefined = undefined;
+  let maybeQuery = "";
   // const isCurrentTraceSafelySanitzed = false;
   /**
    * Iterates through traces to determine whether or not the function has been
@@ -42,12 +49,9 @@ export function isQuerySafe(
         }
       },
       onTraceFinished: (trace) => {
-        printTrace(trace);
         const finalNode = trace[trace.length - 1];
 
-        const isTraceSafe =
-          isConstantTerminalNode(finalNode) ||
-          isUnresolvedTerminalNode(finalNode);
+        const isTraceSafe = isConstantTerminalNode(finalNode);
 
         if (isNodeTerminalNode(finalNode)) {
           maybeNode = finalNode.astNode;
@@ -57,27 +61,24 @@ export function isQuerySafe(
           return { halt: true };
         }
       },
+      onFinished: (terminalGroups) => {
+        // We handle only one terminal group, as a query as often terminates in
+        // a single use-case. If a query has the form:
+        //
+        // let query = "query a"
+        // if (bool) { query = "query b"}
+        //
+        // We'd argue that the programmer has code smell and we therefore don't
+        // handle this case for now.
+        const terminals = terminalGroups[0];
+        terminals?.map((terminal) => {
+          if (isConstantTerminalNode(terminal)) {
+            maybeQuery += terminal.value;
+          }
+        });
+      },
     })
   );
 
-  return [isSafe, maybeNode];
+  return [isSafe, maybeNode, maybeQuery];
 }
-
-/*
-const finalNode = trace[trace.length - 1];
-
-        const isTraceSafe =
-          isCurrentTraceSafelySanitzed || isConstantTerminalNode(finalNode);
-
-        // Reset for next iteration
-        isCurrentTraceSafelySanitzed = false;
-
-        // If all traces are deemed safe or ends with a constant value,
-        // we assume the trace to be sanitized. If any one trace is found to'
-        // be unsafe, we halt further tracing.
-        if (!isTraceSafe) {
-          isSafe = false;
-          return { halt: true };
-        }
-
-        */

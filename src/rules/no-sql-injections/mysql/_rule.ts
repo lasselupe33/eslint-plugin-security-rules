@@ -1,4 +1,3 @@
-import { template } from "@babel/core";
 import { TSESLint, TSESTree } from "@typescript-eslint/utils";
 import { RuleCreator } from "@typescript-eslint/utils/dist/eslint-utils";
 
