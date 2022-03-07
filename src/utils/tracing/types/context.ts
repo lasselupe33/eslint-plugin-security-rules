@@ -30,6 +30,8 @@ export type Meta = {
    * literal instead of the resolved variable
    */
   forceIdentifierLiteral?: boolean | undefined;
+
+  forceFollowObjectProperties?: boolean;
 };
 
 /**

@@ -13,12 +13,17 @@ export function printTrace(trace: TraceNode[]): void {
 }
 
 function nodeToString(node: TraceNode): string {
+  const flags = `${
+    node.connection.flags.size > 0
+      ? `/${Array.from(node.connection.flags).join("-")}`
+      : ""
+  }`;
   const finalAstNode = node.astNodes[node.astNodes.length - 1];
 
   if (isTerminalNode(node)) {
     const postfix = `(${finalAstNode ? finalAstNode.type : ""}/${
       node.astNodes.length
-    }/${node.type})`;
+    }/${node.type}${flags})`;
 
     if (isConstantTerminalNode(node)) {
       return `"${node.value}" ${postfix}`;
@@ -40,10 +45,6 @@ function nodeToString(node: TraceNode): string {
   } else {
     return `${node.variable.name} (${node.variable.defs[0]?.type ?? ""}/${
       node.astNodes.length
-    }${
-      node.connection.flags.size > 0
-        ? `/${Array.from(node.connection.flags).join("-")}`
-        : ""
-    })`;
+    }${flags})`;
   }
 }
