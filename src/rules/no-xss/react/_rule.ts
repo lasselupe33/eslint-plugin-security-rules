@@ -31,7 +31,7 @@ import { ASSIGNMENT_SINKS } from "./data";
  *  [X] Automatic fix / Suggestions
  *  [X] Reduction of false positives
  *  [-] Fulfilling unit testing
- *  [ ] Extensive documentation
+ *  [X] Extensive documentation
  *  [X] Fulfilling configuration options
  */
 
@@ -67,7 +67,7 @@ export const noReactXSSRule = createRule<NoXssOptions, MessageIds>({
         "Add sanitation before assigning unsafe value",
     },
     docs: {
-      description: "TODO",
+      description: "Detects DOM-based XSS vulnerabilities introduced in JSX",
       recommended: "error",
       suggestion: true,
     },

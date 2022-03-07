@@ -23,7 +23,7 @@ import { isSourceSafe } from "../_utils/source/is-source-safe";
  *  [X] Automatic fix / Suggestions
  *  [X] Reduction of false positives
  *  [-] Fulfilling unit testing
- *  [ ] Extensive documentation
+ *  [X] Extensive documentation
  *  [X] Fulfilling configuration options
  */
 
@@ -59,7 +59,8 @@ export const noEjsXSSRule = createRule<NoXssOptions, MessageIds>({
         "Add sanitation before assigning unsafe value",
     },
     docs: {
-      description: "TODO",
+      description:
+        "Detects Stored/Reflcted XSS vulnerabilities introduced by using EJS",
       recommended: "error",
       suggestion: true,
     },

@@ -13,13 +13,13 @@ export const rules = {
   "browser/no-xss": noBrowserXSSRule,
   "react/no-xss": noReactXSSRule,
   "ejs/no-xss": noEjsXSSRule,
-  "universal/no-hc-credentials": uniNoHardcodedCredentials,
-  "universal/no-vuln-deps": noUniversalVulnerableDependencies,
+  "universal/no-hardcoded-credentials": uniNoHardcodedCredentials,
+  "universal/no-vulnerable-dependencies": noUniversalVulnerableDependencies,
   "mysql/no-hardcoded-credentials": mysqlNoHardcodedCredentials,
   "mysql/no-sql-injections": mysqlNoSQLInjections,
   "pg/no-hardcoded-credentials": pgNoHardcodedCredentials,
   "pg/no-sql-injections": pgNoSQLInjections,
-  "package/no-vuln-deps": noPackageVulnerableDependencies,
+  "package/no-vulnerable-dependencies": noPackageVulnerableDependencies,
 };
 
 export const configs = {
@@ -56,8 +56,8 @@ export const configs = {
   universal: {
     plugins: ["security-rules"],
     rules: {
-      "security-rules/universal/no-hc-credentials": ["error"],
-      "security-rules/universal/no-vuln-deps": ["error"],
+      "security-rules/universal/no-hardcoded-credentials": ["error"],
+      "security-rules/universal/no-vulnerable-dependencies": ["error"],
     },
   },
   mysql: {
@@ -81,7 +81,7 @@ export const configs = {
         parser: "jsonc-eslint-parser",
         files: ["**/package.json"],
         rules: {
-          "security-rules/package/no-vuln-deps": ["error"],
+          "security-rules/package/no-vulnerable-dependencies": ["error"],
         },
       },
     ],

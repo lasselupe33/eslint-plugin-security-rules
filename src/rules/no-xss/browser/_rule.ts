@@ -23,7 +23,7 @@ import {
  *  [X] Automatic fix / Suggestions
  *  [X] Reduction of false positives
  *  [-] Fulfilling unit testing
- *  [ ] Extensive documentation
+ *  [X] Extensive documentation
  *  [X] Fulfilling configuration options
  */
 
@@ -59,7 +59,7 @@ export const noBrowserXSSRule = createRule<NoXssOptions, MessageIds>({
         "Add sanitation before assigning unsafe value",
     },
     docs: {
-      description: "TODO",
+      description: "Detects DOM-based XSS vulnerabilities",
       recommended: "error",
       suggestion: true,
     },
