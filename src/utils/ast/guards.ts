@@ -43,6 +43,7 @@ export const isImportNamespaceSpecifier = isNodeOfType(
   AST_NODE_TYPES.ImportNamespaceSpecifier
 );
 export const isImportSpecifier = isNodeOfType(AST_NODE_TYPES.ImportSpecifier);
+export const isSpreadElement = isNodeOfType(AST_NODE_TYPES.SpreadElement);
 export const isJSXAttribute = isNodeOfType(AST_NODE_TYPES.JSXAttribute);
 export const isLiteral = isNodeOfType(AST_NODE_TYPES.Literal);
 export const isMemberExpression = isNodeOfType(AST_NODE_TYPES.MemberExpression);

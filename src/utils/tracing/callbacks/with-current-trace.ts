@@ -1,5 +1,6 @@
 import { TraceCallbacks } from "../_trace-variable";
-import { isTerminalNode, TraceNode } from "../types/nodes";
+import { ConnectionFlags } from "../types/connection";
+import { isTerminalNode, TerminalNode, TraceNode } from "../types/nodes";
 
 type TraceCallbacksWithCurrentTrace = {
   onNodeVisited?: (
@@ -10,7 +11,7 @@ type TraceCallbacksWithCurrentTrace = {
     trace: TraceNode[]
   ) => ReturnType<Required<TraceCallbacks>["onNodeVisited"]>;
   onFinished?: (
-    trace: TraceNode[],
+    terminals: TerminalNode[][],
     ...args: Parameters<Required<TraceCallbacks>["onFinished"]>
   ) => ReturnType<Required<TraceCallbacks>["onFinished"]>;
 };
@@ -27,6 +28,9 @@ export function makeTraceCallbacksWithTrace(
   callbacks: TraceCallbacksWithCurrentTrace
 ): TraceCallbacks {
   const currentTrace: TraceNode[] = [];
+
+  let terminalInsertionIndex = 0;
+  const terminalGroups: TerminalNode[][] = [];
 
   function onNodeVisited(node: TraceNode) {
     let toReturn = callbacks.onNodeVisited?.(currentTrace, node);
@@ -55,6 +59,23 @@ export function makeTraceCallbacksWithTrace(
       // Go back the trace until our new node fits the connection.
       prevNode = currentTrace.pop();
 
+      // Record terminals such that they can be reconstructed into a complete
+      // source if required by integration later on.
+      if (isTerminalNode(prevNode)) {
+        if (
+          terminalGroups[terminalInsertionIndex] &&
+          prevNode.connection.flags.has(ConnectionFlags.REASSIGN)
+        ) {
+          terminalInsertionIndex++;
+        }
+
+        if (!terminalGroups[terminalInsertionIndex]) {
+          terminalGroups[terminalInsertionIndex] = [];
+        }
+
+        terminalGroups[terminalInsertionIndex]?.push(prevNode);
+      }
+
       while (
         currentTrace.length > 0 &&
         (isTerminalNode(prevNode) ||
@@ -74,8 +95,13 @@ export function makeTraceCallbacksWithTrace(
   }
 
   function onFinished() {
+    const finalNode = currentTrace[currentTrace.length - 1];
+    if (isTerminalNode(finalNode)) {
+      terminalGroups[terminalInsertionIndex]?.push(finalNode);
+    }
+
     callbacks.onTraceFinished?.(currentTrace);
-    callbacks.onFinished?.(currentTrace);
+    callbacks.onFinished?.(terminalGroups);
   }
 
   return { onNodeVisited, onFinished };

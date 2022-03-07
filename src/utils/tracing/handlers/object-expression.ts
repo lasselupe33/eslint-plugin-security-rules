@@ -16,8 +16,20 @@ export function handleObjectExpression(
   ctx: HandlingContext,
   objectExpression: TSESTree.ObjectExpression
 ): TraceNode[] {
-  const { memberPath } = ctx.meta;
+  const { memberPath, forceFollowObjectProperties } = ctx.meta;
   const astNodes = [...ctx.connection.astNodes, objectExpression];
+
+  const nextCtx = deepMerge(ctx, {
+    connection: {
+      astNodes,
+    },
+  });
+
+  if (forceFollowObjectProperties) {
+    return objectExpression.properties
+      .filter((property): property is TSESTree.Property => isProperty(property))
+      .flatMap((property) => handleNode(nextCtx, property.value));
+  }
 
   // In case we're not attempting to resolve a specific value in the objecet
   // expression, then we must simply resolve the object as a terminal
@@ -30,12 +42,6 @@ export function handleObjectExpression(
       }),
     ];
   }
-
-  const nextCtx = deepMerge(ctx, {
-    connection: {
-      astNodes,
-    },
-  });
 
   const targetProperty = memberPath.pop() as string;
 

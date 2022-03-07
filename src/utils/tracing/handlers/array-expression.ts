@@ -14,8 +14,18 @@ export function handleArrayExpression(
   ctx: HandlingContext,
   arrayExpression: TSESTree.ArrayExpression
 ): TraceNode[] {
-  const { memberPath } = ctx.meta;
+  const { memberPath, forceFollowObjectProperties } = ctx.meta;
   const astNodes = [...ctx.connection.astNodes, arrayExpression];
+
+  const nextCtx = deepMerge(ctx, {
+    connection: {
+      astNodes: [...ctx.connection.astNodes, arrayExpression],
+    },
+  });
+
+  if (forceFollowObjectProperties) {
+    return arrayExpression.elements.flatMap((elm) => handleNode(nextCtx, elm));
+  }
 
   // In case we're not attempting to resolve a specific value in the array
   // expression, then we must simply resolve the array as a terminal
@@ -29,15 +39,9 @@ export function handleArrayExpression(
     ];
   }
 
-  const nextCtx = deepMerge(ctx, {
-    connection: {
-      astNodes: [...ctx.connection.astNodes, arrayExpression],
-    },
-  });
+  const targetProperty = memberPath.pop();
 
-  const targetProperty = Number(memberPath.pop());
-
-  const arrayElm = arrayExpression.elements[targetProperty];
+  const arrayElm = arrayExpression.elements[Number(targetProperty)];
 
   if (arrayElm) {
     return handleNode(nextCtx, arrayElm);
