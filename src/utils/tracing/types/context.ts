@@ -32,6 +32,9 @@ export type Meta = {
   forceIdentifierLiteral?: boolean | undefined;
 
   forceFollowObjectProperties?: boolean;
+
+  parserPath: string;
+  filePath: string;
 };
 
 /**
@@ -41,5 +44,6 @@ export type HandlingContext = {
   ruleContext: RuleContext<string, unknown[]>;
   connection: Connection;
   scope: Scope.Scope;
+  rootScope: Scope.Scope;
   meta: Meta;
 };

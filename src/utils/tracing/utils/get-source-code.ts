@@ -1,0 +1,66 @@
+import { readFileSync } from "fs";
+import path from "path";
+
+import { Linter, SourceCode } from "@typescript-eslint/utils/dist/ts-eslint";
+import resolve from "enhanced-resolve";
+
+import { createCache } from "../../cache";
+import { Meta } from "../types/context";
+
+const resolver = resolve.create.sync({
+  extensions: [".ts", ".tsx", ".js", ".jsx"],
+});
+
+const sourceCache = createCache<SourceCode>();
+
+export function getSourceCodeOfFile(meta: Meta, filename: string) {
+  const baseDir = path.dirname(meta.filePath);
+
+  if (baseDir === "<input>") {
+    console.warn(
+      "Multi-file parsing is not supported when piping input into ESLint"
+    );
+    return;
+  }
+
+  try {
+    const filePath = resolver(baseDir, filename);
+
+    if (!filePath || filePath.includes("node_modules")) {
+      return;
+    }
+
+    const sourceCode = loadSourceCode(filePath, meta.parserPath);
+
+    return { sourceCode, resolvedPath: filePath };
+  } catch (err) {
+    console.warn(err);
+  }
+}
+
+function loadSourceCode(path: string, parserPath: string): SourceCode {
+  const cachedSource = sourceCache.get(path);
+
+  if (cachedSource) {
+    return cachedSource;
+  }
+
+  const linter = new Linter();
+  const code = readFileSync(path, "utf-8");
+
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  linter.defineParser("parser", require(parserPath));
+
+  linter.verify(
+    cachedSource ?? code,
+    {
+      parser: "parser",
+    },
+    { filename: path }
+  );
+
+  const sourceCode = linter.getSourceCode();
+  sourceCache.set(path, sourceCode);
+
+  return sourceCode;
+}

@@ -34,7 +34,6 @@ export function isSourceEscaped(
   traceVariable(
     {
       context: context.ruleContext,
-      rootScope: getInnermostScope(context.ruleContext.getScope(), node),
       node,
     },
     makeTraceCallbacksWithTrace({

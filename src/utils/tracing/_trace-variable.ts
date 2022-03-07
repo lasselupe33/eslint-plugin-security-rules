@@ -2,6 +2,7 @@ import { Node } from "@typescript-eslint/types/dist/ast-spec";
 import { RuleContext, Scope } from "@typescript-eslint/utils/dist/ts-eslint";
 
 import { isFunctionName, isImportBinding, isParameter } from "../ast/guards";
+import { getModuleScope } from "../get-module-scope";
 
 import { getRelevantReferences } from "./get-relevant-references";
 import { handleNode } from "./handlers/_handle-node";
@@ -19,7 +20,7 @@ import { visitReference } from "./visitors/reference";
 
 export type TraceContext = {
   context: RuleContext<string, unknown[]>;
-  rootScope?: Scope.Scope;
+  initialScope?: Scope.Scope;
   node?: Node | null | undefined;
 };
 
@@ -49,12 +50,16 @@ export function traceVariable(
   const remainingVariables = handleNode(
     {
       ruleContext: ctx.context,
-      scope: ctx.rootScope ?? ctx.context.getScope(),
+      rootScope: getModuleScope(ctx.context.getScope()),
+      scope: ctx.initialScope ?? ctx.context.getScope(),
       connection: {
         astNodes: [],
         flags: new Set(),
       },
       meta: {
+        filePath:
+          ctx.context.getPhysicalFilename?.() ?? ctx.context.getFilename(),
+        parserPath: ctx.context.parserPath,
         memberPath: [],
         activeArguments: {},
       },
@@ -98,11 +103,12 @@ export function traceVariable(
       continue;
     }
 
-    const { variable, meta, scope } = traceNode;
+    const { variable, meta, scope, rootScope } = traceNode;
 
     const handlingContext: HandlingContext = {
       ruleContext: ctx.context,
       scope,
+      rootScope,
       connection: {
         variable,
         astNodes: [],
