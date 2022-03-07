@@ -1,6 +1,11 @@
 import { TSESTree } from "@typescript-eslint/utils";
 
-import { isImportDeclaration } from "../../ast/guards";
+import {
+  isExportNamedDeclaration,
+  isIdentifier,
+  isImportDeclaration,
+  isVariableDeclaration,
+} from "../../ast/guards";
 import { deepMerge } from "../../deep-merge";
 import { HandlingContext } from "../types/context";
 import {
@@ -9,6 +14,7 @@ import {
   makeUnresolvedTerminalNode,
   TraceNode,
 } from "../types/nodes";
+import { getSourceCodeOfFile } from "../utils/get-source-code";
 
 import { handleNode } from "./_handle-node";
 
@@ -41,7 +47,38 @@ export function handleImportSpecifier(
     ];
   }
 
-  // @TODO: handle following variable if not in node modules..
+  const sourceCodeToFollow = getSourceCodeOfFile(
+    ctx.meta,
+    sourceNode.astNode.source.value
+  );
+
+  if (
+    sourceCodeToFollow &&
+    sourceCodeToFollow.sourceCode.scopeManager?.globalScope
+  ) {
+    const newFileCtx = deepMerge(nextCtx, {
+      scope: sourceCodeToFollow.sourceCode.scopeManager?.globalScope,
+      rootScope: sourceCodeToFollow.sourceCode.scopeManager?.globalScope,
+      meta: {
+        filePath: sourceCodeToFollow.resolvedPath,
+      },
+    });
+
+    const nodeToFollow = sourceCodeToFollow.sourceCode.ast.body
+      .filter(
+        (
+          statement
+        ): statement is TSESTree.ExportNamedDeclaration & {
+          declaration: TSESTree.VariableDeclaration;
+        } =>
+          isExportNamedDeclaration(statement) &&
+          isVariableDeclaration(statement.declaration)
+      )
+      .flatMap((it) => it.declaration.declarations)
+      .find((it) => isIdentifier(it.id) && it.id.name === imported);
+
+    return handleNode(newFileCtx, nodeToFollow);
+  }
 
   return [
     makeImportTerminalNode({

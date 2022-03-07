@@ -12,6 +12,9 @@ const isNodeOfType =
     node?.type === nodeType;
 
 export const isIdentifier = isNodeOfType(AST_NODE_TYPES.Identifier);
+export const isExportNamedDeclaration = isNodeOfType(
+  AST_NODE_TYPES.ExportNamedDeclaration
+);
 export const isArrayExpression = isNodeOfType(AST_NODE_TYPES.ArrayExpression);
 export const isArrowFunctionExpression = isNodeOfType(
   AST_NODE_TYPES.ArrowFunctionExpression

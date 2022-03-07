@@ -49,6 +49,7 @@ export type VariableNode = BaseNode & {
   variable: Scope.Variable;
   connection: Connection;
   scope: Scope.Scope;
+  rootScope: Scope.Scope;
   meta: Meta;
 };
 

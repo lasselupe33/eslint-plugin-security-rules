@@ -1,5 +1,4 @@
 import { TSESTree } from "@typescript-eslint/utils";
-import { getInnermostScope } from "@typescript-eslint/utils/dist/ast-utils";
 import { RuleContext } from "@typescript-eslint/utils/dist/ts-eslint";
 
 import { traceVariable } from "../../../../utils/tracing/_trace-variable";
@@ -42,7 +41,6 @@ function validateIfPredicate(
     traceVariable(
       {
         node: argumentNode,
-        rootScope: getInnermostScope(context.getScope(), argumentNode),
         context,
       },
       makeTraceGenerator(traces, { printTraces: false })

@@ -4,7 +4,6 @@ import { Scope } from "@typescript-eslint/utils/dist/ts-eslint";
 
 import { isFunctionDeclaration, isReturnStatement } from "../../ast/guards";
 import { deepMerge } from "../../deep-merge";
-import { getModuleScope } from "../../get-module-scope";
 import { handleNode } from "../handlers/_handle-node";
 import { HandlingContext } from "../types/context";
 import { TraceNode } from "../types/nodes";
@@ -24,10 +23,7 @@ export function visitFunctionName(
   return returnStatements.flatMap((returnStatement) =>
     handleNode(
       deepMerge(ctx, {
-        scope: getInnermostScope(
-          getModuleScope(ctx.ruleContext.getScope()),
-          returnStatement
-        ),
+        scope: getInnermostScope(ctx.rootScope, returnStatement),
       }),
       returnStatement.argument
     )

@@ -4,7 +4,6 @@ import { getInnermostScope } from "@typescript-eslint/utils/dist/ast-utils";
 
 import { isBlockStatement, isReturnStatement } from "../../ast/guards";
 import { deepMerge } from "../../deep-merge";
-import { getModuleScope } from "../../get-module-scope";
 import { HandlingContext } from "../types/context";
 import { TraceNode } from "../types/nodes";
 
@@ -29,10 +28,7 @@ export function handleArrowFunctionExpression(
   return returnStatements.flatMap((returnStatement) =>
     handleNode(
       deepMerge(nextCtx, {
-        scope: getInnermostScope(
-          getModuleScope(ctx.ruleContext.getScope()),
-          returnStatement
-        ),
+        scope: getInnermostScope(ctx.rootScope, returnStatement),
       }),
       isReturnStatement(returnStatement)
         ? returnStatement.argument
