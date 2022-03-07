@@ -10,12 +10,12 @@ import {
 } from "../../../utils/ast/guards";
 import { resolveDocsRoute } from "../../../utils/resolve-docs-route";
 import { extractIdentifier } from "../utils/extract-identifier";
+import { extractQuery } from "../utils/extract-query";
 import { MessageIds, errorMessages } from "../utils/messages";
 
 import { handleIdentifier } from "./handlers/handle-identifier";
 import { handleTemplateLiteral } from "./handlers/handle-template-literal";
 import { countPlaceholders } from "./utils/count-placeholders";
-import { extractQuery } from "./utils/extract-query";
 
 /**
  * Progress
@@ -72,7 +72,7 @@ export const mysqlNoSQLInjections = createRule<never[], MessageIds>({
           return;
         }
 
-        const queryLiteral = extractQuery({ ruleContext: context }, query);
+        const queryLiteral = extractQuery(context, query, "sql");
 
         if (!isTemplateLiteral(queryLiteral)) {
           return;
