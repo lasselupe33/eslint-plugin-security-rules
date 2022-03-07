@@ -20,6 +20,7 @@ enum validTests {
 }
 
 enum invalidTests {
+  UNSANITIZED_STRING_CONCAT = "error-unsanitized-string-concat",
   UNSANITIZED_UNSAFE_VARIABLE_1 = "error-unsanitized-unsafe-variable-1",
   UNSANITIZED_UNSAFE_VARIABLE_2 = "error-unsanitized-unsafe-variable-2",
 }
@@ -63,6 +64,10 @@ ruleTester.run("mysql/no-sql-injections", mysqlNoSQLInjections, {
     },
   ],
   invalid: [
+    {
+      code: getCode(__dirname, invalidTests.UNSANITIZED_STRING_CONCAT),
+      errors: [{ messageId: MessageIds.VULNERABLE_QUERY }],
+    },
     {
       code: getCode(__dirname, invalidTests.UNSANITIZED_UNSAFE_VARIABLE_1),
       errors: [{ messageId: MessageIds.VULNERABLE_QUERY }],
