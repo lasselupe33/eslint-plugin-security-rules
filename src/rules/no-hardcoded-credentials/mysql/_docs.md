@@ -46,19 +46,20 @@ We can then set the process environment in linux by using `export` and `set` on 
 export db1=secretpassword
 ```
 
-Alternatively, `pg` allow the creation of both client- and pools without any configuration in the code. The configuration is then retrieved directly from the process environment.
+Alternatively, [mysql allows the creation](https://www.npmjs.com/package/mysql#running-tests) of both client- and pools without any password set in the code. The configuration is then retrieved directly from the process environment.
 
 ```js
-const pool = new Pool()
-const client = new Client()
+const connection = mysql.createConnection({
+  host     : "database.com",
+});
 ```
 
 ```shell
 PGUSER=root \
-  PGHOST=database.com \
-  PGPASSWORD=secretpassword \
-  PGDATABASE=database \
-  PGPORT=3211 \
+  MYSQL_USER=root \
+  MYSQL_PASSWORD==secretpassword \
+  MYSQL_DATABASE=database \
+  MYSQL_PORT=3211 \
   node app.js
 ```
 
@@ -81,4 +82,3 @@ To find out more regarding hardcoded credentials, you can visit the following li
 
 - <https://owasp.org/www-community/vulnerabilities/Use_of_hard-coded_password>
 - <https://www.cyberark.com/what-is/secrets-management/>
-- <https://node-postgres.com/features/connecting>
