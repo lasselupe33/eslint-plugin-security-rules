@@ -10,6 +10,7 @@ import { handleAssignmentExpression } from "./assignment-expression";
 import { handleAwaitExpression } from "./await-expression";
 import { handleBinaryExpression } from "./binary-expression";
 import { handleCallExpression } from "./call-expression";
+import { handleChainExpression } from "./chain-expression";
 import { handleFunctionDeclaration } from "./function-declaration";
 import { handleFunctionExpression } from "./function-expression";
 import { handleProperty } from "./handle-property";
@@ -44,6 +45,7 @@ export function handleNode(
       [AST_NODE_TYPES.AwaitExpression]: handleAwaitExpression,
       [AST_NODE_TYPES.BinaryExpression]: handleBinaryExpression,
       [AST_NODE_TYPES.CallExpression]: handleCallExpression,
+      [AST_NODE_TYPES.ChainExpression]: handleChainExpression,
       [AST_NODE_TYPES.Identifier]: handleIdentifier,
       [AST_NODE_TYPES.LogicalExpression]: handleLogicalExpression,
       [AST_NODE_TYPES.MemberExpression]: handleMemberExpression,
