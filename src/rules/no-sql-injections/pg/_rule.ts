@@ -1,9 +1,9 @@
 /**
  * Progress
- *  [-] Detection
- *  [ ] Automatic fix / Suggestions
- *  [ ] Reduction of false positives
- *  [ ] Fulfilling unit testing
+ *  [x] Detection
+ *  [x] Automatic fix / Suggestions
+ *  [-] Reduction of false positives
+ *  [-] Fulfilling unit testing
  *  [ ] Extensive documentation
  *  [ ] Fulfilling configuration options
  */
@@ -107,10 +107,10 @@ export const pgNoSQLInjections = createRule<never[], MessageIds>({
 
         if (!valuesArray) {
           const queryValues = idRight?.parent?.parent.arguments[1];
-          if (!isArrowFunctionExpression(queryValues)) {
+          if (!isArrowFunctionExpression(queryValues) && queryValues) {
             valuesArray = extractValuesArray(
               { ruleContext: context },
-              queryArgs
+              queryValues
             );
           }
         }
@@ -140,7 +140,18 @@ export const pgNoSQLInjections = createRule<never[], MessageIds>({
     };
   },
 });
-
+/**
+ * Fixes the unsafe query by replacing the unsafe value with a placeholder
+ * string, and moving the unsafe value into an array.
+ * @param ctx The context of the linted file
+ * @param fixer A fixer from the report function
+ * @param totalPlaceholders The total amount of placeholders so far in the query
+ * @param queryNode The node containing the query.
+ * @param objNode Optional: The node containing the object expression
+ * @param arrayNode Optional: If arrayNode exists. If totalPlaceholders are
+ * larger than one, this is required.
+ * @param replaceNode The unsafe value that is to be paramterized.
+ */
 function* paramterizeQueryFix(
   ctx: HandlingContext,
   fixer: TSESLint.RuleFixer,
@@ -154,8 +165,14 @@ function* paramterizeQueryFix(
   if (!replaceNode || !queryLocation) {
     return;
   }
+
+  if (totalPlaceholders > 0 && !arrayNode) {
+    return;
+  }
+
   const nodeText = ctx.ruleContext.getSourceCode().getText(replaceNode);
 
+  // Parameterization
   yield fixer.replaceText(
     replaceNode,
     '"$' + (totalPlaceholders + 1).toString() + '"'
@@ -167,17 +184,15 @@ function* paramterizeQueryFix(
   }
   // No array and in an object
   else if (!arrayNode && objNode) {
+    const rangeStart = objNode.range[1] - 1;
     yield fixer.insertTextBeforeRange(
-      [objNode.range[1] - 1, 0],
+      [rangeStart, 0],
       ", values: [" + nodeText + "] "
     );
   }
-  // Existing placeholder array and not in an object
-  else if (arrayNode && !objNode) {
-    // No op
-  }
-  // Existing placeholder array and in an object
-  else if (arrayNode && objNode) {
-    // No op
+  // Existing placeholder array
+  else if (arrayNode) {
+    const rangeEnd = arrayNode.range[1] - 1;
+    yield fixer.insertTextAfterRange([0, rangeEnd], ", " + nodeText);
   }
 }
