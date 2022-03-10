@@ -2,7 +2,11 @@ import { TSESTree } from "@typescript-eslint/utils";
 
 import { deepMerge } from "../../deep-merge";
 import { HandlingContext } from "../types/context";
-import { isConstantTerminalNode, TraceNode } from "../types/nodes";
+import {
+  isConstantTerminalNode,
+  makeUnresolvedTerminalNode,
+  TraceNode,
+} from "../types/nodes";
 
 import { handleNode } from "./_handle-node";
 
@@ -25,9 +29,17 @@ export function handleMemberExpression(
   )[0];
 
   if (!isConstantTerminalNode(pathTerminal)) {
-    throw new Error(
-      "handleMemberExpression(): Unable to extract the pathName to follow. This is not intentional, please file a bug report."
-    );
+    return [
+      makeUnresolvedTerminalNode({
+        reason:
+          "handleMemberExpression(): Unable to extract the pathName to follow.",
+        connection: baseNextCtx.connection,
+        astNodes: [
+          ...baseNextCtx.connection.astNodes,
+          ...(pathTerminal?.astNodes ?? []),
+        ],
+      }),
+    ];
   }
 
   const pathName = pathTerminal.value;

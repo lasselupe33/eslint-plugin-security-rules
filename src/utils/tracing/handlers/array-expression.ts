@@ -39,12 +39,10 @@ export function handleArrayExpression(
     ];
   }
 
-  const targetProperty = memberPath.pop();
+  const targetIndex = Number(memberPath.pop());
 
-  const arrayElm = arrayExpression.elements[Number(targetProperty)];
-
-  if (arrayElm) {
-    return handleNode(nextCtx, arrayElm);
+  if (arrayExpression.elements.length >= targetIndex) {
+    return handleNode(nextCtx, arrayExpression.elements[targetIndex]);
   }
 
   // Should be unreachable, but if we reach it, we want to handle it anyway with

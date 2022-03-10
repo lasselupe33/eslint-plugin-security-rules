@@ -1,6 +1,10 @@
 import { TSESTree } from "@typescript-eslint/utils";
 
-import { isProperty } from "../../ast/guards";
+import {
+  isMethodDefinition,
+  isProperty,
+  isSpreadElement,
+} from "../../ast/guards";
 import { deepMerge } from "../../deep-merge";
 import { getNodeName } from "../get-node-name";
 import { HandlingContext } from "../types/context";
@@ -45,14 +49,16 @@ export function handleObjectExpression(
 
   const targetProperty = memberPath.pop() as string;
 
-  for (const property of objectExpression.properties) {
-    // @TODO: handle spreadElement and function definition
-    if (isProperty(property)) {
+  for (const property of objectExpression.properties.reverse()) {
+    if (isProperty(property) || isMethodDefinition(property)) {
       const propertyName = getNodeName(property.key);
 
       if (propertyName === targetProperty) {
         return handleNode(nextCtx, property.value);
       }
+    } else if (isSpreadElement(property)) {
+      nextCtx.meta.memberPath.push(targetProperty);
+      return handleNode(nextCtx, property.argument);
     }
   }
 
