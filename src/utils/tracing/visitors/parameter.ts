@@ -2,6 +2,7 @@ import { Scope } from "@typescript-eslint/utils/dist/ts-eslint";
 
 import {
   isArrowFunctionExpression,
+  isClassDeclaration,
   isFunctionDeclaration,
   isFunctionExpression,
 } from "../../ast/guards";
@@ -23,10 +24,9 @@ export function visitParameter(
   parameter: Scope.Definition
 ): TraceNode[] {
   if (
-    (!isArrowFunctionExpression(parameter.node) &&
-      !isFunctionDeclaration(parameter.node) &&
-      !isFunctionExpression(parameter.node)) ||
-    !parameter.node.id
+    !isArrowFunctionExpression(parameter.node) &&
+    !isFunctionDeclaration(parameter.node) &&
+    !isFunctionExpression(parameter.node)
   ) {
     return [
       makeUnresolvedTerminalNode({
@@ -37,7 +37,24 @@ export function visitParameter(
     ];
   }
 
-  const relevantArguments = ctx.meta.activeArguments[parameter.node.id.name];
+  const id =
+    parameter.node.id ??
+    // Classes will not have an id attached when reaching constructor
+    // parameters. Luckily argument to parameter mapping is bound upon the name
+    // of the class being called.
+    (isClassDeclaration(ctx.scope.block) ? ctx.scope.block.id : undefined);
+
+  if (!id) {
+    return [
+      makeUnresolvedTerminalNode({
+        reason: "Unable to resolve parameter node id",
+        astNodes: ctx.connection.astNodes,
+        connection: ctx.connection,
+      }),
+    ];
+  }
+
+  const relevantArguments = ctx.meta.activeArguments[id.name];
   const earliestCallArguments = relevantArguments?.shift();
   const indexOfParam = parameter.node.params.findIndex(
     (param) => param === parameter.name

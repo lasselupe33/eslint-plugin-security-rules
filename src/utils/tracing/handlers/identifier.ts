@@ -23,9 +23,7 @@ export function handleIdentifier(
     ];
   }
 
-  const variable = !ctx.meta.forceIdentifierLiteral
-    ? findVariable(ctx.scope, identifier)
-    : undefined;
+  const variable = findVariable(ctx.scope, identifier);
 
   return variable
     ? [

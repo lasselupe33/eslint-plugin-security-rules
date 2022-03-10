@@ -1,7 +1,12 @@
 import { Node } from "@typescript-eslint/types/dist/ast-spec";
 import { RuleContext, Scope } from "@typescript-eslint/utils/dist/ts-eslint";
 
-import { isFunctionName, isImportBinding, isParameter } from "../ast/guards";
+import {
+  isClassName,
+  isFunctionName,
+  isImportBinding,
+  isParameter,
+} from "../ast/guards";
 import { getModuleScope } from "../get-module-scope";
 
 import { getRelevantReferences } from "./get-relevant-references";
@@ -13,6 +18,7 @@ import {
   makeUnresolvedTerminalNode,
   TraceNode,
 } from "./types/nodes";
+import { visitClassName } from "./visitors/class-name";
 import { visitFunctionName } from "./visitors/function-name";
 import { visitImportBinding } from "./visitors/import-binding";
 import { visitParameter } from "./visitors/parameter";
@@ -144,6 +150,12 @@ export function traceVariable(
         ...visitFunctionName(handlingContext, variable.defs[0])
       );
       continue;
+    }
+
+    if (isClassName(variable.defs[0])) {
+      remainingVariables.unshift(
+        ...visitClassName(handlingContext, variable.defs[0])
+      );
     }
 
     // In case we encounter an import binding, then we simply need to propagate

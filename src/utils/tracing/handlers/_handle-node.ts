@@ -11,6 +11,7 @@ import { handleAwaitExpression } from "./await-expression";
 import { handleBinaryExpression } from "./binary-expression";
 import { handleCallExpression } from "./call-expression";
 import { handleFunctionDeclaration } from "./function-declaration";
+import { handleFunctionExpression } from "./function-expression";
 import { handleProperty } from "./handle-property";
 import { handleIdentifier } from "./identifier";
 import { handleImportDeclaration } from "./import-declaration";
@@ -18,9 +19,11 @@ import { handleImportDefaultSpecifier } from "./import-default-specifier";
 import { handleImportSpecifier } from "./import-specifier";
 import { handleLiteral } from "./literal";
 import { handleMemberExpression } from "./member-expression";
+import { handleNewExpression } from "./new-expression";
 import { handleObjectExpression } from "./object-expression";
 import { handleTemplateElement } from "./template-element";
 import { handleTemplateLiteral } from "./template-literal";
+import { handleThisExpression } from "./this-expression";
 import { handleTSAsExpression } from "./tsas-expression";
 import { handleVariableDeclarator } from "./variable-declarator";
 
@@ -34,20 +37,23 @@ export function handleNode(
     node,
     {
       [AST_NODE_TYPES.Literal]: handleLiteral,
-      [AST_NODE_TYPES.Identifier]: handleIdentifier,
       [AST_NODE_TYPES.ArrayExpression]: handleArrayExpression,
-      [AST_NODE_TYPES.AssignmentExpression]: handleAssignmentExpression,
-      [AST_NODE_TYPES.VariableDeclarator]: handleVariableDeclarator,
-      [AST_NODE_TYPES.CallExpression]: handleCallExpression,
-      [AST_NODE_TYPES.BinaryExpression]: handleBinaryExpression,
       [AST_NODE_TYPES.ArrowFunctionExpression]: handleArrowFunctionExpression,
+      [AST_NODE_TYPES.AssignmentExpression]: handleAssignmentExpression,
+      [AST_NODE_TYPES.AwaitExpression]: handleAwaitExpression,
+      [AST_NODE_TYPES.BinaryExpression]: handleBinaryExpression,
+      [AST_NODE_TYPES.CallExpression]: handleCallExpression,
+      [AST_NODE_TYPES.Identifier]: handleIdentifier,
+      [AST_NODE_TYPES.MemberExpression]: handleMemberExpression,
+      [AST_NODE_TYPES.NewExpression]: handleNewExpression,
+      [AST_NODE_TYPES.ObjectExpression]: handleObjectExpression,
+      [AST_NODE_TYPES.ThisExpression]: handleThisExpression,
+      [AST_NODE_TYPES.VariableDeclarator]: handleVariableDeclarator,
+      [AST_NODE_TYPES.FunctionDeclaration]: handleFunctionDeclaration,
+      [AST_NODE_TYPES.FunctionExpression]: handleFunctionExpression,
       [AST_NODE_TYPES.TemplateLiteral]: handleTemplateLiteral,
       [AST_NODE_TYPES.TemplateElement]: handleTemplateElement,
-      [AST_NODE_TYPES.MemberExpression]: handleMemberExpression,
-      [AST_NODE_TYPES.ObjectExpression]: handleObjectExpression,
       [AST_NODE_TYPES.Property]: handleProperty,
-      [AST_NODE_TYPES.AwaitExpression]: handleAwaitExpression,
-      [AST_NODE_TYPES.FunctionDeclaration]: handleFunctionDeclaration,
       [AST_NODE_TYPES.ImportSpecifier]: handleImportSpecifier,
       [AST_NODE_TYPES.ImportDeclaration]: handleImportDeclaration,
       [AST_NODE_TYPES.ImportDefaultSpecifier]: handleImportDefaultSpecifier,

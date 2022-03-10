@@ -15,7 +15,7 @@ export function visitFunctionName(
   if (!isFunctionDeclaration(functionName.node)) {
     return [
       makeUnresolvedTerminalNode({
-        reason: `Unable to visit function with name "${functionName}"`,
+        reason: `Unable to visit function`,
         connection: ctx.connection,
         astNodes: ctx.connection.astNodes,
       }),

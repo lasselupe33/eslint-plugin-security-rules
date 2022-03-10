@@ -69,6 +69,10 @@ export const isFunctionExpression = isNodeOfType(
 export const isFunctionDeclaration = isNodeOfType(
   AST_NODE_TYPES.FunctionDeclaration
 );
+export const isClassDeclaration = isNodeOfType(AST_NODE_TYPES.ClassDeclaration);
+export const isPropertyDefinition = isNodeOfType(
+  AST_NODE_TYPES.PropertyDefinition
+);
 export const isProgram = isNodeOfType(AST_NODE_TYPES.Program);
 export const isTSTypeReference = isNodeOfType(AST_NODE_TYPES.TSTypeReference);
 export const isTSTypeAnnotation = isNodeOfType(AST_NODE_TYPES.TSTypeAnnotation);
@@ -103,6 +107,12 @@ export const isFunctionName = (
 ): def is Scope.Definition & {
   type: typeof Scope.DefinitionType.FunctionName;
 } => def?.type === Scope.DefinitionType.FunctionName;
+
+export const isClassName = (
+  def?: Scope.Definition | null
+): def is Scope.Definition & {
+  type: typeof Scope.DefinitionType.ClassName;
+} => def?.type === Scope.DefinitionType.ClassName;
 
 // Basic guards
 
