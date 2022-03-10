@@ -1,12 +1,12 @@
-import { ReturnStatement } from "@typescript-eslint/types/dist/ast-spec";
 import { getInnermostScope } from "@typescript-eslint/utils/dist/ast-utils";
 import { Scope } from "@typescript-eslint/utils/dist/ts-eslint";
 
-import { isFunctionDeclaration, isReturnStatement } from "../../ast/guards";
+import { isFunctionDeclaration } from "../../ast/guards";
 import { deepMerge } from "../../deep-merge";
 import { handleNode } from "../handlers/_handle-node";
 import { HandlingContext } from "../types/context";
 import { makeUnresolvedTerminalNode, TraceNode } from "../types/nodes";
+import { getReturnStatements } from "../utils/get-return-statements";
 
 export function visitFunctionName(
   ctx: HandlingContext,
@@ -22,16 +22,15 @@ export function visitFunctionName(
     ];
   }
 
-  const returnStatements = functionName.node.body.body.filter(
-    (node): node is ReturnStatement => isReturnStatement(node)
-  );
+  const functionScope = getInnermostScope(ctx.rootScope, functionName.node);
 
-  return returnStatements.flatMap((returnStatement) =>
-    handleNode(
-      deepMerge(ctx, {
-        scope: getInnermostScope(ctx.rootScope, returnStatement),
-      }),
-      returnStatement.argument
-    )
+  return getReturnStatements(functionName.node.body.body).flatMap(
+    (returnStatement) =>
+      handleNode(
+        deepMerge(ctx, {
+          scope: getInnermostScope(functionScope, returnStatement),
+        }),
+        returnStatement.argument
+      )
   );
 }
