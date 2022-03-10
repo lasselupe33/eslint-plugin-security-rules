@@ -21,6 +21,7 @@ import { handleMemberExpression } from "./member-expression";
 import { handleObjectExpression } from "./object-expression";
 import { handleTemplateElement } from "./template-element";
 import { handleTemplateLiteral } from "./template-literal";
+import { handleTSAsExpression } from "./tsas-expression";
 import { handleVariableDeclarator } from "./variable-declarator";
 
 const mapNodeToHandler = makeMapNodeToHandler({ withLogs: false });
@@ -50,6 +51,7 @@ export function handleNode(
       [AST_NODE_TYPES.ImportSpecifier]: handleImportSpecifier,
       [AST_NODE_TYPES.ImportDeclaration]: handleImportDeclaration,
       [AST_NODE_TYPES.ImportDefaultSpecifier]: handleImportDefaultSpecifier,
+      [AST_NODE_TYPES.TSAsExpression]: handleTSAsExpression,
       fallback: (ctx, node) => [
         makeUnresolvedTerminalNode({
           astNodes: [...ctx.connection.astNodes, node],
