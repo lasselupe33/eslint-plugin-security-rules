@@ -1,6 +1,6 @@
 # No Hardcoded Credentials (No Hardcoded Credentials/pg)
 
-This rule aims to detect potential hardcoded credentials in the mysql package.
+This rule aims to detect potential hardcoded credentials in the pg package.
 
 The rule detects secret by examining places where secrets are used and checking if the secret contains a literal.
 
@@ -23,27 +23,31 @@ In order to mitigate the issue reported by this rule, one need too implement eit
 Consider the following example:
 
 ```js
-const connection = mysql.createConnection({
-  host     : "database.com",
-  user     : "root",
-  password : "secretpassword"
+const pool = new Pool({
+  user: "root",
+  host: "database.com",
+  database: "database",
+  password: "secretpassword",
+  port: 3211,
 });
 ```
 
 Here, we can replace the password string with a process environment.
 
 ```js
-const connection = mysql.createConnection({
-  host     : "database.com",
-  user     : "root",
-  password : process.env["db1"],
+const pool = new Pool({
+  user: "root",
+  host: "database.com",
+  database: "database",
+  password: process.env["PGPASSWORD"],
+  port: 3211,
 });
 ```
 
 We can then set the process environment in linux by using `export` and `set` on Windows:
 
 ```shell
-export db1=secretpassword
+export PGPASSWORD=secretpassword
 ```
 
 Alternatively, `pg` allow the creation of both client- and pools without any configuration in the code. The configuration is then retrieved directly from the process environment.
