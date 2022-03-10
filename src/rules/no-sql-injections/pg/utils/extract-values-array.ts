@@ -3,15 +3,7 @@ import { TSESTree } from "@typescript-eslint/utils";
 import { isArrayExpression } from "../../../../utils/ast/guards";
 import { traceVariable } from "../../../../utils/tracing/_trace-variable";
 import { makeTraceCallbacksWithTrace } from "../../../../utils/tracing/callbacks/with-current-trace";
-import {
-  isConstantTerminalNode,
-  isNodeTerminalNode,
-  isTerminalNode,
-  isUnresolvedTerminalNode,
-  isVariableNode,
-} from "../../../../utils/tracing/types/nodes";
-import { printTrace } from "../../../../utils/tracing/utils/print-trace";
-import { terminalsToSourceString } from "../../../../utils/tracing/utils/terminals-to-source-string";
+import { isNodeTerminalNode } from "../../../../utils/tracing/types/nodes";
 import { HandlingContext } from "../_rule";
 
 export function extractValuesArray(

@@ -7,7 +7,8 @@ export enum MessageIds {
 }
 
 export const errorMessages: Record<MessageIds, string> = {
-  [MessageIds.VULNERABLE_QUERY]: "The query is vulnerable to SQL injections",
+  [MessageIds.VULNERABLE_QUERY]:
+    "The query is vulnerable to SQL injections due to unsanitised values",
   [MessageIds.PARAMTERIZED_FIX_VALUES]:
     "(R) Replace argument with value placeholders",
   [MessageIds.PARAMTERIZED_FIX_IDENTIFIERS]:

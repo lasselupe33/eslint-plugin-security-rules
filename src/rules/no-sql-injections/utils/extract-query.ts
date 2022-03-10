@@ -73,9 +73,6 @@ function traceIdentifier(
           }
         }
       },
-      /* onTraceFinished: (trace) => {
-        printTrace(trace);
-      },*/
     })
   );
   return extractQuery(context, maybeNode, objSearchString);
