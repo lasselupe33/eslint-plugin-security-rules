@@ -6,14 +6,20 @@ import { isFunctionDeclaration, isReturnStatement } from "../../ast/guards";
 import { deepMerge } from "../../deep-merge";
 import { handleNode } from "../handlers/_handle-node";
 import { HandlingContext } from "../types/context";
-import { TraceNode } from "../types/nodes";
+import { makeUnresolvedTerminalNode, TraceNode } from "../types/nodes";
 
 export function visitFunctionName(
   ctx: HandlingContext,
   functionName: Scope.Definition
 ): TraceNode[] {
   if (!isFunctionDeclaration(functionName.node)) {
-    return [];
+    return [
+      makeUnresolvedTerminalNode({
+        reason: `Unable to visit function with name "${functionName}"`,
+        connection: ctx.connection,
+        astNodes: ctx.connection.astNodes,
+      }),
+    ];
   }
 
   const returnStatements = functionName.node.body.body.filter(

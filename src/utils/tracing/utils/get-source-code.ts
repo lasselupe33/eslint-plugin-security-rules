@@ -7,13 +7,21 @@ import resolve from "enhanced-resolve";
 import { createCache } from "../../cache";
 import { Meta } from "../types/context";
 
+export type NewFileSourceCode = {
+  sourceCode: SourceCode;
+  resolvedPath: string;
+};
+
 const resolver = resolve.create.sync({
   extensions: [".ts", ".tsx", ".js", ".jsx"],
 });
 
 const sourceCache = createCache<SourceCode>();
 
-export function getSourceCodeOfFile(meta: Meta, filename: string) {
+export function getSourceCodeOfFile(
+  meta: Meta,
+  filename: string
+): NewFileSourceCode | undefined {
   const baseDir = path.dirname(meta.filePath);
 
   if (baseDir === "<input>") {

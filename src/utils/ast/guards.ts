@@ -15,6 +15,12 @@ export const isIdentifier = isNodeOfType(AST_NODE_TYPES.Identifier);
 export const isExportNamedDeclaration = isNodeOfType(
   AST_NODE_TYPES.ExportNamedDeclaration
 );
+export const isExportDefaultDeclaration = isNodeOfType(
+  AST_NODE_TYPES.ExportDefaultDeclaration
+);
+export const isExportAllDeclaration = isNodeOfType(
+  AST_NODE_TYPES.ExportAllDeclaration
+);
 export const isArrayExpression = isNodeOfType(AST_NODE_TYPES.ArrayExpression);
 export const isArrowFunctionExpression = isNodeOfType(
   AST_NODE_TYPES.ArrowFunctionExpression
@@ -46,6 +52,7 @@ export const isImportNamespaceSpecifier = isNodeOfType(
   AST_NODE_TYPES.ImportNamespaceSpecifier
 );
 export const isImportSpecifier = isNodeOfType(AST_NODE_TYPES.ImportSpecifier);
+export const isExportSpecifier = isNodeOfType(AST_NODE_TYPES.ExportSpecifier);
 export const isSpreadElement = isNodeOfType(AST_NODE_TYPES.SpreadElement);
 export const isJSXAttribute = isNodeOfType(AST_NODE_TYPES.JSXAttribute);
 export const isLiteral = isNodeOfType(AST_NODE_TYPES.Literal);
