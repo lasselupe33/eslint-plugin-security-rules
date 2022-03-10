@@ -18,6 +18,7 @@ import { handleImportDeclaration } from "./import-declaration";
 import { handleImportDefaultSpecifier } from "./import-default-specifier";
 import { handleImportSpecifier } from "./import-specifier";
 import { handleLiteral } from "./literal";
+import { handleLogicalExpression } from "./logical-expression";
 import { handleMemberExpression } from "./member-expression";
 import { handleNewExpression } from "./new-expression";
 import { handleObjectExpression } from "./object-expression";
@@ -44,6 +45,7 @@ export function handleNode(
       [AST_NODE_TYPES.BinaryExpression]: handleBinaryExpression,
       [AST_NODE_TYPES.CallExpression]: handleCallExpression,
       [AST_NODE_TYPES.Identifier]: handleIdentifier,
+      [AST_NODE_TYPES.LogicalExpression]: handleLogicalExpression,
       [AST_NODE_TYPES.MemberExpression]: handleMemberExpression,
       [AST_NODE_TYPES.NewExpression]: handleNewExpression,
       [AST_NODE_TYPES.ObjectExpression]: handleObjectExpression,
