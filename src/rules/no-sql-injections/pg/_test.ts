@@ -19,6 +19,7 @@ enum invalidTests {
   UNSANITIZED_STRING_CONCAT_2 = "error-unsanitized-string-concat-2",
   UNSANITIZED_STRING_CONCAT_3 = "error-unsanitized-string-concat-3",
   UNSANITIZED_STRING_CONCAT_4 = "error-unsanitized-string-concat-4",
+  UNSANITIZED_STRING_CONCAT_5 = "error-unsanitized-string-concat-5",
 }
 
 const ruleTester = new ESLintUtils.RuleTester({
@@ -62,6 +63,10 @@ ruleTester.run("mysql/no-sql-injections", pgNoSQLInjections, {
     },
     {
       code: getCode(__dirname, invalidTests.UNSANITIZED_STRING_CONCAT_4),
+      errors: [{ messageId: MessageIds.VULNERABLE_QUERY }],
+    },
+    {
+      code: getCode(__dirname, invalidTests.UNSANITIZED_STRING_CONCAT_5),
       errors: [{ messageId: MessageIds.VULNERABLE_QUERY }],
     },
   ],

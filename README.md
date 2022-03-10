@@ -77,14 +77,14 @@ The following ruleset are related to specific popular packages, scanning for vul
 
 | **Name** | **Description** | ✅ | 🔧 | 💭 | 🌩 |
 |:--------|:------------|:--:|:--:|:--:|:----:|
-| [security-rules/pg/no-sql-injections](https://github.com/lasselupe33/eslint-plugin-security-rules/blob/master/src/rules/no-sql-injections/pg/_docs.md) | **TODO** | ✅ | 🔧 | | |
+| [security-rules/pg/no-sql-injections](https://github.com/lasselupe33/eslint-plugin-security-rules/blob/master/src/rules/no-sql-injections/pg/_docs.md) | Detects queries vulnerable to SQL Injections | ✅ | 🔧 | 💭 | |
 | [security-rules/pg/no-hardcoded-credentials](https://github.com/lasselupe33/eslint-plugin-security-rules/blob/master/src/rules/no-hardcoded-credentials/pg/_docs.md) | **TODO** | ✅ | 🔧 | | |
 
 #### MySQL
 
 | **Name** | **Description** | ✅ | 🔧 | 💭 | 🌩 |
 |:--------|:------------|:--:|:--:|:--:|:----:|
-| [security-rules/mysql/no-sql-injections](https://github.com/lasselupe33/eslint-plugin-security-rules/blob/master/src/rules/no-sql-injections/mysql/_docs.md) | **TODO** | ✅ | 🔧 | | |
+| [security-rules/mysql/no-sql-injections](https://github.com/lasselupe33/eslint-plugin-security-rules/blob/master/src/rules/no-sql-injections/mysql/_docs.md) | Detects queries vulnerable to SQL Injections | ✅ | 🔧 | 💭 | |
 | [security-rules/mysql/no-hardcoded-credentials](https://github.com/lasselupe33/eslint-plugin-security-rules/blob/master/src/rules/no-hardcoded-credentials/mysql/_docs.md) | **TODO** | ✅ | 🔧 | | |
 
 #### EJS
