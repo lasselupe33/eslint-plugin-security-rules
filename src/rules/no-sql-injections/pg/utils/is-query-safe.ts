@@ -1,16 +1,14 @@
 import { TSESTree } from "@typescript-eslint/utils";
 
+import { isImportSpecifier } from "../../../../utils/ast/guards";
 import { traceVariable } from "../../../../utils/tracing/_trace-variable";
 import { makeTraceCallbacksWithTrace } from "../../../../utils/tracing/callbacks/with-current-trace";
 import {
   isConstantTerminalNode,
   isNodeTerminalNode,
-  isTerminalNode,
-  isUnresolvedTerminalNode,
   isVariableNode,
 } from "../../../../utils/tracing/types/nodes";
 import { printTrace } from "../../../../utils/tracing/utils/print-trace";
-import { terminalsToSourceString } from "../../../../utils/tracing/utils/terminals-to-source-string";
 import { HandlingContext } from "../_rule";
 
 /**
@@ -27,6 +25,7 @@ export function isQuerySafe(
 
   let isSafe = true;
   let maybeNode: TSESTree.Node | undefined = undefined;
+  let hitImport = false;
   let maybeQuery = "";
   // const isCurrentTraceSafelySanitzed = false;
   /**
@@ -44,14 +43,26 @@ export function isQuerySafe(
     },
     makeTraceCallbacksWithTrace({
       onNodeVisited: (trace, traceNode) => {
+        const testNode = traceNode.astNodes[0];
+        // If we hit an import statement, the node we return will no longer be
+        // valid, as it's no longer in the linted file.
+        if (testNode && isImportSpecifier(testNode)) {
+          hitImport = true;
+        }
         if (isVariableNode(traceNode)) {
-          maybeNode = traceNode?.astNodes[traceNode.astNodes.length - 1];
+          if (!hitImport) {
+            maybeNode = traceNode?.astNodes[traceNode.astNodes.length - 1];
+          }
         }
       },
       onTraceFinished: (trace) => {
+        printTrace(trace);
         const finalNode = trace[trace.length - 1];
 
         const isTraceSafe = isConstantTerminalNode(finalNode);
+
+        // Reset hitImport for next trace.
+        hitImport = false;
 
         if (isNodeTerminalNode(finalNode)) {
           maybeNode = finalNode.astNode;
