@@ -13,7 +13,7 @@ export type NewFileSourceCode = {
 };
 
 const resolver = resolve.create.sync({
-  extensions: [".ts", ".tsx", ".js", ".jsx"],
+  extensions: [".ts", ".tsx", ".js", ".jsx", ".node"],
 });
 
 const sourceCache = createCache<SourceCode>();
@@ -42,7 +42,7 @@ export function getSourceCodeOfFile(
 
     return { sourceCode, resolvedPath: filePath };
   } catch (err) {
-    console.warn(err);
+    /* no-op since resolver WILL fail on node.js internals etc. */
   }
 }
 
