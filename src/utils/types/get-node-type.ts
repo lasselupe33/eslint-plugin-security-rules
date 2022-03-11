@@ -18,10 +18,13 @@ export function getNodeType(typeProgram: TypeProgram | undefined, node: Node) {
         ?.map((type) => type.symbol?.escapedName as unknown as string) ?? [],
 
     returnTypeNames:
-      signatures?.map(
-        (signature) =>
-          typeProgram?.checker.getReturnTypeOfSignature(signature)?.symbol
-            ?.escapedName as unknown as string
-      ) ?? [],
+      signatures
+        ?.flatMap((signature) =>
+          typeProgram?.checker
+            .getReturnTypeOfSignature(signature)
+            .getBaseTypes()
+            ?.map((type) => type.symbol.escapedName as unknown as string)
+        )
+        .filter((it): it is string => !!it) ?? [],
   };
 }
