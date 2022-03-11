@@ -9,6 +9,10 @@ export function getNodeType(typeProgram: TypeProgram | undefined, node: Node) {
     : undefined;
   const signatures = type?.getCallSignatures();
 
+  const returnTypes = signatures?.flatMap((signature) =>
+    typeProgram?.checker.getReturnTypeOfSignature(signature)
+  );
+
   return {
     typeName: type?.symbol?.escapedName as unknown as string,
 
@@ -18,11 +22,15 @@ export function getNodeType(typeProgram: TypeProgram | undefined, node: Node) {
         ?.map((type) => type.symbol?.escapedName as unknown as string) ?? [],
 
     returnTypeNames:
-      signatures
-        ?.flatMap((signature) =>
-          typeProgram?.checker
-            .getReturnTypeOfSignature(signature)
-            .getBaseTypes()
+      returnTypes?.map(
+        (type) => type?.symbol.escapedName as unknown as string
+      ) ?? [],
+
+    returnTypeBaseNames:
+      returnTypes
+        ?.flatMap((type) =>
+          type
+            ?.getBaseTypes()
             ?.map((type) => type.symbol.escapedName as unknown as string)
         )
         .filter((it): it is string => !!it) ?? [],
