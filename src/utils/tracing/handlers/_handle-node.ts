@@ -13,7 +13,11 @@ import { handleCallExpression } from "./call-expression";
 import { handleChainExpression } from "./chain-expression";
 import { handleFunctionDeclaration } from "./function-declaration";
 import { handleFunctionExpression } from "./function-expression";
+import { handleConditionalExpression } from "./handle-conditional-expression";
 import { handleProperty } from "./handle-property";
+import { handleSequenceExpression } from "./handle-sequence-expression";
+import { handleUnaryExpression } from "./handle-unary-expression";
+import { handleUpdateExpression } from "./handle-update-expression";
 import { handleIdentifier } from "./identifier";
 import { handleImportDeclaration } from "./import-declaration";
 import { handleImportDefaultSpecifier } from "./import-default-specifier";
@@ -47,7 +51,7 @@ export function handleNode(
       [AST_NODE_TYPES.CallExpression]: handleCallExpression,
       [AST_NODE_TYPES.ChainExpression]: handleChainExpression,
       // [AST_NODE_TYPES.ClassExpression]: handleClassExpression, // Do we want this?
-      // [AST_NODE_TYPES.ConditionalExpression]: handleConditionalExpression,
+      [AST_NODE_TYPES.ConditionalExpression]: handleConditionalExpression,
       [AST_NODE_TYPES.FunctionDeclaration]: handleFunctionDeclaration,
       [AST_NODE_TYPES.FunctionExpression]: handleFunctionExpression,
       [AST_NODE_TYPES.Identifier]: handleIdentifier,
@@ -62,7 +66,7 @@ export function handleNode(
       [AST_NODE_TYPES.NewExpression]: handleNewExpression,
       [AST_NODE_TYPES.ObjectExpression]: handleObjectExpression,
       [AST_NODE_TYPES.Property]: handleProperty,
-      // [AST_NODE_TYPES.SequenceExpression]: handleSequenceExpression,
+      [AST_NODE_TYPES.SequenceExpression]: handleSequenceExpression,
       // [AST_NODE_TYPES.Super]: handleSuper // Do we want this?
       // [AST_NODE_TYPES.TaggedTemplateExpression]:
       // handleTaggedTemplateExpression,
@@ -72,8 +76,8 @@ export function handleNode(
       [AST_NODE_TYPES.TSAsExpression]: handleTSAsExpression,
       [AST_NODE_TYPES.TSNonNullExpression]: handleTSNonNullExpression,
       // [AST_NODE_TYPES.TSTypeAssertion]: handleTSTypeAssertion,
-      // [AST_NODE_TYPES.UnaryExpression]: handleUnaryExpression,
-      // [AST_NODE_TYPES.UpdateExpression]: handleUpdateExpression,
+      [AST_NODE_TYPES.UnaryExpression]: handleUnaryExpression,
+      [AST_NODE_TYPES.UpdateExpression]: handleUpdateExpression,
       [AST_NODE_TYPES.VariableDeclarator]: handleVariableDeclarator,
       // [AST_NODE_TYPES.YieldExpression]: handleYieldExpression,
       fallback: (ctx, node) => [
