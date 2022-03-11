@@ -83,7 +83,7 @@ function handleNodeInNewFile(
   { sourceCode, resolvedPath }: NewFileSourceCode,
   nodeIdentifierName: string
 ): TraceNode[] {
-  if (!sourceCode.scopeManager?.globalScope) {
+  if (!sourceCode?.scopeManager?.globalScope) {
     return [
       makeUnresolvedTerminalNode({
         reason: "Unable to extract globalScope in new file",
@@ -94,8 +94,8 @@ function handleNodeInNewFile(
   }
 
   const newFileCtx = deepMerge(ctx, {
-    scope: sourceCode.scopeManager?.globalScope,
-    rootScope: sourceCode.scopeManager?.globalScope,
+    scope: sourceCode.scopeManager.globalScope,
+    rootScope: sourceCode.scopeManager.globalScope,
     meta: {
       filePath: resolvedPath,
     },

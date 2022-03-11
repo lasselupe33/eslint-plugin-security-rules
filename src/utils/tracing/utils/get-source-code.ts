@@ -63,6 +63,10 @@ function loadSourceCode(path: string, parserPath: string): SourceCode {
     cachedSource ?? code,
     {
       parser: "parser",
+      parserOptions: {
+        sourceType: "module",
+        ecmaVersion: 2020,
+      },
     },
     { filename: path }
   );
