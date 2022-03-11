@@ -16,6 +16,10 @@
   "plugins": [
     "import"
   ],
+  "parserOptions": {
+    "sourceType": "module",
+    "ecmaVersion": 2020
+  },
   "rules": {
     "spaced-comment": "warn",
     "import/no-unresolved": "off",
