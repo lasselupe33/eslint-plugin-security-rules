@@ -7,7 +7,6 @@ import {
 import { deepMerge } from "../../deep-merge";
 import { HandlingContext } from "../types/context";
 import {
-  isConstantTerminalNode,
   isNodeTerminalNode,
   makeImportTerminalNode,
   makeUnresolvedTerminalNode,
@@ -60,7 +59,7 @@ export function handleImportDefaultSpecifier(
     sourceCodeToFollow &&
     sourceCodeToFollow.sourceCode?.scopeManager?.globalScope
   ) {
-    return handleNodeInNewFile(nextCtx, sourceCodeToFollow, imported);
+    return handleNodeInNewFile(nextCtx, sourceCodeToFollow);
   }
 
   return [
@@ -75,8 +74,7 @@ export function handleImportDefaultSpecifier(
 
 function handleNodeInNewFile(
   ctx: HandlingContext,
-  { sourceCode, resolvedPath }: NewFileSourceCode,
-  nodeIdentifierName: string
+  { sourceCode, resolvedPath }: NewFileSourceCode
 ): TraceNode[] {
   if (!sourceCode?.scopeManager?.globalScope) {
     return [];
@@ -93,19 +91,6 @@ function handleNodeInNewFile(
         isExportDefaultDeclaration(statement)
     )?.declaration
   )[0];
-
-  const newArgs = ctx.meta.activeArguments[nodeIdentifierName];
-
-  // In case the default import has renamed what we import, then we need to make
-  // sure that the parameter to argument map takes this renaming into account.
-  if (
-    isConstantTerminalNode(nodeToFollow) &&
-    nodeIdentifierName !== nodeToFollow.value &&
-    newArgs
-  ) {
-    ctx.meta.activeArguments[nodeToFollow.value] = newArgs;
-    delete ctx.meta.activeArguments[nodeIdentifierName];
-  }
 
   const newFileCtx = deepMerge(ctx, {
     connection: {

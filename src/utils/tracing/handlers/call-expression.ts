@@ -63,13 +63,12 @@ export function handleCallExpression(
     deepMerge(nextCtx, { meta: { forceIdentifierLiteral: true } }),
     callExpression.callee
   )[0];
+  const calleeIdentifierAstNode =
+    calleeIdentifier?.astNodes[calleeIdentifier.astNodes.length - 1];
 
-  if (isConstantTerminalNode(calleeIdentifier)) {
-    if (!nextCtx.meta.activeArguments[calleeIdentifier.value]) {
-      nextCtx.meta.activeArguments[calleeIdentifier.value] = [];
-    }
-
-    nextCtx.meta.activeArguments[calleeIdentifier.value]?.push(
+  if (isIdentifier(calleeIdentifierAstNode)) {
+    nextCtx.meta.activeArguments.set(
+      calleeIdentifierAstNode,
       callExpression.arguments.map((arg) => ({
         argument: arg,
         scope: getInnermostScope(ctx.scope, callExpression),

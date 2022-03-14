@@ -1,4 +1,5 @@
 import { CallExpressionArgument } from "@typescript-eslint/types/dist/ast-spec";
+import { TSESTree } from "@typescript-eslint/utils";
 import { RuleContext, Scope } from "@typescript-eslint/utils/dist/ts-eslint";
 
 import { Connection } from "./connection";
@@ -17,7 +18,7 @@ export type Meta = {
    * Specification of the currently active arguments that a function call has
    * been performed from.
    */
-  activeArguments: Record<string, Argument[][]>;
+  activeArguments: WeakMap<TSESTree.Node, Argument[]>;
 
   /**
    * Specifies the identifiers that we have traversed on a member that is yet

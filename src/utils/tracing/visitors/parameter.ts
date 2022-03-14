@@ -1,13 +1,17 @@
+import { TSESTree } from "@typescript-eslint/utils";
 import { Scope } from "@typescript-eslint/utils/dist/ts-eslint";
 
 import {
   isArrowFunctionExpression,
-  isClassDeclaration,
+  isCallExpression,
   isFunctionDeclaration,
   isFunctionExpression,
+  isIdentifier,
+  isNewExpression,
 } from "../../ast/guards";
 import { deepMerge } from "../../deep-merge";
 import { handleNode } from "../handlers/_handle-node";
+import { Connection } from "../types/connection";
 import { HandlingContext } from "../types/context";
 import { makeUnresolvedTerminalNode, TraceNode } from "../types/nodes";
 
@@ -37,30 +41,24 @@ export function visitParameter(
     ];
   }
 
-  const id =
-    parameter.node.id ??
-    // Classes will not have an id attached when reaching constructor
-    // parameters. Luckily argument to parameter mapping is bound upon the name
-    // of the class being called.
-    (isClassDeclaration(ctx.scope.block) ? ctx.scope.block.id : undefined);
+  const calleeIdentifierNode = findRelevantCallIdentifier(ctx.connection);
 
-  if (!id) {
+  if (!calleeIdentifierNode) {
     return [
       makeUnresolvedTerminalNode({
-        reason: "Unable to resolve parameter node id",
+        reason: "Unable to resolve related parameter",
         astNodes: ctx.connection.astNodes,
         connection: ctx.connection,
       }),
     ];
   }
 
-  const relevantArguments = ctx.meta.activeArguments[id.name];
-  const earliestCallArguments = relevantArguments?.shift();
+  const relevantArguments = ctx.meta.activeArguments.get(calleeIdentifierNode);
   const indexOfParam = parameter.node.params.findIndex(
     (param) => param === parameter.name
   );
 
-  const argument = earliestCallArguments?.[indexOfParam];
+  const argument = relevantArguments?.[indexOfParam];
 
   if (!argument?.argument) {
     return [
@@ -81,4 +79,26 @@ export function visitParameter(
     }),
     argument.argument
   );
+}
+
+function findRelevantCallIdentifier(
+  connection: Connection
+): TSESTree.Identifier | undefined {
+  let currentConnection: Connection | undefined = connection;
+
+  while (currentConnection != null) {
+    const node =
+      currentConnection.astNodes[currentConnection.astNodes.length - 1];
+
+    // In case we've need to map anonymous functions parameters to arguments,
+    // then we assume it is called from the last available call expression.
+    if (
+      isIdentifier(node) &&
+      (isCallExpression(node.parent) || isNewExpression(node.parent))
+    ) {
+      return node;
+    }
+
+    currentConnection = currentConnection.prevConnection;
+  }
 }

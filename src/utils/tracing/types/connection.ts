@@ -16,4 +16,5 @@ export type Connection = {
   astNodes: TSESTree.Node[];
   flags: Set<ConnectionFlags>;
   variable?: Scope.Variable | undefined;
+  prevConnection: Connection | undefined;
 };
