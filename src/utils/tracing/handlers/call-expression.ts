@@ -60,7 +60,10 @@ export function handleCallExpression(
   // }
 
   const calleeIdentifier = handleNode(
-    deepMerge(nextCtx, { meta: { forceIdentifierLiteral: true } }),
+    deepMerge(nextCtx, {
+      connection: { astNodes: [] },
+      meta: { forceIdentifierLiteral: true, memberPath: [] },
+    }),
     callExpression.callee
   )[0];
   const calleeIdentifierAstNode =
@@ -82,6 +85,12 @@ export function handleCallExpression(
         astNodes: [
           ...nextCtx.connection.astNodes,
           ...(calleeIdentifier?.astNodes ?? []),
+        ],
+      },
+      meta: {
+        memberPath: [
+          ...nextCtx.meta.memberPath,
+          ...(calleeIdentifier?.meta.memberPath ?? []),
         ],
       },
     }),

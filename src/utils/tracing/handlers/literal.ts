@@ -12,6 +12,7 @@ export function handleLiteral(
       astNodes: [...ctx.connection.astNodes, literal],
       value: String(literal.value),
       connection: ctx.connection,
+      meta: ctx.meta,
     }),
   ];
 }

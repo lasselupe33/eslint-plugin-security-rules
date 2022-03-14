@@ -15,6 +15,7 @@ export function visitReference(
         reason: "Unable to visit reference",
         connection: ctx.connection,
         astNodes: ctx.connection.astNodes,
+        meta: ctx.meta,
       }),
     ];
   }

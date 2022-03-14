@@ -43,6 +43,7 @@ export function handleObjectExpression(
         astNodes,
         astNode: objectExpression,
         connection: ctx.connection,
+        meta: ctx.meta,
       }),
     ];
   }
@@ -69,6 +70,7 @@ export function handleObjectExpression(
       astNodes,
       reason: "unable to follow object expression",
       connection: ctx.connection,
+      meta: ctx.meta,
     }),
   ];
 }

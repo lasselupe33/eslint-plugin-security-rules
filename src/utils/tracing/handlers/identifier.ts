@@ -19,6 +19,7 @@ export function handleIdentifier(
         astNodes: [...ctx.connection.astNodes, identifier],
         value: identifier.name,
         connection: ctx.connection,
+        meta: ctx.meta,
       }),
     ];
   }
@@ -38,6 +39,7 @@ export function handleIdentifier(
           reason: "Unable to resolve identifier to variable",
           astNodes: [...ctx.connection.astNodes, identifier],
           connection: ctx.connection,
+          meta: ctx.meta,
         }),
       ];
 }

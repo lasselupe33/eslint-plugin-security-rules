@@ -44,6 +44,7 @@ export function handleImportDefaultSpecifier(
         astNodes: nextCtx.connection.astNodes,
         reason: "Unable to extract source",
         connection: nextCtx.connection,
+        meta: nextCtx.meta,
       }),
     ];
   }
@@ -68,6 +69,7 @@ export function handleImportDefaultSpecifier(
       source: sourceNode.astNode.source.value,
       connection: nextCtx.connection,
       astNodes: [...nextCtx.connection.astNodes, sourceNode.astNode],
+      meta: nextCtx.meta,
     }),
   ];
 }

@@ -86,6 +86,7 @@ export function handleNode(
           astNodes: [...ctx.connection.astNodes, node],
           reason: `No handler for ${node.type}`,
           connection: ctx.connection,
+          meta: ctx.meta,
         }),
       ],
     },

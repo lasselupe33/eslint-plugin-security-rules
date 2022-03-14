@@ -137,6 +137,7 @@ export function traceVariable(
           reason: "Encountered cycle",
           connection: handlingContext.connection,
           astNodes: [],
+          meta,
         })
       );
       continue;

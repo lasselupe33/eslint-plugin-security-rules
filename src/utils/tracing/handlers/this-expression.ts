@@ -33,6 +33,7 @@ export function handleThisExpression(
         reason: "Unable to resolve target on thisExpression",
         astNodes: nextCtx.connection.astNodes,
         connection: nextCtx.connection,
+        meta: nextCtx.meta,
       }),
     ];
   }
@@ -50,6 +51,7 @@ export function handleThisExpression(
         reason: "Unable to resolve targetProperty",
         astNodes: nextCtx.connection.astNodes,
         connection: nextCtx.connection,
+        meta: nextCtx.meta,
       }),
     ];
   }
@@ -64,6 +66,7 @@ export function handleThisExpression(
         value,
         connection: nextCtx.connection,
         astNodes: nextCtx.connection.astNodes,
+        meta: nextCtx.meta,
       }),
     ];
   }

@@ -30,6 +30,7 @@ export function visitClassName(
         reason: `Unable to visit class`,
         connection: ctx.connection,
         astNodes: ctx.connection.astNodes,
+        meta: ctx.meta,
       }),
     ];
   }

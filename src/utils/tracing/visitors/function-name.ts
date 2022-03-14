@@ -18,6 +18,7 @@ export function visitFunctionName(
         reason: `Unable to visit function`,
         connection: ctx.connection,
         astNodes: ctx.connection.astNodes,
+        meta: ctx.meta,
       }),
     ];
   }

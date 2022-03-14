@@ -12,6 +12,7 @@ export function handleImportDeclaration(
       astNodes: [...ctx.connection.astNodes, importDeclaration],
       astNode: importDeclaration,
       connection: ctx.connection,
+      meta: ctx.meta,
     }),
   ];
 }

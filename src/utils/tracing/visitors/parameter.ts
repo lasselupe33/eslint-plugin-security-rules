@@ -37,6 +37,7 @@ export function visitParameter(
         reason: "Unable to resolve parameter to argument",
         astNodes: ctx.connection.astNodes,
         connection: ctx.connection,
+        meta: ctx.meta,
       }),
     ];
   }
@@ -49,6 +50,7 @@ export function visitParameter(
         reason: "Unable to resolve related parameter",
         astNodes: ctx.connection.astNodes,
         connection: ctx.connection,
+        meta: ctx.meta,
       }),
     ];
   }
@@ -66,6 +68,7 @@ export function visitParameter(
         reason: "Unable to resolve parameter index",
         astNodes: ctx.connection.astNodes,
         connection: ctx.connection,
+        meta: ctx.meta,
       }),
     ];
   }

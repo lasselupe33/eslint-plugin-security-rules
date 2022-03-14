@@ -50,6 +50,7 @@ export function handleImportSpecifier(
         astNodes: nextCtx.connection.astNodes,
         reason: "Unable to extract source",
         connection: nextCtx.connection,
+        meta: nextCtx.meta,
       }),
     ];
   }
@@ -73,7 +74,8 @@ export function handleImportSpecifier(
       imported,
       source: sourceNode.astNode.source.value,
       astNodes: [...nextCtx.connection.astNodes, sourceNode.astNode],
-      connection: ctx.connection,
+      connection: nextCtx.connection,
+      meta: nextCtx.meta,
     }),
   ];
 }
@@ -89,6 +91,7 @@ function handleNodeInNewFile(
         reason: "Unable to extract globalScope in new file",
         connection: ctx.connection,
         astNodes: ctx.connection.astNodes,
+        meta: ctx.meta,
       }),
     ];
   }
@@ -164,6 +167,7 @@ function handleNodeInNewFile(
           reason: "Unable to extract sourceCode to follow",
           connection: newFileCtx.connection,
           astNodes: newFileCtx.connection.astNodes,
+          meta: newFileCtx.meta,
         }),
       ];
     }
@@ -199,6 +203,7 @@ function handleNodeInNewFile(
           reason: "Unable to extract globalScope in new file",
           connection: newFileCtx.connection,
           astNodes: newFileCtx.connection.astNodes,
+          meta: newFileCtx.meta,
         }),
       ];
     }
@@ -219,6 +224,7 @@ function handleNodeInNewFile(
       reason: "Unable to follow import",
       connection: newFileCtx.connection,
       astNodes: newFileCtx.connection.astNodes,
+      meta: newFileCtx.meta,
     }),
   ];
 }

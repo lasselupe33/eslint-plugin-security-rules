@@ -38,6 +38,7 @@ export function handleMemberExpression(
           ...baseNextCtx.connection.astNodes,
           ...(pathTerminal?.astNodes ?? []),
         ],
+        meta: baseNextCtx.meta,
       }),
     ];
   }

@@ -6,6 +6,7 @@ import { Meta } from "./context";
 
 type BaseNode = {
   astNodes: TSESTree.Node[];
+  meta: Meta;
 };
 
 type BaseTerminalNode = BaseNode & {

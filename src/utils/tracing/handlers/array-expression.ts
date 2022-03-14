@@ -35,6 +35,7 @@ export function handleArrayExpression(
         astNodes,
         astNode: arrayExpression,
         connection: ctx.connection,
+        meta: ctx.meta,
       }),
     ];
   }
@@ -52,6 +53,7 @@ export function handleArrayExpression(
       astNodes,
       reason: "unable to follow array expression",
       connection: ctx.connection,
+      meta: ctx.meta,
     }),
   ];
 }
