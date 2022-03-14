@@ -18,6 +18,7 @@ import {
   makeUnresolvedTerminalNode,
   TraceNode,
 } from "./types/nodes";
+import { isCycle } from "./utils/is-cycle";
 import { visitClassName } from "./visitors/class-name";
 import { visitFunctionName } from "./visitors/function-name";
 import { visitImportBinding } from "./visitors/import-binding";
@@ -50,7 +51,6 @@ export function traceVariable(
   }
 
   const abortedMap: WeakMap<Scope.Variable, boolean> = new WeakMap();
-  const encounteredMap: WeakMap<Scope.Variable, boolean> = new WeakMap();
 
   // Bootstrap the tracing queue by handling the node passed by the integration.
   const remainingVariables = handleNode(
@@ -61,13 +61,14 @@ export function traceVariable(
       connection: {
         astNodes: [],
         flags: new Set(),
+        prevConnection: undefined,
       },
       meta: {
         filePath:
           ctx.context.getPhysicalFilename?.() ?? ctx.context.getFilename(),
         parserPath: ctx.context.parserPath,
         memberPath: [],
-        activeArguments: {},
+        activeArguments: new WeakMap(),
       },
     },
     ctx.node
@@ -109,7 +110,13 @@ export function traceVariable(
       continue;
     }
 
-    const { variable, meta, scope, rootScope } = traceNode;
+    const {
+      variable,
+      meta,
+      scope,
+      rootScope,
+      connection: prevConnection,
+    } = traceNode;
 
     const handlingContext: HandlingContext = {
       ruleContext: ctx.context,
@@ -119,22 +126,21 @@ export function traceVariable(
         variable,
         astNodes: [],
         flags: new Set(),
+        prevConnection,
       },
       meta,
     };
 
-    if (encounteredMap.has(variable)) {
+    if (isCycle(handlingContext.connection)) {
       onNodeVisited?.(
         makeUnresolvedTerminalNode({
-          reason: "Encountered cycle, skipping",
+          reason: "Encountered cycle",
           connection: handlingContext.connection,
           astNodes: [],
         })
       );
       continue;
     }
-
-    encounteredMap.set(variable, true);
 
     // In case we've encountered a parameter, then we cannot handle it simply be
     // tracing its references since we need to be context aware in this case.
