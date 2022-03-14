@@ -32,32 +32,32 @@ export function handleCallExpression(
 
   // In case our callExpression is on a memberExpression, then we might possible
   // need to apply overrides.
-  if (isMemberExpression(callExpression.callee)) {
-    let calledOn: NodeTerminalNode | undefined;
+  // if (isMemberExpression(callExpression.callee)) {
+  //   let calledOn: NodeTerminalNode | undefined;
 
-    traceVariable(
-      { node: callExpression.callee.object, context: ctx.ruleContext },
-      makeTraceCallbacksWithTrace({
-        onTraceFinished: (trace) => {
-          const finalNode = trace[trace.length - 1];
-          if (isNodeTerminalNode(finalNode)) {
-            calledOn = finalNode;
-            return { halt: true };
-          }
-        },
-      })
-    );
+  //   traceVariable(
+  //     { node: callExpression.callee.object, context: ctx.ruleContext },
+  //     makeTraceCallbacksWithTrace({
+  //       onTraceFinished: (trace) => {
+  //         const finalNode = trace[trace.length - 1];
+  //         if (isNodeTerminalNode(finalNode)) {
+  //           calledOn = finalNode;
+  //           return { halt: true };
+  //         }
+  //       },
+  //     })
+  //   );
 
-    if (isNodeTerminalNode(calledOn)) {
-      const overrides = handleOverrides(nextCtx, callExpression, calledOn);
+  //   if (isNodeTerminalNode(calledOn)) {
+  //     const overrides = handleOverrides(nextCtx, callExpression, calledOn);
 
-      // In case overrides (of e.g. native API's such as arr.join()) has been
-      // supplied, then we return these immediately.
-      if (overrides) {
-        return overrides;
-      }
-    }
-  }
+  //     // In case overrides (of e.g. native API's such as arr.join()) has been
+  //     // supplied, then we return these immediately.
+  //     if (overrides) {
+  //       return overrides;
+  //     }
+  //   }
+  // }
 
   const calleeIdentifier = handleNode(
     deepMerge(nextCtx, { meta: { forceIdentifierLiteral: true } }),
@@ -77,7 +77,17 @@ export function handleCallExpression(
     );
   }
 
-  return handleNode(nextCtx, callExpression.callee);
+  return handleNode(
+    deepMerge(nextCtx, {
+      connection: {
+        astNodes: [
+          ...nextCtx.connection.astNodes,
+          ...(calleeIdentifier?.astNodes ?? []),
+        ],
+      },
+    }),
+    calleeIdentifier?.astNodes[calleeIdentifier.astNodes.length - 1]
+  );
 }
 
 /**

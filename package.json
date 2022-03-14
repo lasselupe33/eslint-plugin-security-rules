@@ -53,14 +53,12 @@
     "@typescript-eslint/parser": "^5.14.0",
     "@typescript-eslint/scope-manager": "^5.14.0",
     "core-js": "^3.21.1",
-    "enhanced-resolve": "^5.9.2",
     "eslint": "^8.10.0",
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-comment-length": "^0.5.1",
     "eslint-plugin-import": "^2.25.4",
     "eslint-plugin-prettier": "^4.0.0",
     "eslint-plugin-security-rules": "link:./",
-    "fs-extra": "^10.0.1",
     "husky": "^7.0.4",
     "jest": "^27.5.1",
     "lint-staged": "^12.3.5",
@@ -74,6 +72,8 @@
   "dependencies": {
     "@typescript-eslint/utils": "^5.14.0",
     "chalk": "^4.1.2",
+    "enhanced-resolve": "^5.9.2",
+    "fs-extra": "^10.0.1",
     "jsonc-eslint-parser": "^2.1.0",
     "semver": "^7.3.5",
     "sync-fetch": "git://github.com/lasselupe33/sync-fetch.git#fbcc9245270ed8f59c0911e9620a0e09b6198ab3"

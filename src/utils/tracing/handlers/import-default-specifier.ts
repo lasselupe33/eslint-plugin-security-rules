@@ -58,7 +58,7 @@ export function handleImportDefaultSpecifier(
   // now by calling handleNode on the node from the new file.
   if (
     sourceCodeToFollow &&
-    sourceCodeToFollow.sourceCode.scopeManager?.globalScope
+    sourceCodeToFollow.sourceCode?.scopeManager?.globalScope
   ) {
     return handleNodeInNewFile(nextCtx, sourceCodeToFollow, imported);
   }
@@ -78,7 +78,7 @@ function handleNodeInNewFile(
   { sourceCode, resolvedPath }: NewFileSourceCode,
   nodeIdentifierName: string
 ): TraceNode[] {
-  if (!sourceCode.scopeManager?.globalScope) {
+  if (!sourceCode?.scopeManager?.globalScope) {
     return [];
   }
 
@@ -111,8 +111,8 @@ function handleNodeInNewFile(
     connection: {
       astNodes: [...ctx.connection.astNodes, ...(nodeToFollow?.astNodes ?? [])],
     },
-    scope: sourceCode.scopeManager?.globalScope,
-    rootScope: sourceCode.scopeManager?.globalScope,
+    scope: sourceCode.scopeManager.globalScope,
+    rootScope: sourceCode.scopeManager.globalScope,
     meta: {
       filePath: resolvedPath,
     },
