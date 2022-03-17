@@ -33,7 +33,7 @@ const ruleTester = new ESLintUtils.RuleTester({
   },
 });
 
-ruleTester.run("mysql/no-sql-injections", pgNoSQLInjections, {
+ruleTester.run("pg/no-sql-injections", pgNoSQLInjections, {
   valid: [
     {
       code: getCode(__dirname, validTests.CALLBACK),

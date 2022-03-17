@@ -7,6 +7,7 @@ import {
   isTemplateElement,
   isTemplateLiteral,
 } from "../../../utils/ast/guards";
+import { isPackage } from "../../../utils/is-package";
 import { resolveDocsRoute } from "../../../utils/resolve-docs-route";
 import { extractIdentifier } from "../utils/extract-identifier";
 import { extractQuery } from "../utils/extract-query";
@@ -55,19 +56,15 @@ export const mysqlNoSQLInjections = createRule<never[], MessageIds>({
         // connection.query
         const [idLeft, idRight] = extractIdentifier(node);
 
-        const didMatchIdentifierName = handleIdentifier(
-          { ruleContext: context },
-          idRight
-        );
-
-        if (!didMatchIdentifierName) {
-          return;
-        }
-
+        const didMatchIdentifierName = idRight?.name === "query";
         // Assuming that query is always the first argument
         const query = node.arguments[0];
 
-        if (!query) {
+        if (
+          !didMatchIdentifierName ||
+          !query ||
+          !isPackage(context, "mysql", idLeft)
+        ) {
           return;
         }
 

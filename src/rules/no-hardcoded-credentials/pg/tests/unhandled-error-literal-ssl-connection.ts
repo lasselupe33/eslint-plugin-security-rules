@@ -24,3 +24,6 @@ const config = {
 
 const client = new Client(config);
 const pool = new Pool(config);
+
+client.end();
+pool.end();

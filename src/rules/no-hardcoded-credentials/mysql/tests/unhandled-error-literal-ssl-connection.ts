@@ -16,3 +16,5 @@ const connection = createConnection({
     pfx: "Safe",
   },
 });
+
+connection.end();

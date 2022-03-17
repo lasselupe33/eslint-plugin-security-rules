@@ -5,6 +5,7 @@ import {
   isObjectExpression,
   isProperty,
 } from "../../../utils/ast/guards";
+import { isPackage } from "../../../utils/is-package";
 import { resolveDocsRoute } from "../../../utils/resolve-docs-route";
 import { isSafeValue } from "../utils/is-safe-value";
 
@@ -14,10 +15,10 @@ import { MessageIds, errorMessages } from "./utils/messages";
 /**
  * Progress
  *  [x] Detection
- *  [ ] Automatic fix / Suggestions
- *  [-] Reduction of false positives
- *  [ ] Fulfilling unit testing
- *  [ ] Extensive documentation
+ *  [ ] Automatic fix / Suggestions -- Can't be implemented?
+ *  [x] Reduction of false positives
+ *  [x] Fulfilling unit testing
+ *  [x] Extensive documentation
  *  [ ] Fulfilling configuration options
  */
 
@@ -47,12 +48,14 @@ export const pgNoHardcodedCredentials: TSESLint.RuleModule<MessageIds> = {
         }
 
         const id = node.callee;
-        const arg = node.arguments[0];
+        const didMatchIdentifierName =
+          id.name === "Client" || id.name === "Pool";
 
-        if (!(id.name === "Client" || id.name === "Pool")) {
+        if (!didMatchIdentifierName || !isPackage(context, "pg", id)) {
           return;
         }
 
+        const arg = node.arguments[0];
         const argNode = handleArgs({ ruleContext: context }, arg);
 
         // @TODO: Handle literal

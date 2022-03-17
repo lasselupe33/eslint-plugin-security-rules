@@ -15,8 +15,8 @@ import { isSafeValue } from "../utils/is-safe-value";
  *  [-] Detection
  *  [ ] Automatic fix / Suggestions
  *  [ ] Reduction of false positives
- *  [ ] Fulfilling unit testing
- *  [ ] Extensive documentation
+ *  [-] Fulfilling unit testing
+ *  [x] Extensive documentation
  *  [ ] Fulfilling configuration options
  */
 
@@ -29,7 +29,7 @@ import { isSafeValue } from "../utils/is-safe-value";
  * - certificate: a certificate
  */
 
-enum MessageIds {
+export enum MessageIds {
   ERRROR1 = "string",
 }
 
@@ -132,6 +132,7 @@ function retrieveNameAndValues(
 }
 
 function isPasswordName(testString: string): boolean {
-  const reg = /^pass(wd|word|code|phrase)?/;
+  // i: ignoreCase
+  const reg = new RegExp(/^pass(wd|word|code|phrase)?/, "i");
   return reg.test(testString);
 }

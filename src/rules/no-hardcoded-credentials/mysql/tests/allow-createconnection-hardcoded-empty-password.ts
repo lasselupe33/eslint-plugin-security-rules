@@ -7,3 +7,5 @@ const connection = createConnection({
   password: "",
   multipleStatements: true,
 });
+
+connection.end();

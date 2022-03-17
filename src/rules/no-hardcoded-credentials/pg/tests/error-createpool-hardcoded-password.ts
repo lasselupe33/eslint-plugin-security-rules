@@ -1,6 +1,5 @@
 import { Pool } from "pg";
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const pool = new Pool({
   user: "root",
   host: "database.com",
@@ -8,3 +7,5 @@ const pool = new Pool({
   password: "secretpassword",
   port: 3211,
 });
+
+pool.end();

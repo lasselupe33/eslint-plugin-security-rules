@@ -1,6 +1,5 @@
 import { createConnection } from "mysql";
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const connection = createConnection({
   host: "localhost",
   user: "admin",
@@ -8,3 +7,5 @@ const connection = createConnection({
   password: process.env["ADMIN_PASSWORD"],
   multipleStatements: true,
 });
+
+connection.end();
