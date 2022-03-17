@@ -22,7 +22,6 @@
     "noPropertyAccessFromIndexSignature": true,
     "noFallthroughCasesInSwitch": true,
     "useUnknownInCatchVariables": true,
-    "exactOptionalPropertyTypes": true,
     "target": "ES6",
   },
   "include": ["typings/**/*", "src/**/*", "dummy/**/*", "file.tsx"],

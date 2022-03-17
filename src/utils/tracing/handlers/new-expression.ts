@@ -16,43 +16,43 @@ export function handleNewExpression(
     connection: {
       astNodes: [...ctx.connection.astNodes, newExpression],
     },
+    meta: {
+      callCount: ctx.meta.callCount + 1,
+    },
   });
 
-  const calleeIdentifier = handleNode(
+  const calleeIdentifiers = handleNode(
     deepMerge(nextCtx, {
       connection: { astNodes: [] },
       meta: { forceIdentifierLiteral: true, memberPath: [] },
     }),
     newExpression.callee
-  )[0];
-  const calleeIdentifierAstNode =
-    calleeIdentifier?.astNodes[calleeIdentifier.astNodes.length - 1];
-
-  if (isIdentifier(calleeIdentifierAstNode)) {
-    nextCtx.meta.activeArguments.set(
-      calleeIdentifierAstNode,
-      newExpression.arguments.map((arg) => ({
-        argument: arg,
-        scope: getInnermostScope(ctx.scope, newExpression),
-      }))
-    );
-  }
-
-  return handleNode(
-    deepMerge(nextCtx, {
-      connection: {
-        astNodes: [
-          ...nextCtx.connection.astNodes,
-          ...(calleeIdentifier?.astNodes ?? []),
-        ],
-      },
-      meta: {
-        memberPath: [
-          ...nextCtx.meta.memberPath,
-          ...(calleeIdentifier?.meta.memberPath ?? []),
-        ],
-      },
-    }),
-    calleeIdentifierAstNode
   );
+
+  return calleeIdentifiers.flatMap((it) => {
+    const identifierAstNode = it?.astNodes[it.astNodes.length - 1];
+
+    if (isIdentifier(identifierAstNode)) {
+      nextCtx.meta.parameterContext.set(identifierAstNode, {
+        scope: getInnermostScope(ctx.scope, newExpression),
+        arguments: newExpression.arguments,
+      });
+    }
+
+    return handleNode(
+      deepMerge(nextCtx, {
+        connection: {
+          astNodes: [...nextCtx.connection.astNodes, ...(it?.astNodes ?? [])],
+        },
+        meta: {
+          memberPath: [
+            ...nextCtx.meta.memberPath,
+            ...(it?.meta.memberPath ?? []),
+          ],
+          callCount: it.meta.callCount,
+        },
+      }),
+      identifierAstNode
+    );
+  });
 }

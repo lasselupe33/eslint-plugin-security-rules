@@ -27,6 +27,7 @@ export const isArrowFunctionExpression = isNodeOfType(
 );
 export const isBlockStatement = isNodeOfType(AST_NODE_TYPES.BlockStatement);
 export const isCallExpression = isNodeOfType(AST_NODE_TYPES.CallExpression);
+export const isRestElement = isNodeOfType(AST_NODE_TYPES.RestElement);
 export const isExpressionStatement = isNodeOfType(
   AST_NODE_TYPES.ExpressionStatement
 );

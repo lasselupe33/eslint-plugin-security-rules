@@ -5,7 +5,7 @@ import { getInnermostScope } from "@typescript-eslint/utils/dist/ast-utils";
 import { isBlockStatement, isReturnStatement } from "../../ast/guards";
 import { deepMerge } from "../../deep-merge";
 import { HandlingContext } from "../types/context";
-import { TraceNode } from "../types/nodes";
+import { makeNodeTerminalNode, TraceNode } from "../types/nodes";
 
 import { handleNode } from "./_handle-node";
 
@@ -18,6 +18,17 @@ export function handleArrowFunctionExpression(
       astNodes: [...ctx.connection.astNodes, arrowFunctionExpression],
     },
   });
+
+  if (ctx.meta.callCount <= 0) {
+    return [
+      makeNodeTerminalNode({
+        astNode: arrowFunctionExpression,
+        connection: nextCtx.connection,
+        astNodes: nextCtx.connection.astNodes,
+        meta: nextCtx.meta,
+      }),
+    ];
+  }
 
   const returnStatements = !isBlockStatement(arrowFunctionExpression.body)
     ? [arrowFunctionExpression.body]

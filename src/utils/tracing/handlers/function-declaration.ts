@@ -3,7 +3,7 @@ import { getInnermostScope } from "@typescript-eslint/utils/dist/ast-utils";
 
 import { deepMerge } from "../../deep-merge";
 import { HandlingContext } from "../types/context";
-import { TraceNode } from "../types/nodes";
+import { makeNodeTerminalNode, TraceNode } from "../types/nodes";
 import { getReturnStatements } from "../utils/get-return-statements";
 
 import { handleNode } from "./_handle-node";
@@ -17,6 +17,17 @@ export function handleFunctionDeclaration(
       astNodes: [...ctx.connection.astNodes, functionDeclaration],
     },
   });
+
+  if (ctx.meta.callCount <= 0) {
+    return [
+      makeNodeTerminalNode({
+        astNode: functionDeclaration,
+        connection: nextCtx.connection,
+        astNodes: nextCtx.connection.astNodes,
+        meta: nextCtx.meta,
+      }),
+    ];
+  }
 
   // In case we encounter an anonymous function we cannot create proper mappings
   // between arguments and parameters (given the current implementation), in

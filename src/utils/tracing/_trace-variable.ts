@@ -68,7 +68,8 @@ export function traceVariable(
           ctx.context.getPhysicalFilename?.() ?? ctx.context.getFilename(),
         parserPath: ctx.context.parserPath,
         memberPath: [],
-        activeArguments: new WeakMap(),
+        parameterContext: new WeakMap(),
+        callCount: 0,
       },
     },
     ctx.node

@@ -175,14 +175,12 @@ export const noBrowserXSSRule = createRule<NoXssOptions, MessageIds>({
                     return;
                   }
 
-                  for (const fix of addSanitazionAtSink(
+                  yield* addSanitazionAtSink(
                     sanitationOptions,
                     fixer,
                     node,
                     context.getScope()
-                  )) {
-                    yield fix;
-                  }
+                  );
                 }
               },
               messageId: MessageIds.ADD_SANITATION_FIX,

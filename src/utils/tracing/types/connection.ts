@@ -6,6 +6,7 @@ export enum ConnectionFlags {
   REASSIGN = "reassign",
   MODIFICATION = "modification",
   OVERRIDE = "override",
+  CALL = "call",
 }
 
 /**

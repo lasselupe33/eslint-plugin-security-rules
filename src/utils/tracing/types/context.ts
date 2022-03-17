@@ -1,13 +1,28 @@
-import { CallExpressionArgument } from "@typescript-eslint/types/dist/ast-spec";
+import {
+  CallExpressionArgument,
+  TemplateElement,
+} from "@typescript-eslint/types/dist/ast-spec";
 import { TSESTree } from "@typescript-eslint/utils";
 import { RuleContext, Scope } from "@typescript-eslint/utils/dist/ts-eslint";
 
 import { Connection } from "./connection";
 
-type Argument = {
-  argument: CallExpressionArgument | undefined;
+export type RestArguments = CallExpressionArgument[];
+
+type BaseParameterContext = {
   scope: Scope.Scope;
 };
+
+type CallParameterContext = BaseParameterContext & {
+  arguments: CallExpressionArgument[];
+};
+
+type TaggedParameterContext = BaseParameterContext & {
+  elements: TemplateElement[];
+  expressions: CallExpressionArgument[];
+};
+
+export type ParameterContext = CallParameterContext | TaggedParameterContext;
 
 /**
  * Specification of data that will be passed through the entire tracing
@@ -18,7 +33,7 @@ export type Meta = {
    * Specification of the currently active arguments that a function call has
    * been performed from.
    */
-  activeArguments: WeakMap<TSESTree.Node, Argument[]>;
+  parameterContext: WeakMap<TSESTree.Node, ParameterContext>;
 
   /**
    * Specifies the identifiers that we have traversed on a member that is yet
@@ -34,6 +49,8 @@ export type Meta = {
 
   forceFollowObjectProperties?: boolean;
 
+  callCount: number;
+
   parserPath: string;
   filePath: string;
 };
@@ -48,3 +65,17 @@ export type HandlingContext = {
   rootScope: Scope.Scope;
   meta: Meta;
 };
+
+export function isCallParameterContext(
+  parameterContext: ParameterContext | undefined
+): parameterContext is CallParameterContext {
+  return (
+    typeof parameterContext === "object" && "arguments" in parameterContext
+  );
+}
+
+export function isTaggedParameterContext(
+  parameterContext: ParameterContext | undefined
+): parameterContext is TaggedParameterContext {
+  return typeof parameterContext === "object" && "elements" in parameterContext;
+}

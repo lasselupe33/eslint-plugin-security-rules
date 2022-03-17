@@ -2,21 +2,13 @@ import { TSESTree } from "@typescript-eslint/utils";
 import { getInnermostScope } from "@typescript-eslint/utils/dist/ast-utils";
 
 import {
-  isArrayExpression,
   isIdentifier,
   isMemberExpression,
   isSpreadElement,
 } from "../../ast/guards";
 import { deepMerge } from "../../deep-merge";
-import { traceVariable } from "../_trace-variable";
-import { makeTraceCallbacksWithTrace } from "../callbacks/with-current-trace";
 import { HandlingContext } from "../types/context";
-import {
-  isConstantTerminalNode,
-  isNodeTerminalNode,
-  NodeTerminalNode,
-  TraceNode,
-} from "../types/nodes";
+import { TraceNode } from "../types/nodes";
 
 import { handleNode } from "./_handle-node";
 
@@ -28,74 +20,56 @@ export function handleCallExpression(
     connection: {
       astNodes: [...ctx.connection.astNodes, callExpression],
     },
+    meta: {
+      callCount: ctx.meta.callCount + 1,
+    },
   });
 
-  // In case our callExpression is on a memberExpression, then we might possible
-  // need to apply overrides.
-  // if (isMemberExpression(callExpression.callee)) {
-  //   let calledOn: NodeTerminalNode | undefined;
+  // In case overrides (of e.g. native API's such as arr.join()) has been
+  // supplied, then we return these immediately.
+  const overrides = handleOverrides(nextCtx, callExpression);
 
-  //   traceVariable(
-  //     { node: callExpression.callee.object, context: ctx.ruleContext },
-  //     makeTraceCallbacksWithTrace({
-  //       onTraceFinished: (trace) => {
-  //         const finalNode = trace[trace.length - 1];
-  //         if (isNodeTerminalNode(finalNode)) {
-  //           calledOn = finalNode;
-  //           return { halt: true };
-  //         }
-  //       },
-  //     })
-  //   );
-
-  //   if (isNodeTerminalNode(calledOn)) {
-  //     const overrides = handleOverrides(nextCtx, callExpression, calledOn);
-
-  //     // In case overrides (of e.g. native API's such as arr.join()) has been
-  //     // supplied, then we return these immediately.
-  //     if (overrides) {
-  //       return overrides;
-  //     }
-  //   }
-  // }
-
-  const calleeIdentifier = handleNode(
-    deepMerge(nextCtx, {
-      connection: { astNodes: [] },
-      meta: { forceIdentifierLiteral: true, memberPath: [] },
-    }),
-    callExpression.callee
-  )[0];
-  const calleeIdentifierAstNode =
-    calleeIdentifier?.astNodes[calleeIdentifier.astNodes.length - 1];
-
-  if (isIdentifier(calleeIdentifierAstNode)) {
-    nextCtx.meta.activeArguments.set(
-      calleeIdentifierAstNode,
-      callExpression.arguments.map((arg) => ({
-        argument: arg,
-        scope: getInnermostScope(ctx.scope, callExpression),
-      }))
-    );
+  if (overrides) {
+    return overrides;
   }
 
-  return handleNode(
+  const calleeIdentifiers = handleNode(
     deepMerge(nextCtx, {
-      connection: {
-        astNodes: [
-          ...nextCtx.connection.astNodes,
-          ...(calleeIdentifier?.astNodes ?? []),
-        ],
-      },
+      connection: { astNodes: [] },
       meta: {
-        memberPath: [
-          ...nextCtx.meta.memberPath,
-          ...(calleeIdentifier?.meta.memberPath ?? []),
-        ],
+        forceIdentifierLiteral: true,
+        memberPath: [],
       },
     }),
-    calleeIdentifier?.astNodes[calleeIdentifier.astNodes.length - 1]
+    callExpression.callee
   );
+
+  return calleeIdentifiers.flatMap((it) => {
+    const identifierAstNode = it?.astNodes[it.astNodes.length - 1];
+
+    if (isIdentifier(identifierAstNode)) {
+      nextCtx.meta.parameterContext.set(identifierAstNode, {
+        scope: getInnermostScope(ctx.scope, callExpression),
+        arguments: callExpression.arguments,
+      });
+    }
+
+    return handleNode(
+      deepMerge(nextCtx, {
+        connection: {
+          astNodes: [...nextCtx.connection.astNodes, ...(it?.astNodes ?? [])],
+        },
+        meta: {
+          memberPath: [
+            ...nextCtx.meta.memberPath,
+            ...(it?.meta.memberPath ?? []),
+          ],
+          callCount: it.meta.callCount,
+        },
+      }),
+      identifierAstNode
+    );
+  });
 }
 
 /**
@@ -106,11 +80,9 @@ export function handleCallExpression(
  */
 function handleOverrides(
   ctx: HandlingContext,
-  callExpression: TSESTree.CallExpression,
-  calledOn: NodeTerminalNode
+  callExpression: TSESTree.CallExpression
 ): TraceNode[] | undefined {
   if (
-    isArrayExpression(calledOn.astNode) &&
     isMemberExpression(callExpression.callee) &&
     isIdentifier(callExpression.callee.property)
   ) {
