@@ -20,20 +20,16 @@ const ruleTester = new ESLintUtils.RuleTester({
 
 ruleTester.run("react/no-xss", noReactXSSRule, {
   valid: [
-    {
-      code: getCode(__dirname, "allow-safe-assignment"),
-    },
-    {
-      code: getCode(__dirname, "allow-safe-hook-assignment"),
-    },
+    getCode(__dirname, "allow-safe-assignment"),
+    getCode(__dirname, "allow-safe-hook-assignment"),
   ],
   invalid: [
     {
-      code: getCode(__dirname, "error-assign-unsafe-value"),
+      ...getCode(__dirname, "error-assign-unsafe-value"),
       errors: repeat({ messageId: MessageIds.VULNERABLE_SINK }, 2),
     },
     {
-      code: getCode(__dirname, "error-unsafe-hook-assignment"),
+      ...getCode(__dirname, "error-unsafe-hook-assignment"),
       errors: repeat({ messageId: MessageIds.VULNERABLE_SINK }, 1),
     },
   ],

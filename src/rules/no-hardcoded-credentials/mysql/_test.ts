@@ -31,32 +31,18 @@ const ruleTester = new ESLintUtils.RuleTester({
 
 ruleTester.run("mysql/no-hardcoded-credentials", mysqlNoHardcodedCredentials, {
   valid: [
-    {
-      code: getCode(
-        __dirname,
-        validTests.CREATECONNECTION_HARDCODED_EMPTY_PASSWORD
-      ),
-    },
-    {
-      code: getCode(__dirname, validTests.CREATECONNECTION_PROCESS_ENV),
-    },
-    {
-      code: getCode(__dirname, validTests.FILE_SSL_CONNECTION),
-    },
-    {
-      code: getCode(__dirname, validTests.NAMESPACE_CREATECONNECTION),
-    },
+    getCode(__dirname, validTests.CREATECONNECTION_HARDCODED_EMPTY_PASSWORD),
+    getCode(__dirname, validTests.CREATECONNECTION_PROCESS_ENV),
+    getCode(__dirname, validTests.FILE_SSL_CONNECTION),
+    getCode(__dirname, validTests.NAMESPACE_CREATECONNECTION),
   ],
   invalid: [
     {
-      code: getCode(
-        __dirname,
-        invalidTests.CREATECONNECTION_HARDCODED_PASSWORD
-      ),
+      ...getCode(__dirname, invalidTests.CREATECONNECTION_HARDCODED_PASSWORD),
       errors: [{ messageId: MessageIds.HARDCODED_CREDENTIAL }],
     },
     {
-      code: getCode(__dirname, invalidTests.CREATEPOOL_HARDCODED_PASSWORD),
+      ...getCode(__dirname, invalidTests.CREATEPOOL_HARDCODED_PASSWORD),
       errors: [{ messageId: MessageIds.HARDCODED_CREDENTIAL }],
     },
   ],

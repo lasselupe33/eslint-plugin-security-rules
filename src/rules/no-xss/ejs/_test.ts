@@ -18,14 +18,10 @@ const ruleTester = new ESLintUtils.RuleTester({
 });
 
 ruleTester.run("ejs/no-xss", noEjsXSSRule, {
-  valid: [
-    {
-      code: getCode(__dirname, "allow-sanitized-data"),
-    },
-  ],
+  valid: [getCode(__dirname, "allow-sanitized-data")],
   invalid: [
     {
-      code: getCode(__dirname, "error-unsanitized-data"),
+      ...getCode(__dirname, "error-unsanitized-data"),
       errors: [{ messageId: MessageIds.VULNERABLE_DATA }],
     },
   ],

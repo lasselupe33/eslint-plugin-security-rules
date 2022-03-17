@@ -35,38 +35,30 @@ const ruleTester = new ESLintUtils.RuleTester({
 
 ruleTester.run("pg/no-sql-injections", pgNoSQLInjections, {
   valid: [
-    {
-      code: getCode(__dirname, validTests.CALLBACK),
-    },
-    {
-      code: getCode(__dirname, validTests.PREPARED_STATEMENTS),
-    },
-    {
-      code: getCode(__dirname, validTests.PROMISE),
-    },
-    {
-      code: getCode(__dirname, validTests.PROMISE_QUERY),
-    },
+    getCode(__dirname, validTests.CALLBACK),
+    getCode(__dirname, validTests.PREPARED_STATEMENTS),
+    getCode(__dirname, validTests.PROMISE),
+    getCode(__dirname, validTests.PROMISE_QUERY),
   ],
   invalid: [
     {
-      code: getCode(__dirname, invalidTests.UNSANITIZED_STRING_CONCAT_1),
+      ...getCode(__dirname, invalidTests.UNSANITIZED_STRING_CONCAT_1),
       errors: [{ messageId: MessageIds.VULNERABLE_QUERY }],
     },
     {
-      code: getCode(__dirname, invalidTests.UNSANITIZED_STRING_CONCAT_2),
+      ...getCode(__dirname, invalidTests.UNSANITIZED_STRING_CONCAT_2),
       errors: [{ messageId: MessageIds.VULNERABLE_QUERY }],
     },
     {
-      code: getCode(__dirname, invalidTests.UNSANITIZED_STRING_CONCAT_3),
+      ...getCode(__dirname, invalidTests.UNSANITIZED_STRING_CONCAT_3),
       errors: [{ messageId: MessageIds.VULNERABLE_QUERY }],
     },
     {
-      code: getCode(__dirname, invalidTests.UNSANITIZED_STRING_CONCAT_4),
+      ...getCode(__dirname, invalidTests.UNSANITIZED_STRING_CONCAT_4),
       errors: [{ messageId: MessageIds.VULNERABLE_QUERY }],
     },
     {
-      code: getCode(__dirname, invalidTests.UNSANITIZED_STRING_CONCAT_5),
+      ...getCode(__dirname, invalidTests.UNSANITIZED_STRING_CONCAT_5),
       errors: [{ messageId: MessageIds.VULNERABLE_QUERY }],
     },
   ],

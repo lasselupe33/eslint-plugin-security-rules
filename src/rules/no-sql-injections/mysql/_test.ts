@@ -38,42 +38,26 @@ const ruleTester = new ESLintUtils.RuleTester({
 
 ruleTester.run("mysql/no-sql-injections", mysqlNoSQLInjections, {
   valid: [
-    {
-      code: getCode(__dirname, validTests.ADVANCED_QUERY_PARAMETERIZED_ARGS_1),
-    },
-    {
-      code: getCode(__dirname, validTests.ADVANCED_QUERY_PARAMETERIZED_ARGS_2),
-    },
-    {
-      code: getCode(__dirname, validTests.IMPORT_STATEMENTS),
-    },
-    {
-      code: getCode(__dirname, validTests.QUERY_STRING_NO_ARGS),
-    },
-    {
-      code: getCode(__dirname, validTests.QUERY_STRING_PARAMETERIZED_ARGS_1),
-    },
-    {
-      code: getCode(__dirname, validTests.QUERY_STRING_PARAMETERIZED_ARGS_2),
-    },
-    {
-      code: getCode(__dirname, validTests.QUERY_STRING_PARAMETERIZED_ARGS_3),
-    },
-    {
-      code: getCode(__dirname, validTests.UNSANITIZED_LOCAL_VARIABLES),
-    },
+    getCode(__dirname, validTests.ADVANCED_QUERY_PARAMETERIZED_ARGS_1),
+    getCode(__dirname, validTests.ADVANCED_QUERY_PARAMETERIZED_ARGS_2),
+    getCode(__dirname, validTests.IMPORT_STATEMENTS),
+    getCode(__dirname, validTests.QUERY_STRING_NO_ARGS),
+    getCode(__dirname, validTests.QUERY_STRING_PARAMETERIZED_ARGS_1),
+    getCode(__dirname, validTests.QUERY_STRING_PARAMETERIZED_ARGS_2),
+    getCode(__dirname, validTests.QUERY_STRING_PARAMETERIZED_ARGS_3),
+    getCode(__dirname, validTests.UNSANITIZED_LOCAL_VARIABLES),
   ],
   invalid: [
     {
-      code: getCode(__dirname, invalidTests.UNSANITIZED_STRING_CONCAT),
+      ...getCode(__dirname, invalidTests.UNSANITIZED_STRING_CONCAT),
       errors: [{ messageId: MessageIds.VULNERABLE_QUERY }],
     },
     {
-      code: getCode(__dirname, invalidTests.UNSANITIZED_UNSAFE_VARIABLE_1),
+      ...getCode(__dirname, invalidTests.UNSANITIZED_UNSAFE_VARIABLE_1),
       errors: [{ messageId: MessageIds.VULNERABLE_QUERY }],
     },
     {
-      code: getCode(__dirname, invalidTests.UNSANITIZED_UNSAFE_VARIABLE_2),
+      ...getCode(__dirname, invalidTests.UNSANITIZED_UNSAFE_VARIABLE_2),
       errors: [{ messageId: MessageIds.VULNERABLE_QUERY }],
     },
   ],

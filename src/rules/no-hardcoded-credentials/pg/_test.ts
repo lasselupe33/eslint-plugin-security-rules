@@ -3,7 +3,6 @@ import path from "path";
 import { ESLintUtils } from "@typescript-eslint/utils";
 
 import { getCode } from "../../../utils/testing/get-code";
-import { repeat } from "../../../utils/testing/repeat";
 
 import { pgNoHardcodedCredentials } from "./_rule";
 import { MessageIds } from "./utils/messages";
@@ -33,30 +32,24 @@ const ruleTester = new ESLintUtils.RuleTester({
 
 ruleTester.run("pg/no-hardcoded-credentials", pgNoHardcodedCredentials, {
   valid: [
-    {
-      code: getCode(__dirname, validTests.CREATECLIENT_EMPTY),
-    },
-    {
-      code: getCode(__dirname, validTests.CREATEPOOL_EMPTY),
-    },
-    {
-      code: getCode(__dirname, validTests.FILE_SSL_CONNECTION),
-    },
+    getCode(__dirname, validTests.CREATECLIENT_EMPTY),
+    getCode(__dirname, validTests.CREATEPOOL_EMPTY),
+    getCode(__dirname, validTests.FILE_SSL_CONNECTION),
   ],
   invalid: [
     {
-      code: getCode(
+      ...getCode(
         __dirname,
         invalidTests.CREATECLIENT_HARDCODED_PASSWORD_IDENTIFIER
       ),
       errors: [{ messageId: MessageIds.HARDCODED_CREDENTIAL }],
     },
     {
-      code: getCode(__dirname, invalidTests.CREATECLIENT_HARDCODED_PASSWORD),
+      ...getCode(__dirname, invalidTests.CREATECLIENT_HARDCODED_PASSWORD),
       errors: [{ messageId: MessageIds.HARDCODED_CREDENTIAL }],
     },
     {
-      code: getCode(__dirname, invalidTests.CREATEPOOL_HARDCODED_PASSWORD),
+      ...getCode(__dirname, invalidTests.CREATEPOOL_HARDCODED_PASSWORD),
       errors: [{ messageId: MessageIds.HARDCODED_CREDENTIAL }],
     },
   ],

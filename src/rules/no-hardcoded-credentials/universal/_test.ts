@@ -37,28 +37,25 @@ ruleTester.run(
     ],
     invalid: [
       {
-        code: getCode(
+        ...getCode(
           __dirname,
           invalidTests.NO_PASSWORD_ARRAY_VARIABLE_DECLARATION
         ),
         errors: [{ messageId: MessageIds.ERRROR1 }],
       },
       {
-        code: getCode(__dirname, invalidTests.NO_PASSWORD_OBJECT_IN_ARRAY),
+        ...getCode(__dirname, invalidTests.NO_PASSWORD_OBJECT_IN_ARRAY),
         errors: [{ messageId: MessageIds.ERRROR1 }],
       },
       {
-        code: getCode(
+        ...getCode(
           __dirname,
           invalidTests.NO_PASSWORD_OBJECT_VARIABLE_DECLARATION
         ),
         errors: [{ messageId: MessageIds.ERRROR1 }],
       },
       {
-        code: getCode(
-          __dirname,
-          invalidTests.NO_PASSWORD_VARIABLE_DECLARATIONS
-        ),
+        ...getCode(__dirname, invalidTests.NO_PASSWORD_VARIABLE_DECLARATIONS),
         errors: [{ messageId: MessageIds.ERRROR1 }],
       },
     ],
