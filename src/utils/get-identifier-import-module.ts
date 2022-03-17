@@ -32,8 +32,6 @@ export function getIdentifierImportModule(
         const finalASTNode =
           finalTraceNode?.astNodes[finalTraceNode.astNodes.length - 1];
 
-        printTrace(trace);
-
         if (isImportTerminalNode(finalTraceNode)) {
           if (
             finalASTNode &&
