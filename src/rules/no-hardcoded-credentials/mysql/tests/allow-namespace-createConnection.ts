@@ -1,10 +1,10 @@
-import { createPool } from "mysql";
+import * as mysql from "mysql";
 
-const connection = createPool({
+const connection = mysql.createConnection({
   host: "localhost",
   user: "admin",
   database: "project",
-  password: "SECRET",
+  password: "",
   multipleStatements: true,
 });
 

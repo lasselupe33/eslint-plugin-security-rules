@@ -12,10 +12,10 @@ import { extractObjectProperties } from "./utils/extract-object-properties";
 /**
  * Progress
  *  [-] Detection
- *  [ ] Automatic fix / Suggestions
- *  [ ] Reduction of false positives
- *  [ ] Fulfilling unit testing
- *  [ ] Extensive documentation
+ *  [ ] Automatic fix / Suggestions -- Can't be implemented?
+ *  [x] Reduction of false positives
+ *  [-] Fulfilling unit testing
+ *  [x] Extensive documentation
  *  [ ] Fulfilling configuration options
  */
 
@@ -23,7 +23,7 @@ export type HandlingContext = {
   ruleContext: Readonly<TSESLint.RuleContext<MessageIds, []>>;
 };
 
-enum MessageIds {
+export enum MessageIds {
   HARDCODED_CREDENTIAL = "hardcoded-credentail",
 }
 
