@@ -14,10 +14,10 @@ import { handleChainExpression } from "./chain-expression";
 import { handleConditionalExpression } from "./conditional-expression";
 import { handleFunctionDeclaration } from "./function-declaration";
 import { handleFunctionExpression } from "./function-expression";
-// import { handleTaggedTemplateExpression } from "./tagged-template-expression";
 import { handleIdentifier } from "./identifier";
 import { handleImportDeclaration } from "./import-declaration";
 import { handleImportDefaultSpecifier } from "./import-default-specifier";
+import { handleImportNamespaceSpecifier } from "./import-namespace-specifier";
 import { handleImportSpecifier } from "./import-specifier";
 import { handleLiteral } from "./literal";
 import { handleLogicalExpression } from "./logical-expression";
@@ -26,6 +26,7 @@ import { handleNewExpression } from "./new-expression";
 import { handleObjectExpression } from "./object-expression";
 import { handleProperty } from "./property";
 import { handleSequenceExpression } from "./sequence-expression";
+import { handleTaggedTemplateExpression } from "./tagged-template-expression";
 import { handleTemplateElement } from "./template-element";
 import { handleTemplateLiteral } from "./template-literal";
 import { handleThisExpression } from "./this-expression";
@@ -58,9 +59,8 @@ export function handleNode(
       [AST_NODE_TYPES.Identifier]: handleIdentifier,
       [AST_NODE_TYPES.ImportDeclaration]: handleImportDeclaration,
       [AST_NODE_TYPES.ImportDefaultSpecifier]: handleImportDefaultSpecifier,
+      [AST_NODE_TYPES.ImportNamespaceSpecifier]: handleImportNamespaceSpecifier,
       [AST_NODE_TYPES.ImportSpecifier]: handleImportSpecifier,
-      // [AST_NODE_TYPES.JSXElement]: handleJSXElement,
-      // [AST_NODE_TYPES.JSXFragment]: handleJSXFragment,
       [AST_NODE_TYPES.Literal]: handleLiteral,
       [AST_NODE_TYPES.LogicalExpression]: handleLogicalExpression,
       [AST_NODE_TYPES.MemberExpression]: handleMemberExpression,
@@ -69,8 +69,7 @@ export function handleNode(
       [AST_NODE_TYPES.Property]: handleProperty,
       [AST_NODE_TYPES.SequenceExpression]: handleSequenceExpression,
       // [AST_NODE_TYPES.Super]: handleSuper // Do we want this?
-      // [AST_NODE_TYPES.TaggedTemplateExpression]:
-      // handleTaggedTemplateExpression,
+      [AST_NODE_TYPES.TaggedTemplateExpression]: handleTaggedTemplateExpression,
       [AST_NODE_TYPES.TemplateElement]: handleTemplateElement,
       [AST_NODE_TYPES.TemplateLiteral]: handleTemplateLiteral,
       [AST_NODE_TYPES.ThisExpression]: handleThisExpression,

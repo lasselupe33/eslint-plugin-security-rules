@@ -1,11 +1,14 @@
-import { CallExpressionArgument } from "@typescript-eslint/types/dist/ast-spec";
+import {
+  CallExpressionArgument,
+  TemplateElement,
+} from "@typescript-eslint/types/dist/ast-spec";
 import { TSESTree } from "@typescript-eslint/utils";
 import { RuleContext, Scope } from "@typescript-eslint/utils/dist/ts-eslint";
 
 import { Connection } from "./connection";
 
-type Argument = {
-  argument: CallExpressionArgument | undefined;
+export type Argument = {
+  argument: CallExpressionArgument | TemplateElement | undefined;
   scope: Scope.Scope;
 };
 
