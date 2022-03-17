@@ -12,5 +12,4 @@ const clientConfig: ClientConfig[] = [
 
 const clientConfig2 = clientConfig[0];
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const client = new Client(clientConfig2);

@@ -15,10 +15,10 @@ import { MessageIds, errorMessages } from "./utils/messages";
 /**
  * Progress
  *  [x] Detection
- *  [ ] Automatic fix / Suggestions
- *  [-] Reduction of false positives
- *  [ ] Fulfilling unit testing
- *  [ ] Extensive documentation
+ *  [ ] Automatic fix / Suggestions -- Can't be implemented?
+ *  [x] Reduction of false positives
+ *  [x] Fulfilling unit testing
+ *  [x] Extensive documentation
  *  [ ] Fulfilling configuration options
  */
 

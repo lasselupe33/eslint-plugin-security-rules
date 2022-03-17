@@ -1,6 +1,5 @@
 import { Client } from "pg";
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const client = new Client({
   user: "root",
   host: "database.com",
@@ -8,3 +7,5 @@ const client = new Client({
   password: "secretpassword",
   port: 3211,
 });
+
+client.end();
