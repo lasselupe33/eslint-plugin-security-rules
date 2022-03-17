@@ -12,6 +12,9 @@ const isNodeOfType =
     node?.type === nodeType;
 
 export const isIdentifier = isNodeOfType(AST_NODE_TYPES.Identifier);
+export const isTaggedTemplateExpression = isNodeOfType(
+  AST_NODE_TYPES.TaggedTemplateExpression
+);
 export const isExportNamedDeclaration = isNodeOfType(
   AST_NODE_TYPES.ExportNamedDeclaration
 );

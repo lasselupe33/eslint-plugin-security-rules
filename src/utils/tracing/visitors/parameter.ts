@@ -11,17 +11,14 @@ import {
   isNewExpression,
   isObjectPattern,
   isRestElement,
+  isTaggedTemplateExpression,
 } from "../../ast/guards";
 import { deepMerge } from "../../deep-merge";
 import { findReverse } from "../../find-reverse";
 import { getModuleScope } from "../../get-module-scope";
 import { handleNode } from "../handlers/_handle-node";
 import { Connection } from "../types/connection";
-import {
-  HandlingContext,
-  isCallParameterContext,
-  ParameterContext,
-} from "../types/context";
+import { HandlingContext, ParameterContext } from "../types/context";
 import { makeUnresolvedTerminalNode, TraceNode } from "../types/nodes";
 
 /**
@@ -79,7 +76,10 @@ function findRelevantParameterContext(
     const potentialIdentifier =
       currentConnection.astNodes[currentConnection.astNodes.length - 1];
     const hasCalls = currentConnection.astNodes.some(
-      (it) => isCallExpression(it) || isNewExpression(it)
+      (it) =>
+        isCallExpression(it) ||
+        isNewExpression(it) ||
+        isTaggedTemplateExpression(it)
     );
 
     // We assume to have found the currect identifier as soon as we are in a
@@ -162,7 +162,7 @@ function handleParameter(
 
     // Finally, in case the current node actually maps to the correct param,
     // then we can continue our trace
-    if (indexOfParam !== -1 && isCallParameterContext(argToParamContext)) {
+    if (indexOfParam !== -1 && argToParamContext) {
       const node = argToParamContext.arguments[indexOfParam + (restSkew ?? 0)];
 
       if (isRestElement(parameterNode)) {

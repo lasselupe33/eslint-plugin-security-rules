@@ -1,28 +1,12 @@
-import {
-  CallExpressionArgument,
-  TemplateElement,
-} from "@typescript-eslint/types/dist/ast-spec";
 import { TSESTree } from "@typescript-eslint/utils";
 import { RuleContext, Scope } from "@typescript-eslint/utils/dist/ts-eslint";
 
 import { Connection } from "./connection";
 
-export type RestArguments = CallExpressionArgument[];
-
-type BaseParameterContext = {
+export type ParameterContext = {
   scope: Scope.Scope;
+  arguments: TSESTree.Node[];
 };
-
-type CallParameterContext = BaseParameterContext & {
-  arguments: CallExpressionArgument[];
-};
-
-type TaggedParameterContext = BaseParameterContext & {
-  elements: TemplateElement[];
-  expressions: CallExpressionArgument[];
-};
-
-export type ParameterContext = CallParameterContext | TaggedParameterContext;
 
 /**
  * Specification of data that will be passed through the entire tracing
@@ -65,17 +49,3 @@ export type HandlingContext = {
   rootScope: Scope.Scope;
   meta: Meta;
 };
-
-export function isCallParameterContext(
-  parameterContext: ParameterContext | undefined
-): parameterContext is CallParameterContext {
-  return (
-    typeof parameterContext === "object" && "arguments" in parameterContext
-  );
-}
-
-export function isTaggedParameterContext(
-  parameterContext: ParameterContext | undefined
-): parameterContext is TaggedParameterContext {
-  return typeof parameterContext === "object" && "elements" in parameterContext;
-}

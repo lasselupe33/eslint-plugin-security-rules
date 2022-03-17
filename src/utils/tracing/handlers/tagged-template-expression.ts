@@ -1,7 +1,7 @@
-import { TemplateElement } from "@typescript-eslint/types/dist/ast-spec";
 import { TSESTree } from "@typescript-eslint/utils";
 import { getInnermostScope } from "@typescript-eslint/utils/dist/ast-utils";
 
+import { isIdentifier } from "../../ast/guards";
 import { deepMerge } from "../../deep-merge";
 import { HandlingContext } from "../types/context";
 import { TraceNode } from "../types/nodes";
@@ -16,22 +16,62 @@ export function handleTaggedTemplateExpression(
     connection: {
       astNodes: [...ctx.connection.astNodes, taggedTemplateExpression],
     },
+    meta: {
+      callCount: ctx.meta.callCount + 1,
+    },
   });
 
-  const calleeIdentifier = taggedTemplateExpression.tag as TSESTree.Identifier;
+  const calleeIdentifiers = handleNode(
+    deepMerge(nextCtx, {
+      connection: { astNodes: [] },
+      meta: {
+        forceIdentifierLiteral: true,
+        memberPath: [],
+      },
+    }),
+    taggedTemplateExpression.tag
+  );
 
-  const test: TemplateElement[] = taggedTemplateExpression.quasi.quasis;
+  return calleeIdentifiers.flatMap((it) => {
+    const identifierAstNode = it?.astNodes[it.astNodes.length - 1];
 
-  // @TODO: Implemented argument tracing
+    if (isIdentifier(identifierAstNode)) {
+      // Map our qausis to an ArrayExpression since they will be accessed using
+      // ArrayPatterns when resolving parameters inside the tag function
+      nextCtx.meta.parameterContext.set(identifierAstNode, {
+        arguments: [
+          {
+            type: TSESTree.AST_NODE_TYPES.ArrayExpression,
+            loc: taggedTemplateExpression.quasi.loc,
+            range: taggedTemplateExpression.quasi.range,
+            elements: taggedTemplateExpression.quasi.quasis.map((it) => ({
+              type: TSESTree.AST_NODE_TYPES.Literal,
+              loc: it.loc,
+              range: it.range,
+              raw: it.value.raw,
+              value: it.value.cooked,
+            })),
+          },
+          ...taggedTemplateExpression.quasi.expressions,
+        ],
+        scope: getInnermostScope(ctx.scope, taggedTemplateExpression),
+      });
+    }
 
-  /*   nextCtx.meta.activeArguments.set(
-    calleeIdentifier,
-    {
-      taggedTemplateExpression.quasi.quasis,
-      taggedTemplateExpression.quasi.expressions,
-      scope: getInnermostScope(ctx.scope, taggedTemplateExpression)
-    },
-  ); */
-
-  return handleNode(nextCtx, taggedTemplateExpression.tag);
+    return handleNode(
+      deepMerge(nextCtx, {
+        connection: {
+          astNodes: [...nextCtx.connection.astNodes, ...(it?.astNodes ?? [])],
+        },
+        meta: {
+          memberPath: [
+            ...nextCtx.meta.memberPath,
+            ...(it?.meta.memberPath ?? []),
+          ],
+          callCount: it.meta.callCount,
+        },
+      }),
+      identifierAstNode
+    );
+  });
 }
