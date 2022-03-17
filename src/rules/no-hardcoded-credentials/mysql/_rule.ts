@@ -1,9 +1,9 @@
 import { TSESLint, TSESTree } from "@typescript-eslint/utils";
 
+import { isPackage } from "../../../utils/is-package";
 import { resolveDocsRoute } from "../../../utils/resolve-docs-route";
 import { extractIdentifier } from "../utils/extract-identifier";
 
-import { handleIdentifier } from "./handlers/handle-identifier";
 import { checkArgumentsForPassword } from "./utils/check-arguments-for-password";
 import { extractObjectProperties } from "./utils/extract-object-properties";
 
@@ -47,16 +47,16 @@ export const mysqlNoHardcodedCredentials: TSESLint.RuleModule<MessageIds> = {
       CallExpression: (node) => {
         const id = extractIdentifier(node);
 
-        const didMatchIdentifierName = handleIdentifier(
-          { ruleContext: context },
-          id
-        );
+        const didMatchIdentifierName =
+          id?.name === "createConnection" || id?.name === "createPool";
 
-        if (didMatchIdentifierName) {
-          const properties = extractObjectProperties(node);
-          checkArgumentsForPassword({ ruleContext: context }, properties);
-          // TODO: Unhandled connectionURI
+        if (!didMatchIdentifierName || !isPackage(context, "mysql", id)) {
+          return;
         }
+
+        const properties = extractObjectProperties(node);
+        checkArgumentsForPassword({ ruleContext: context }, properties);
+        // TODO: Unhandled connectionURI
       },
     };
   },

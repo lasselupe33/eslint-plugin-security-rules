@@ -18,13 +18,13 @@ import {
   isArrowFunctionExpression,
   isProperty,
 } from "../../../utils/ast/guards";
+import { isPackage } from "../../../utils/is-package";
 import { resolveDocsRoute } from "../../../utils/resolve-docs-route";
 import { extractIdentifier } from "../utils/extract-identifier";
 import { MessageIds, errorMessages } from "../utils/messages";
 
 import { countPlaceholders } from "./utils/count-placeholders";
 import { extractValuesArray } from "./utils/extract-values-array";
-import { isPGPackage } from "./utils/is-pg-package";
 import { isQuerySafe } from "./utils/is-query-safe";
 
 export type HandlingContext = {
@@ -65,11 +65,10 @@ export const pgNoSQLInjections = createRule<never[], MessageIds>({
         const didMatchIdentifierName = idRight?.name === "query";
         const queryArgs = idRight?.parent?.parent.arguments[0];
 
-        // @TODO: Check that we're using the PG package by tracing idLeft
         if (
           !didMatchIdentifierName ||
           !queryArgs ||
-          !isPGPackage({ ruleContext: context }, idLeft)
+          !isPackage(context, "pg", idLeft)
         ) {
           return;
         }
