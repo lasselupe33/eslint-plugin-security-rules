@@ -67,6 +67,7 @@ export const isObjectPattern = isNodeOfType(AST_NODE_TYPES.ObjectPattern);
 export const isProperty = isNodeOfType(AST_NODE_TYPES.Property);
 export const isMethodDefinition = isNodeOfType(AST_NODE_TYPES.MethodDefinition);
 export const isReturnStatement = isNodeOfType(AST_NODE_TYPES.ReturnStatement);
+export const isYieldExpression = isNodeOfType(AST_NODE_TYPES.YieldExpression);
 export const isFunctionExpression = isNodeOfType(
   AST_NODE_TYPES.FunctionExpression
 );

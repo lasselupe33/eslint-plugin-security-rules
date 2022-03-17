@@ -12,6 +12,7 @@ import { handleBinaryExpression } from "./binary-expression";
 import { handleCallExpression } from "./call-expression";
 import { handleChainExpression } from "./chain-expression";
 import { handleConditionalExpression } from "./conditional-expression";
+import { handleForOfStatement } from "./for-of-statement";
 import { handleFunctionDeclaration } from "./function-declaration";
 import { handleFunctionExpression } from "./function-expression";
 import { handleIdentifier } from "./identifier";
@@ -54,6 +55,7 @@ export function handleNode(
       [AST_NODE_TYPES.ChainExpression]: handleChainExpression,
       // [AST_NODE_TYPES.ClassExpression]: handleClassExpression, // Do we want this?
       [AST_NODE_TYPES.ConditionalExpression]: handleConditionalExpression,
+      [AST_NODE_TYPES.ForOfStatement]: handleForOfStatement,
       [AST_NODE_TYPES.FunctionDeclaration]: handleFunctionDeclaration,
       [AST_NODE_TYPES.FunctionExpression]: handleFunctionExpression,
       [AST_NODE_TYPES.Identifier]: handleIdentifier,

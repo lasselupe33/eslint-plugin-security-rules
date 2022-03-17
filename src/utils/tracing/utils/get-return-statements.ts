@@ -1,6 +1,6 @@
 import { AST_NODE_TYPES, TSESTree } from "@typescript-eslint/utils";
 
-import { isReturnStatement } from "../../ast/guards";
+import { isReturnStatement, isYieldExpression } from "../../ast/guards";
 import { mapNodeToHandler } from "../../ast/map-node-to-handler";
 
 /**
@@ -8,11 +8,11 @@ import { mapNodeToHandler } from "../../ast/map-node-to-handler";
  * whether or not they're reachable from the function itself.
  */
 export function getReturnStatements(
-  body: (TSESTree.Statement | null | undefined)[]
+  body: (TSESTree.Node | null | undefined)[]
 ): TSESTree.ReturnStatement[] {
   return body
     .flatMap((it) => {
-      if (isReturnStatement(it)) {
+      if (isReturnStatement(it) || isYieldExpression(it)) {
         return [it];
       }
 
@@ -24,6 +24,8 @@ export function getReturnStatements(
           getReturnStatements(node.body),
         [AST_NODE_TYPES.DoWhileStatement]: (_, node) =>
           getReturnStatements([node.body]),
+        [AST_NODE_TYPES.ExpressionStatement]: (_, node) =>
+          getReturnStatements([node.expression]),
         [AST_NODE_TYPES.ForInStatement]: (_, node) =>
           getReturnStatements([node.body]),
         [AST_NODE_TYPES.ForOfStatement]: (_, node) =>
