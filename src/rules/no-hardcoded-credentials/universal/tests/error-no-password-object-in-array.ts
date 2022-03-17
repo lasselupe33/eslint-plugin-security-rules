@@ -1,4 +1,3 @@
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const clientConfig = [
   {
     user: "root",
@@ -8,5 +7,8 @@ const clientConfig = [
     port: 3211,
   },
 ];
+
+// To bypass no unused variable rules
+clientConfig.toString();
 
 export {};

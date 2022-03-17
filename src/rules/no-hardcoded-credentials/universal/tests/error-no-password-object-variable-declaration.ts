@@ -3,4 +3,7 @@ const hg = {
   Password: "Secret",
 };
 
+// To bypass no unused variable rules
+hg.toString();
+
 export {};
