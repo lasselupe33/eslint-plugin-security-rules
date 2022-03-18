@@ -13,7 +13,6 @@ import { extractIdentifier } from "../utils/extract-identifier";
 import { extractQuery } from "../utils/extract-query";
 import { MessageIds, errorMessages } from "../utils/messages";
 
-import { handleIdentifier } from "./handlers/handle-identifier";
 import { handleTemplateLiteral } from "./handlers/handle-template-literal";
 import { countPlaceholders } from "./utils/count-placeholders";
 
