@@ -11,8 +11,8 @@ export function handleIdentifier(
   if (id && id.name === "query") {
     const typeProgram = getTypeProgram(ctx.ruleContext);
     if (typeProgram) {
-      const { fullyQualifiedName } = getNodeModule(typeProgram, id);
-      if (!fullyQualifiedName?.includes("@types/mysql/index")) {
+      const moduleName = getNodeModule(typeProgram, id);
+      if (!moduleName?.includes("@types/mysql/index")) {
         return false;
       }
     }

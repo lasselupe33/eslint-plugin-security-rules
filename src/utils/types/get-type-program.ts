@@ -29,16 +29,29 @@ export type TypeProgram =
     }
   | undefined;
 
+const typeProgramCache = new WeakMap<
+  RuleContext<string, unknown[]>,
+  TypeProgram
+>();
+
 export function getTypeProgram(
   context: RuleContext<string, unknown[]>
 ): TypeProgram {
+  if (typeProgramCache.has(context)) {
+    return typeProgramCache.get(context);
+  }
+
   try {
     const parserServices = getParserServices(context);
+    parserServices.program.isSourceFileDefaultLibrary;
 
-    return {
+    const typeProgram = {
       parserServices,
       checker: parserServices.program.getTypeChecker(),
     };
+
+    typeProgramCache.set(context, typeProgram);
+    return typeProgram;
   } catch (err) {
     // In case we are unable to resolve the parserServices we must assume that
     // TypeScript is not available in the current context. Hence we must
