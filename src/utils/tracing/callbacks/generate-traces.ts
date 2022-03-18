@@ -1,25 +1,31 @@
 import { TraceCallbacks } from "../_trace-variable";
-import { isTerminalNode, TraceNode } from "../types/nodes";
+import {
+  isRootNode,
+  isTerminalNode,
+  makeRootNode,
+  TraceNode,
+} from "../types/nodes";
 
 import { makeTraceDebugger } from "./trace-debugger";
+import { Trace } from "./with-current-trace";
 
 /**
  * Basic utility that generates all available traces found during a given
  * traceVariable() run.
  */
 export function makeTraceGenerator(
-  traces: TraceNode[][],
+  traces: Trace[],
   { printTraces }: { printTraces: boolean } = { printTraces: false }
 ): TraceCallbacks {
-  let currentTrace: TraceNode[] = [];
+  let currentTrace: Trace = [makeRootNode()];
 
   function onNodeVisited(node: TraceNode) {
-    if (currentTrace.length === 0) {
+    let prevNode = currentTrace[currentTrace.length - 1];
+
+    if (isRootNode(prevNode)) {
       currentTrace.push(node);
       return;
     }
-
-    let prevNode = currentTrace[currentTrace.length - 1];
 
     if (!node.connection) {
       console.warn("unable to resolve connection.");
@@ -45,7 +51,8 @@ export function makeTraceGenerator(
 
       while (
         isTerminalNode(prevNode) ||
-        node.connection?.variable !== prevNode?.variable
+        (!isRootNode(prevNode) &&
+          node.connection?.variable !== prevNode?.variable)
       ) {
         prevNode = currentTrace.pop();
       }

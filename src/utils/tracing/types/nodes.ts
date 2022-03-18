@@ -35,6 +35,11 @@ export type NodeTerminalNode = BaseTerminalNode & {
   astNode: TSESTree.Node;
 };
 
+export type RootNode = {
+  __isRootNode: true;
+  astNodes: [];
+};
+
 /**
  * Specification of nodes that can be returned while tracing
  */
@@ -105,38 +110,51 @@ export function makeVariableNode(
   };
 }
 
+export function makeRootNode(): RootNode {
+  return {
+    __isRootNode: true,
+    astNodes: [],
+  };
+}
+
 export function isConstantTerminalNode(
-  node: TraceNode | undefined
+  node: TraceNode | RootNode | undefined
 ): node is ConstantTerminalNode {
   return isTerminalNode(node) && node.type === "constant";
 }
 
 export function isImportTerminalNode(
-  node: TraceNode | undefined
+  node: TraceNode | RootNode | undefined
 ): node is ImportTerminalNode {
   return isTerminalNode(node) && node.type === "import";
 }
 
 export function isUnresolvedTerminalNode(
-  node: TraceNode | undefined
+  node: TraceNode | RootNode | undefined
 ): node is UnresolvedTerminalNode {
   return isTerminalNode(node) && node.type === "unresolved";
 }
 
 export function isNodeTerminalNode(
-  node: TraceNode | undefined
+  node: TraceNode | RootNode | undefined
 ): node is NodeTerminalNode {
   return isTerminalNode(node) && node.type === "node";
 }
 
 export function isTerminalNode(
-  node: TraceNode | undefined
+  node: TraceNode | RootNode | undefined
 ): node is TerminalNode {
   return node != null && "__isTerminalNode" in node;
 }
 
 export function isVariableNode(
-  node: TraceNode | undefined
+  node: TraceNode | RootNode | undefined
 ): node is VariableNode {
   return node != null && "__isVariableNode" in node;
+}
+
+export function isRootNode(
+  node: TraceNode | RootNode | undefined
+): node is RootNode {
+  return node != null && "__isRootNode" in node;
 }

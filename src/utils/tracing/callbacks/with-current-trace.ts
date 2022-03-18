@@ -1,14 +1,23 @@
 import { TraceCallbacks } from "../_trace-variable";
 import { ConnectionFlags } from "../types/connection";
-import { isTerminalNode, TerminalNode, TraceNode } from "../types/nodes";
+import {
+  isRootNode,
+  isTerminalNode,
+  makeRootNode,
+  RootNode,
+  TerminalNode,
+  TraceNode,
+} from "../types/nodes";
+
+export type Trace = [RootNode, ...TraceNode[]];
 
 type TraceCallbacksWithCurrentTrace = {
   onNodeVisited?: (
-    trace: TraceNode[],
+    trace: Trace,
     ...args: Parameters<Required<TraceCallbacks>["onNodeVisited"]>
   ) => ReturnType<Required<TraceCallbacks>["onNodeVisited"]>;
   onTraceFinished?: (
-    trace: TraceNode[]
+    trace: Trace
   ) => ReturnType<Required<TraceCallbacks>["onNodeVisited"]>;
   onFinished?: (
     terminals: TerminalNode[][],
@@ -27,7 +36,7 @@ type TraceCallbacksWithCurrentTrace = {
 export function makeTraceCallbacksWithTrace(
   callbacks: TraceCallbacksWithCurrentTrace
 ): TraceCallbacks {
-  const currentTrace: TraceNode[] = [];
+  const currentTrace: Trace = [makeRootNode()];
 
   let terminalInsertionIndex = 0;
   const terminalGroups: TerminalNode[][] = [];
@@ -35,12 +44,13 @@ export function makeTraceCallbacksWithTrace(
   function onNodeVisited(node: TraceNode) {
     let toReturn = callbacks.onNodeVisited?.(currentTrace, node);
 
-    if (currentTrace.length === 0) {
+    let prevNode = currentTrace[currentTrace.length - 1];
+
+    if (isRootNode(prevNode)) {
       currentTrace.push(node);
+
       return toReturn;
     }
-
-    let prevNode = currentTrace[currentTrace.length - 1];
 
     if (!node.connection) {
       console.warn("unable to resolve connection.");
@@ -78,6 +88,7 @@ export function makeTraceCallbacksWithTrace(
 
       while (
         currentTrace.length > 0 &&
+        !isRootNode(prevNode) &&
         (isTerminalNode(prevNode) ||
           node.connection?.variable !== prevNode?.variable)
       ) {

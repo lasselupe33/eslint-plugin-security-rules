@@ -1,18 +1,25 @@
+import { Trace } from "../callbacks/with-current-trace";
 import {
   isConstantTerminalNode,
   isImportTerminalNode,
   isNodeTerminalNode,
+  isRootNode,
   isTerminalNode,
   isUnresolvedTerminalNode,
+  RootNode,
   TraceNode,
 } from "../types/nodes";
 
-export function printTrace(trace: TraceNode[]): void {
+export function printTrace(trace: Trace): void {
   console.warn(trace.map(nodeToString).join(" --> "));
   console.warn();
 }
 
-function nodeToString(node: TraceNode): string {
+function nodeToString(node: TraceNode | RootNode): string {
+  if (isRootNode(node)) {
+    return "root";
+  }
+
   const flags = `${
     node.connection.flags.size > 0
       ? `/${Array.from(node.connection.flags).join("-")}`
