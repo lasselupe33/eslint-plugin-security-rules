@@ -3,6 +3,7 @@ import { pgNoHardcodedCredentials } from "./rules/no-hardcoded-credentials/pg/_r
 import { uniNoHardcodedCredentials } from "./rules/no-hardcoded-credentials/universal/_rule";
 import { mysqlNoSQLInjections } from "./rules/no-sql-injections/mysql/_rule";
 import { pgNoSQLInjections } from "./rules/no-sql-injections/pg/_rule";
+import { noNodeUnsafePathTraversal } from "./rules/no-unsafe-path-traversal/node/_rule";
 import { noPackageVulnerableDependencies } from "./rules/no-vulnerable-dependencies/package/_rule";
 import { noUniversalVulnerableDependencies } from "./rules/no-vulnerable-dependencies/universal/_rule";
 import { noBrowserXSSRule } from "./rules/no-xss/browser/_rule";
@@ -10,6 +11,7 @@ import { noEjsXSSRule } from "./rules/no-xss/ejs/_rule";
 import { noReactXSSRule } from "./rules/no-xss/react/_rule";
 
 export const rules = {
+  "node/no-unsafe-path-traversal": noNodeUnsafePathTraversal,
   "browser/no-xss": noBrowserXSSRule,
   "react/no-xss": noReactXSSRule,
   "ejs/no-xss": noEjsXSSRule,
@@ -26,6 +28,7 @@ export const configs = {
   recommended: {
     extends: [
       "plugin:security-rules/browser",
+      "plugin:security-rules/node",
       "plugin:security-rules/react",
       "plugin:security-rules/ejs",
       "plugin:security-rules/universal",
@@ -39,6 +42,12 @@ export const configs = {
     plugins: ["security-rules"],
     rules: {
       "security-rules/browser/no-xss": ["error"],
+    },
+  },
+  node: {
+    plugins: ["security-rules"],
+    rules: {
+      "security-rules/node/no-unsafe-path-traversal": ["error"],
     },
   },
   react: {
