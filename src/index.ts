@@ -1,7 +1,7 @@
 import { mysqlNoHardcodedCredentials } from "./rules/no-hardcoded-credentials/mysql/_rule";
 import { pgNoHardcodedCredentials } from "./rules/no-hardcoded-credentials/pg/_rule";
 import { uniNoHardcodedCredentials } from "./rules/no-hardcoded-credentials/universal/_rule";
-import { cipherNoInsecureCiphers } from "./rules/no-insecure-ciphers/cipher/_rule";
+import { cipherNoInsecureCiphers } from "./rules/no-insecure-ciphers/node/_rule";
 import { mysqlNoSQLInjections } from "./rules/no-sql-injections/mysql/_rule";
 import { pgNoSQLInjections } from "./rules/no-sql-injections/pg/_rule";
 import { noNodeUnsafePathTraversal } from "./rules/no-unsafe-path-traversal/node/_rule";

@@ -69,6 +69,9 @@ export function isSourceSafe(
           return { halt: true };
         }
       },
+      onFinished: (g) => {
+        console.log(g);
+      },
     })
   );
 
