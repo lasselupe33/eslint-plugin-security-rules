@@ -25,7 +25,7 @@ export type HandlingContext = {
 const createRule = RuleCreator(resolveDocsRoute);
 
 export const cipherNoInsecureCiphers = createRule<never[], MessageIds>({
-  name: "cipher/no-insecure-ciphers",
+  name: "node/no-insecure-ciphers",
   defaultOptions: [],
   meta: {
     type: "problem",

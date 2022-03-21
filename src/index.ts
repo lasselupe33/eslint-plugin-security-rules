@@ -13,8 +13,8 @@ import { noReactXSSRule } from "./rules/no-xss/react/_rule";
 
 export const rules = {
   "node/no-unsafe-path-traversal": noNodeUnsafePathTraversal,
+  "node/no-insecure-ciphers": cipherNoInsecureCiphers,
   "browser/no-xss": noBrowserXSSRule,
-  "cipher/no-insecure-ciphers": cipherNoInsecureCiphers,
   "react/no-xss": noReactXSSRule,
   "ejs/no-xss": noEjsXSSRule,
   "universal/no-hardcoded-credentials": uniNoHardcodedCredentials,
@@ -30,7 +30,6 @@ export const configs = {
   recommended: {
     extends: [
       "plugin:security-rules/browser",
-      "plugin:security-rules/cipher",
       "plugin:security-rules/node",
       "plugin:security-rules/react",
       "plugin:security-rules/ejs",
@@ -47,16 +46,11 @@ export const configs = {
       "security-rules/browser/no-xss": ["error"],
     },
   },
-  cipher: {
-    plugins: ["security-rules"],
-    rules: {
-      "security-rules/cipher/no-insecure-ciphers": ["error"],
-    },
-  },
   node: {
     plugins: ["security-rules"],
     rules: {
       "security-rules/node/no-unsafe-path-traversal": ["error"],
+      "security-rules/node/no-insecure-ciphers": ["error"],
     },
   },
   react: {
