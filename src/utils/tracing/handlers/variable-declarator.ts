@@ -37,7 +37,7 @@ export function handleVariableDeclarator(
   } else if (isObjectPattern(variableDeclarator.id)) {
     // ... and in the case of object destructing we need to map to the correct
     // name.
-    const relevantProperty = variableDeclarator.id.properties
+    const relevantProperty = [...variableDeclarator.id.properties]
       .reverse()
       .find(
         (it) =>

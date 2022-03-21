@@ -7,6 +7,7 @@ import { resolveDocsRoute } from "../resolve-docs-route";
 
 import { traceVariable } from "./_trace-variable";
 import { makeTraceCallbacksWithTrace } from "./callbacks/with-current-trace";
+import { printTrace } from "./utils/print-trace";
 import { terminalsToSourceString } from "./utils/terminals-to-source-string";
 
 export enum MessageIds {
@@ -45,7 +46,20 @@ export const traceTestRule = createRule<[], MessageIds>({
             context,
           },
           makeTraceCallbacksWithTrace({
+            onTraceFinished: (trace) => {
+              printTrace(trace);
+            },
             onFinished: (terminalGroups) => {
+              if (!terminalGroups.length) {
+                context.report({
+                  node,
+                  messageId: MessageIds.FAILED_TRACE,
+                  data: {
+                    received: "undefined",
+                  },
+                });
+              }
+
               for (const terminals of terminalGroups) {
                 const received = terminalsToSourceString(terminals);
                 const expected = fs.readFileSync(

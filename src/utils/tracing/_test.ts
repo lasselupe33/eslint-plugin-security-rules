@@ -18,6 +18,14 @@ const ruleTester = new ESLintUtils.RuleTester({
 });
 
 ruleTester.run("tracing/test", traceTestRule, {
-  valid: [getCode(__dirname, "binary-expression")],
+  valid: [
+    getCode(__dirname, "binary-expression"),
+    getCode(__dirname, "object/simple"),
+    getCode(__dirname, "object/nested"),
+    getCode(__dirname, "object/rest-inline"),
+    getCode(__dirname, "object/rest-overwrite"),
+    getCode(__dirname, "object/rest-simple"),
+    getCode(__dirname, "object/without-path"),
+  ],
   invalid: [],
 });

@@ -3,6 +3,7 @@
 # Build artefacts
 **/node_modules/
 **/lib/
+repos/
 **/generated-*/
 *.tsbuildinfo
 dummy/*
