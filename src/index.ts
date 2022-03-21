@@ -4,6 +4,7 @@ import { uniNoHardcodedCredentials } from "./rules/no-hardcoded-credentials/univ
 import { cipherNoInsecureCiphers } from "./rules/no-insecure-ciphers/cipher/_rule";
 import { mysqlNoSQLInjections } from "./rules/no-sql-injections/mysql/_rule";
 import { pgNoSQLInjections } from "./rules/no-sql-injections/pg/_rule";
+import { noNodeUnsafePathTraversal } from "./rules/no-unsafe-path-traversal/node/_rule";
 import { noPackageVulnerableDependencies } from "./rules/no-vulnerable-dependencies/package/_rule";
 import { noUniversalVulnerableDependencies } from "./rules/no-vulnerable-dependencies/universal/_rule";
 import { noBrowserXSSRule } from "./rules/no-xss/browser/_rule";
@@ -11,6 +12,7 @@ import { noEjsXSSRule } from "./rules/no-xss/ejs/_rule";
 import { noReactXSSRule } from "./rules/no-xss/react/_rule";
 
 export const rules = {
+  "node/no-unsafe-path-traversal": noNodeUnsafePathTraversal,
   "browser/no-xss": noBrowserXSSRule,
   "cipher/no-insecure-ciphers": cipherNoInsecureCiphers,
   "react/no-xss": noReactXSSRule,
@@ -29,6 +31,7 @@ export const configs = {
     extends: [
       "plugin:security-rules/browser",
       "plugin:security-rules/cipher",
+      "plugin:security-rules/node",
       "plugin:security-rules/react",
       "plugin:security-rules/ejs",
       "plugin:security-rules/universal",
@@ -48,6 +51,12 @@ export const configs = {
     plugins: ["security-rules"],
     rules: {
       "security-rules/cipher/no-insecure-ciphers": ["error"],
+    },
+  },
+  node: {
+    plugins: ["security-rules"],
+    rules: {
+      "security-rules/node/no-unsafe-path-traversal": ["error"],
     },
   },
   react: {

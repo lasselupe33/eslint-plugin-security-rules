@@ -1,7 +1,7 @@
-import { Node } from "@typescript-eslint/types/dist/ast-spec";
 import {
   TSNode,
   TSToken,
+  TSESTree,
 } from "@typescript-eslint/typescript-estree/dist/ts-estree";
 import { getParserServices } from "@typescript-eslint/utils/dist/eslint-utils";
 import { RuleContext } from "@typescript-eslint/utils/dist/ts-eslint";
@@ -13,7 +13,7 @@ import { TypeChecker } from "typescript/lib/typescript";
  * performance.
  */
 interface ParserWeakMapESTreeToTSNode {
-  get(key: Node): TSNode | TSToken;
+  get(key: TSESTree.Node): TSNode | TSToken;
   has(key: unknown): boolean;
 }
 
@@ -29,16 +29,29 @@ export type TypeProgram =
     }
   | undefined;
 
+const typeProgramCache = new WeakMap<
+  RuleContext<string, unknown[]>,
+  TypeProgram
+>();
+
 export function getTypeProgram(
   context: RuleContext<string, unknown[]>
 ): TypeProgram {
+  if (typeProgramCache.has(context)) {
+    return typeProgramCache.get(context);
+  }
+
   try {
     const parserServices = getParserServices(context);
+    parserServices.program.isSourceFileDefaultLibrary;
 
-    return {
+    const typeProgram = {
       parserServices,
       checker: parserServices.program.getTypeChecker(),
     };
+
+    typeProgramCache.set(context, typeProgram);
+    return typeProgram;
   } catch (err) {
     // In case we are unable to resolve the parserServices we must assume that
     // TypeScript is not available in the current context. Hence we must

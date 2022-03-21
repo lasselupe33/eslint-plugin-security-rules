@@ -1,4 +1,4 @@
-import { Node } from "@typescript-eslint/types/dist/ast-spec";
+import { TSESTree } from "@typescript-eslint/utils";
 import { RuleContext, Scope } from "@typescript-eslint/utils/dist/ts-eslint";
 
 import {
@@ -28,7 +28,7 @@ import { visitReference } from "./visitors/reference";
 export type TraceContext = {
   context: RuleContext<string, unknown[]>;
   initialScope?: Scope.Scope;
-  node?: Node | null | undefined;
+  node?: TSESTree.Node | null | undefined;
 };
 
 export type TraceCallbacks = {

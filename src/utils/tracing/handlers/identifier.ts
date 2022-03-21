@@ -1,6 +1,7 @@
 import { TSESTree } from "@typescript-eslint/utils";
 import { findVariable } from "@typescript-eslint/utils/dist/ast-utils";
 
+import { deepMerge } from "../../deep-merge";
 import { HandlingContext } from "../types/context";
 import {
   makeConstantTerminalNode,
@@ -9,37 +10,45 @@ import {
   TraceNode,
 } from "../types/nodes";
 
+const reservedSet = new Set(["__dirname", "__filename"]);
+
 export function handleIdentifier(
   ctx: HandlingContext,
   identifier: TSESTree.Identifier
 ): TraceNode[] {
-  if (ctx.meta.forceIdentifierLiteral) {
+  const nextCtx = deepMerge(ctx, {
+    connection: {
+      astNodes: [...ctx.connection.astNodes, identifier],
+    },
+  });
+
+  if (ctx.meta.forceIdentifierLiteral || reservedSet.has(identifier.name)) {
     return [
       makeConstantTerminalNode({
-        astNodes: [...ctx.connection.astNodes, identifier],
+        astNodes: nextCtx.connection.astNodes,
         value: identifier.name,
-        connection: ctx.connection,
-        meta: ctx.meta,
+        connection: nextCtx.connection,
+        meta: nextCtx.meta,
       }),
     ];
   }
 
-  const variable = findVariable(ctx.scope, identifier);
+  const variable = findVariable(nextCtx.scope, identifier);
 
   return variable
     ? [
         makeVariableNode({
-          ...ctx,
-          astNodes: [...ctx.connection.astNodes, identifier],
+          ...nextCtx,
+          astNodes: nextCtx.connection.astNodes,
           variable,
         }),
       ]
     : [
         makeUnresolvedTerminalNode({
           reason: "Unable to resolve identifier to variable",
-          astNodes: [...ctx.connection.astNodes, identifier],
-          connection: ctx.connection,
-          meta: ctx.meta,
+          astNodes: nextCtx.connection.astNodes,
+          connection: nextCtx.connection,
+          meta: nextCtx.meta,
         }),
       ];
 }

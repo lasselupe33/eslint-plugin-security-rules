@@ -1,8 +1,11 @@
-import { Node } from "@typescript-eslint/types/dist/ast-spec";
+import { TSESTree } from "@typescript-eslint/utils";
 
 import { TypeProgram } from "./get-type-program";
 
-export function getNodeType(typeProgram: TypeProgram | undefined, node: Node) {
+export function getNodeType(
+  typeProgram: TypeProgram | undefined,
+  node: TSESTree.Node
+) {
   const tsNode = typeProgram?.parserServices.esTreeNodeToTSNodeMap.get(node);
   const type = tsNode
     ? typeProgram?.checker.getTypeAtLocation(tsNode)
@@ -19,11 +22,11 @@ export function getNodeType(typeProgram: TypeProgram | undefined, node: Node) {
     baseTypeNames:
       type
         ?.getBaseTypes()
-        ?.map((type) => type.symbol?.escapedName as unknown as string) ?? [],
+        ?.map((type) => type?.symbol?.escapedName as unknown as string) ?? [],
 
     returnTypeNames:
       returnTypes?.map(
-        (type) => type?.symbol.escapedName as unknown as string
+        (type) => type?.symbol?.escapedName as unknown as string
       ) ?? [],
 
     returnTypeBaseNames:
@@ -31,7 +34,7 @@ export function getNodeType(typeProgram: TypeProgram | undefined, node: Node) {
         ?.flatMap((type) =>
           type
             ?.getBaseTypes()
-            ?.map((type) => type.symbol.escapedName as unknown as string)
+            ?.map((type) => type?.symbol?.escapedName as unknown as string)
         )
         .filter((it): it is string => !!it) ?? [],
   };

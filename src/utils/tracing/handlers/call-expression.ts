@@ -3,7 +3,8 @@ import { getInnermostScope } from "@typescript-eslint/utils/dist/ast-utils";
 
 import { isIdentifier } from "../../ast/guards";
 import { deepMerge } from "../../deep-merge";
-import { handleOverrides } from "../overrides/calls";
+import { handleBrowserOverrides } from "../overrides/browser";
+import { handleNodeOverrides } from "../overrides/node";
 import { HandlingContext } from "../types/context";
 import { TraceNode } from "../types/nodes";
 
@@ -22,24 +23,25 @@ export function handleCallExpression(
     },
   });
 
-  // In case overrides (of e.g. native API's such as arr.join()) has been
-  // supplied, then we return these immediately.
-  const overrides = handleOverrides(nextCtx, callExpression);
-
-  if (overrides) {
-    return overrides;
-  }
-
   const calleeIdentifiers = handleNode(
     deepMerge(nextCtx, {
       connection: { astNodes: [] },
       meta: {
-        forceIdentifierLiteral: true,
         memberPath: [],
       },
     }),
     callExpression.callee
   );
+
+  // In case overrides (of e.g. native API's such as arr.join()) has been
+  // supplied, then we return these immediately.
+  const overrides =
+    handleNodeOverrides(nextCtx, callExpression, calleeIdentifiers) ??
+    handleBrowserOverrides(nextCtx, callExpression);
+
+  if (overrides) {
+    return overrides;
+  }
 
   return calleeIdentifiers.flatMap((it) => {
     const identifierAstNode = it?.astNodes[it.astNodes.length - 1];

@@ -3,10 +3,8 @@ import { RuleContext } from "@typescript-eslint/utils/dist/ts-eslint";
 
 import { traceVariable } from "../../../../utils/tracing/_trace-variable";
 import { makeTraceGenerator } from "../../../../utils/tracing/callbacks/generate-traces";
-import {
-  isConstantTerminalNode,
-  TraceNode,
-} from "../../../../utils/tracing/types/nodes";
+import { Trace } from "../../../../utils/tracing/callbacks/with-current-trace";
+import { isConstantTerminalNode } from "../../../../utils/tracing/types/nodes";
 
 import { CallExpressionSink } from "./types";
 
@@ -33,7 +31,7 @@ function validateIfPredicate(
     return true;
   }
 
-  const traces: TraceNode[][] = [];
+  const traces: Trace[] = [];
 
   // We use our variable tracer to determine all possible names that the value
   // we need to check against can take.

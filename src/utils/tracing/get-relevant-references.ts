@@ -1,8 +1,8 @@
-import { Node } from "@typescript-eslint/types/dist/ast-spec";
+import { TSESTree } from "@typescript-eslint/utils";
 import { Scope } from "@typescript-eslint/utils/dist/ts-eslint";
 
 export type WriteableReference = Omit<Scope.Reference, "writeExpr"> & {
-  writeExpr: Node;
+  writeExpr: TSESTree.Node;
 };
 
 export function getRelevantReferences(

@@ -16,5 +16,6 @@ export function getCode(dirname: string, name: string) {
   return {
     code: fs.readFileSync(resolvedPath, "utf-8"),
     filename: resolvedPath,
+    name,
   };
 }

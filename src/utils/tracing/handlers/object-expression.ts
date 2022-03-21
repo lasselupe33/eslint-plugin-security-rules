@@ -6,11 +6,17 @@ import {
   isSpreadElement,
 } from "../../ast/guards";
 import { deepMerge } from "../../deep-merge";
+import { traceVariable } from "../_trace-variable";
+import { makeTraceCallbacksWithTrace } from "../callbacks/with-current-trace";
 import { getNodeName } from "../get-node-name";
 import { HandlingContext } from "../types/context";
 import {
+  isNodeTerminalNode,
+  isTerminalNode,
+  isUnresolvedTerminalNode,
   makeNodeTerminalNode,
   makeUnresolvedTerminalNode,
+  NodeTerminalNode,
   TraceNode,
 } from "../types/nodes";
 
@@ -48,9 +54,9 @@ export function handleObjectExpression(
     ];
   }
 
-  const targetProperty = memberPath.pop() as string;
+  const targetProperty = memberPath.pop();
 
-  for (const property of objectExpression.properties.reverse()) {
+  for (const property of [...objectExpression.properties].reverse()) {
     if (isProperty(property) || isMethodDefinition(property)) {
       const propertyName = getNodeName(property.key);
 
@@ -58,8 +64,47 @@ export function handleObjectExpression(
         return handleNode(nextCtx, property.value);
       }
     } else if (isSpreadElement(property)) {
-      nextCtx.meta.memberPath.push(targetProperty);
-      return handleNode(nextCtx, property.argument);
+      const objects: (TraceNode | undefined)[] = [];
+
+      // We need to trace to the next available object and follow that in case
+      // we've encountered a spread element
+      traceVariable(
+        {
+          node: property.argument,
+          context: nextCtx.ruleContext,
+        },
+        makeTraceCallbacksWithTrace({
+          onTraceFinished: (trace) => {
+            const finalNode = trace[trace.length - 1];
+
+            if (isTerminalNode(finalNode)) {
+              objects.push(finalNode);
+            }
+          },
+        })
+      );
+
+      const matches = objects
+        .filter((it): it is NodeTerminalNode => isNodeTerminalNode(it))
+        .flatMap(
+          (object) =>
+            handleNode(
+              deepMerge(nextCtx, {
+                meta: {
+                  memberPath: [...nextCtx.meta.memberPath, targetProperty],
+                },
+              }),
+              object.astNode
+            )
+          // Remove unresolved spread nodes. These may occur since we cannot be
+          // certain on which spread object our target property lives, and thus
+          // we remove the spread elements that did not provide a match.
+        )
+        .filter((it) => !isUnresolvedTerminalNode(it));
+
+      if (matches.length > 0) {
+        return matches;
+      }
     }
   }
 
