@@ -56,7 +56,10 @@ export function handleCallExpression(
     return handleNode(
       deepMerge(nextCtx, {
         connection: {
-          astNodes: [...nextCtx.connection.astNodes, ...(it?.astNodes ?? [])],
+          astNodes: [
+            ...nextCtx.connection.astNodes,
+            ...(it?.astNodes.slice(0, -2) ?? []),
+          ],
         },
         meta: {
           memberPath: [

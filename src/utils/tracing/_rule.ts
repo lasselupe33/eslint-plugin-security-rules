@@ -27,7 +27,7 @@ export const traceTestRule = createRule<[], MessageIds>({
     fixable: "code",
     messages: {
       [MessageIds.FAILED_TRACE]:
-        "Failed to receive expected output. Got '{{ received }}'",
+        "Failed to receive expected output. Got '{{ received }}, expected {{ expected }}'",
     },
     docs: {
       description: "Internal testing of the trace algorithm",
@@ -95,6 +95,7 @@ export const traceTestRule = createRule<[], MessageIds>({
                     messageId: MessageIds.FAILED_TRACE,
                     data: {
                       received,
+                      expected,
                     },
                   });
                 }

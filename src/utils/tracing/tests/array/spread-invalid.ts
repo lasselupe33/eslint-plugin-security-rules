@@ -1,5 +1,12 @@
+/**
+ * In case we cannot properly determine the value of the given index then the
+ * whole array should be traced
+ */
+
+const arrA = ["aVal", "bVal"];
+// @ts-expect-error Purposely invalid code
 const arrB = [...arrA, "cVal", ...invalid, ...["eVal", "fVal"]];
 
-document.body.innerHTML = arrB[4];
+const start = arrB[4];
 
 export {};
