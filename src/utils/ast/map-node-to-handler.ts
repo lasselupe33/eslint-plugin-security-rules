@@ -1,4 +1,4 @@
-import { Node, AST_NODE_TYPES } from "@typescript-eslint/types/dist/ast-spec";
+import { AST_NODE_TYPES, TSESTree } from "@typescript-eslint/utils";
 
 import { warnOnce } from "../warn-once";
 
@@ -15,13 +15,13 @@ export function makeMapNodeToHandler(
     Context extends Record<string, unknown>,
     ReturnType
   >(
-    node: Node | null | undefined,
+    node: TSESTree.Node | null | undefined,
     callbacks: {
-      fallback?: (ctx: Context, node: Node) => ReturnType;
+      fallback?: (ctx: Context, node: TSESTree.Node) => ReturnType;
     } & {
       [Type in AST_NODE_TYPES]?: (
         ctx: Context,
-        node: Node & { type: Type }
+        node: TSESTree.Node & { type: Type }
       ) => ReturnType;
     },
     ctx: Context | undefined = undefined

@@ -1,7 +1,7 @@
-import { Node } from "@typescript-eslint/types/dist/ast-spec";
 import {
   TSNode,
   TSToken,
+  TSESTree,
 } from "@typescript-eslint/typescript-estree/dist/ts-estree";
 import { getParserServices } from "@typescript-eslint/utils/dist/eslint-utils";
 import { RuleContext } from "@typescript-eslint/utils/dist/ts-eslint";
@@ -13,7 +13,7 @@ import { TypeChecker } from "typescript/lib/typescript";
  * performance.
  */
 interface ParserWeakMapESTreeToTSNode {
-  get(key: Node): TSNode | TSToken;
+  get(key: TSESTree.Node): TSNode | TSToken;
   has(key: unknown): boolean;
 }
 

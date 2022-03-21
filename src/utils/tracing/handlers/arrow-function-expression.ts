@@ -1,4 +1,3 @@
-import { ReturnStatement } from "@typescript-eslint/types/dist/ast-spec";
 import { TSESTree } from "@typescript-eslint/utils";
 import { getInnermostScope } from "@typescript-eslint/utils/dist/ast-utils";
 
@@ -33,7 +32,7 @@ export function handleArrowFunctionExpression(
   const returnStatements = !isBlockStatement(arrowFunctionExpression.body)
     ? [arrowFunctionExpression.body]
     : arrowFunctionExpression.body.body.filter(
-        (node): node is ReturnStatement => isReturnStatement(node)
+        (node): node is TSESTree.ReturnStatement => isReturnStatement(node)
       );
 
   return returnStatements.flatMap((returnStatement) =>
