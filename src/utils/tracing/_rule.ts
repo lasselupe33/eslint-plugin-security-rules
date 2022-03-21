@@ -60,12 +60,32 @@ export const traceTestRule = createRule<[], MessageIds>({
                 });
               }
 
-              for (const terminals of terminalGroups) {
-                const received = terminalsToSourceString(terminals);
-                const expected = fs.readFileSync(
+              const expectedStrings = fs
+                .readFileSync(
                   context.getFilename().replace(/\.[^.]*$/, ".expected"),
                   "utf8"
-                );
+                )
+                .split("\n");
+
+              if (terminalGroups.length !== expectedStrings.length) {
+                context.report({
+                  node,
+                  messageId: MessageIds.FAILED_TRACE,
+                  data: {
+                    received: "expected vs. output length mismatch",
+                  },
+                });
+              }
+
+              for (let i = 0; i < terminalGroups.length; i++) {
+                const terminals = terminalGroups[i];
+                const expected = expectedStrings[i];
+
+                if (!terminals || !expected) {
+                  continue;
+                }
+
+                const received = terminalsToSourceString(terminals);
 
                 if (received !== expected) {
                   context.report({

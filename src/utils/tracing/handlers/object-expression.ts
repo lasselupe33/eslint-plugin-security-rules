@@ -55,7 +55,6 @@ export function handleObjectExpression(
   }
 
   const targetProperty = memberPath.pop();
-  const spreadNodes: TraceNode[] = [];
 
   for (const property of [...objectExpression.properties].reverse()) {
     if (isProperty(property) || isMethodDefinition(property)) {
@@ -85,10 +84,10 @@ export function handleObjectExpression(
         })
       );
 
-      spreadNodes.push(
-        ...objects
-          .filter((it): it is NodeTerminalNode => isNodeTerminalNode(it))
-          .flatMap((object) =>
+      const matches = objects
+        .filter((it): it is NodeTerminalNode => isNodeTerminalNode(it))
+        .flatMap(
+          (object) =>
             handleNode(
               deepMerge(nextCtx, {
                 meta: {
@@ -97,16 +96,16 @@ export function handleObjectExpression(
               }),
               object.astNode
             )
-          )
-      );
-    }
-  }
+          // Remove unresolved spread nodes. These may occur since we cannot be
+          // certain on which spread object our target property lives, and thus
+          // we remove the spread elements that did not provide a match.
+        )
+        .filter((it) => !isUnresolvedTerminalNode(it));
 
-  if (spreadNodes.length > 0) {
-    // Remove unresolved spread nodes. These may occur since we cannot be
-    // certain on which spread object our target property lives, and thus we
-    // remove the spread elements that did not provide a match.
-    return spreadNodes.filter((it) => !isUnresolvedTerminalNode(it));
+      if (matches.length > 0) {
+        return matches;
+      }
+    }
   }
 
   // We should not be able to get here, but if we do, then resolve as a

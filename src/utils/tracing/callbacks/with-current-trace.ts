@@ -108,6 +108,13 @@ export function makeTraceCallbacksWithTrace(
   function onFinished() {
     const finalNode = currentTrace[currentTrace.length - 1];
     if (isTerminalNode(finalNode)) {
+      if (
+        terminalGroups[terminalInsertionIndex] &&
+        finalNode.connection.flags.has(ConnectionFlags.REASSIGN)
+      ) {
+        terminalInsertionIndex++;
+      }
+
       if (!terminalGroups[terminalInsertionIndex]) {
         terminalGroups[terminalInsertionIndex] = [];
       }
