@@ -13,9 +13,10 @@ import { printTrace } from "./tracing/utils/print-trace";
 
 export function getIdentifierImportModule(
   context: Readonly<TSESLint.RuleContext<string, unknown[]>>,
+  functionName: string[],
   node?: TSESTree.Node
-): string[] {
-  const result: string[] = [];
+): [string, boolean][] {
+  const result: [string, boolean][] = [];
 
   if (!node) {
     return result;
@@ -28,6 +29,7 @@ export function getIdentifierImportModule(
     },
     makeTraceCallbacksWithTrace({
       onTraceFinished: (trace) => {
+        printTrace(trace);
         const finalTraceNode = trace[trace.length - 1];
         const finalASTNode =
           finalTraceNode?.astNodes[finalTraceNode.astNodes.length - 1];
@@ -38,7 +40,13 @@ export function getIdentifierImportModule(
             isImportDeclaration(finalASTNode) &&
             isLiteral(finalASTNode.source)
           ) {
-            result.push(finalASTNode.source.value);
+            let matchedFunction = false;
+            for (const f of functionName) {
+              if (finalTraceNode.imported === f) {
+                matchedFunction = true;
+              }
+            }
+            result.push([finalASTNode.source.value, matchedFunction]);
           }
         }
       },
