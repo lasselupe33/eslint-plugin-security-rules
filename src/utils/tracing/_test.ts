@@ -19,8 +19,19 @@ const ruleTester = new ESLintUtils.RuleTester({
 
 ruleTester.run("tracing/test", traceTestRule, {
   valid: [
-    getCode(__dirname, "binary-expression"),
     getCode(__dirname, "reassign"),
+
+    getCode(__dirname, "array/simple"),
+    getCode(__dirname, "array/nested"),
+    getCode(__dirname, "array/spread-simple"),
+    getCode(__dirname, "array/spread-invalid"),
+    getCode(__dirname, "array/complex-1"),
+    getCode(__dirname, "array/complex-2"),
+
+    getCode(__dirname, "expression/unary"),
+    getCode(__dirname, "expression/binary"),
+    getCode(__dirname, "expression/logical"),
+    getCode(__dirname, "expression/sequence"),
 
     getCode(__dirname, "object/simple"),
     getCode(__dirname, "object/nested"),

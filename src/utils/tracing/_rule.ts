@@ -65,14 +65,16 @@ export const traceTestRule = createRule<[], MessageIds>({
                   context.getFilename().replace(/\.[^.]*$/, ".expected"),
                   "utf8"
                 )
-                .split("\n");
+                .split("\n")
+                .map((it) => it.trim())
+                .filter((it) => !!it);
 
               if (terminalGroups.length !== expectedStrings.length) {
                 context.report({
                   node,
                   messageId: MessageIds.FAILED_TRACE,
                   data: {
-                    received: "expected vs. output length mismatch",
+                    received: `expected (${expectedStrings.length}) vs. output length (${terminalGroups.length}) mismatch`,
                   },
                 });
               }

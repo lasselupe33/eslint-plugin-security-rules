@@ -27,6 +27,7 @@ import { handleNewExpression } from "./new-expression";
 import { handleObjectExpression } from "./object-expression";
 import { handleProperty } from "./property";
 import { handleSequenceExpression } from "./sequence-expression";
+import { handleSpreadElement } from "./spread-element";
 import { handleTaggedTemplateExpression } from "./tagged-template-expression";
 import { handleTemplateElement } from "./template-element";
 import { handleTemplateLiteral } from "./template-literal";
@@ -70,6 +71,7 @@ export function handleNode(
       [AST_NODE_TYPES.ObjectExpression]: handleObjectExpression,
       [AST_NODE_TYPES.Property]: handleProperty,
       [AST_NODE_TYPES.SequenceExpression]: handleSequenceExpression,
+      [AST_NODE_TYPES.SpreadElement]: handleSpreadElement,
       // [AST_NODE_TYPES.Super]: handleSuper // Do we want this?
       [AST_NODE_TYPES.TaggedTemplateExpression]: handleTaggedTemplateExpression,
       [AST_NODE_TYPES.TemplateElement]: handleTemplateElement,
