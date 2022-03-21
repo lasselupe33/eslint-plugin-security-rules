@@ -7,12 +7,13 @@ export function isPackage(
   packageName: string,
   id?: TSESTree.Identifier
 ): boolean {
-  const importModules = getIdentifierImportModule(context, id);
+  const importModules = getIdentifierImportModule(context, [], id);
 
-  for (const moduleName of importModules) {
-    if (moduleName === packageName) {
+  for (const [name] of importModules) {
+    if (name === packageName) {
       return true;
     }
   }
+
   return false;
 }
