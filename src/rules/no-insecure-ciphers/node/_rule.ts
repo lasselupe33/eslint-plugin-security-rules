@@ -1,7 +1,7 @@
 /**
  * Progress
- *  [ ] Detection
- *  [ ] Automatic fix / Suggestions
+ *  [x] Detection
+ *  [x] Automatic fix / Suggestions
  *  [ ] Reduction of false positives
  *  [ ] Fulfilling unit testing
  *  [ ] Extensive documentation
@@ -11,10 +11,12 @@
 import { TSESLint } from "@typescript-eslint/utils";
 import { RuleCreator } from "@typescript-eslint/utils/dist/eslint-utils";
 
+import { isLiteral } from "../../../utils/ast/guards";
 import { extractIdentifier } from "../../../utils/extract-identifier";
 import { isPackage } from "../../../utils/is-package";
 import { isPackageAndFunction } from "../../../utils/is-package-and-function";
 import { resolveDocsRoute } from "../../../utils/resolve-docs-route";
+import { isAlgorithmSafe } from "../utils/is-algorithm-safe";
 
 import { MessageIds, errorMessages } from "./utils/messages";
 
@@ -46,9 +48,6 @@ export const cipherNoInsecureCiphers = createRule<never[], MessageIds>({
 
         const functionName = "createCipheriv";
         const moduleName = "crypto";
-        let functionId = idRight;
-
-        // console.log(idLeft?.name, idRight?.name);
 
         const didMatchIdentifierName = idRight?.name === functionName;
 
@@ -59,7 +58,6 @@ export const cipherNoInsecureCiphers = createRule<never[], MessageIds>({
           ) {
             return;
           }
-          functionId = idLeft;
         } else if (
           !didMatchIdentifierName ||
           !isPackage(context, moduleName, idLeft)
@@ -67,7 +65,46 @@ export const cipherNoInsecureCiphers = createRule<never[], MessageIds>({
           return;
         }
 
-        // console.log("Got a valid function called: ", functionId?.name);
+        // Assuming algorithm is always located in the first arg
+        const alg = node.arguments[0];
+
+        if (!alg) {
+          return;
+        }
+
+        const [isAlgSafe, troubleNode] = isAlgorithmSafe(context, alg);
+
+        if (isAlgSafe || !troubleNode || !isLiteral(troubleNode)) {
+          return;
+        }
+
+        context.report({
+          node: troubleNode,
+          messageId: MessageIds.INSECURE_CIPHER,
+          suggest: [
+            {
+              messageId: MessageIds.SAFE_ALGORITHM_FIX_128,
+              data: { alg: troubleNode.value },
+              fix: (fixer: TSESLint.RuleFixer) => {
+                return fixer.replaceText(troubleNode, '"AES-128-GCM"');
+              },
+            },
+            {
+              messageId: MessageIds.SAFE_ALGORITHM_FIX_192,
+              data: { alg: troubleNode.value },
+              fix: (fixer: TSESLint.RuleFixer) => {
+                return fixer.replaceText(troubleNode, '"AES-192-GCM"');
+              },
+            },
+            {
+              messageId: MessageIds.SAFE_ALGORITHM_FIX_256,
+              data: { alg: troubleNode.value },
+              fix: (fixer: TSESLint.RuleFixer) => {
+                return fixer.replaceText(troubleNode, '"AES-256-GCM"');
+              },
+            },
+          ],
+        });
       },
     };
   },
