@@ -1,13 +1,17 @@
 export enum MessageIds {
   INSECURE_CIPHER = "insecure-cipher",
-  NOT_RECOMMENDED_CIPHER = "not-recommended-cipher",
-  SAFE_ALGORITHM_FIX = "safe-algorithm-fix",
+  SAFE_ALGORITHM_FIX_128 = "safe-algorithm-fix-128",
+  SAFE_ALGORITHM_FIX_192 = "safe-algorithm-fix-192",
+  SAFE_ALGORITHM_FIX_256 = "safe-algorithm-fix-256",
 }
 
 export const errorMessages: Record<MessageIds, string> = {
   [MessageIds.INSECURE_CIPHER]:
     "The cipher algorithm is insecure and should not be used.",
-  [MessageIds.NOT_RECOMMENDED_CIPHER]:
-    "The cipher algorithm is not recommended as safer alternatives exist. Use these instead.",
-  [MessageIds.SAFE_ALGORITHM_FIX]: "Replace algorithm with AES-256-CBC",
+  [MessageIds.SAFE_ALGORITHM_FIX_128]:
+    "Replace {{alg}} with AES-128-GCM (Requires key of size 16 bytes)",
+  [MessageIds.SAFE_ALGORITHM_FIX_192]:
+    "Replace {{alg}} with AES-192-GCM (Requires key of size 24 bytes)",
+  [MessageIds.SAFE_ALGORITHM_FIX_256]:
+    "Replace {{alg}} with AES-256-GCM (Requires key of size 32 bytes)",
 };
