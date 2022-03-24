@@ -7,9 +7,13 @@ import { Scope } from "@typescript-eslint/utils/dist/ts-eslint";
 const isNodeOfType =
   <NodeType extends AST_NODE_TYPES>(nodeType: NodeType) =>
   (
-    node: TSESTree.Node | null | undefined
+    node: TSESTree.Node | unknown | null | undefined
   ): node is TSESTree.Node & { type: NodeType } =>
-    node?.type === nodeType;
+    typeof node === "object" &&
+    node != null &&
+    "type" in node &&
+    // @ts-expect-error type exist due to previous check
+    node.type === nodeType;
 
 export const isIdentifier = isNodeOfType(AST_NODE_TYPES.Identifier);
 export const isTaggedTemplateExpression = isNodeOfType(
@@ -95,6 +99,10 @@ export const isJSXNamespacedName = isNodeOfType(
 // Custom guards
 
 export const isArrayPattern = isNodeOfType(AST_NODE_TYPES.ArrayPattern);
+
+export function isNode(value: unknown): value is TSESTree.Node {
+  return !value;
+}
 
 export const isParameter = (
   def?: Scope.Definition | null

@@ -2,19 +2,17 @@ import { TSESLint, TSESTree } from "@typescript-eslint/utils";
 import { RuleCreator } from "@typescript-eslint/utils/dist/eslint-utils";
 
 import {
-  isArrayExpression,
-  isLiteral,
-  isTemplateElement,
-  isTemplateLiteral,
+  isArrowFunctionExpression,
+  isCallExpression,
 } from "../../../utils/ast/guards";
 import { extractIdentifier } from "../../../utils/extract-identifier";
 import { isPackage } from "../../../utils/is-package";
 import { resolveDocsRoute } from "../../../utils/resolve-docs-route";
-import { extractQuery } from "../utils/extract-query";
+import { extractValuesArray } from "../utils/extract-values-array";
 import { MessageIds, errorMessages } from "../utils/messages";
 
-import { handleTemplateLiteral } from "./handlers/handle-template-literal";
 import { countPlaceholders } from "./utils/count-placeholders";
+import { isQuerySafe } from "./utils/is-query-safe";
 
 /**
  * Progress
@@ -62,96 +60,89 @@ export const mysqlNoSQLInjections = createRule<never[], MessageIds>({
         if (
           !didMatchIdentifierName ||
           !query ||
+          !idRight?.parent?.parent ||
+          !isCallExpression(idRight.parent.parent) ||
           !isPackage(context, "mysql", idLeft)
         ) {
           return;
         }
 
-        const queryLiteral = extractQuery(context, query, "sql");
-
-        if (!isTemplateLiteral(queryLiteral)) {
-          return;
-        }
-
-        const templateLiteralArray = handleTemplateLiteral(
+        const [isCurrentQuerySafe, maybeNode, maybeQuery] = isQuerySafe(
           { ruleContext: context },
-          queryLiteral
+          query
         );
 
-        // If it's a template literal, we want to check that it actually
-        // uses template expressions. If it's just a string, it has the length
-        // one, even though it spans multiple lines.
-        if (templateLiteralArray.length <= 1) {
+        // Bail out early
+        if (isCurrentQuerySafe || !maybeNode) {
           return;
         }
-        let indexCount = 0;
-        for (const [arrayNode, isEscaped] of templateLiteralArray) {
-          if (
-            arrayNode &&
-            isEscaped !== undefined &&
-            !isTemplateElement(arrayNode) &&
-            !isEscaped
-          ) {
-            indexCount++;
-            context.report({
-              node: arrayNode,
-              messageId: MessageIds.VULNERABLE_QUERY,
-              data: { arrayNode },
-              suggest: [
-                {
-                  messageId: MessageIds.PARAMTERIZED_FIX_VALUES,
-                  fix: (fixer: TSESLint.RuleFixer) =>
-                    paramterizeQueryFix(
-                      { ruleContext: context },
-                      fixer,
-                      arrayNode,
-                      node,
-                      countPlaceholders(templateLiteralArray, indexCount),
-                      false
-                    ),
-                },
-                {
-                  messageId: MessageIds.PARAMTERIZED_FIX_IDENTIFIERS,
-                  fix: (fixer: TSESLint.RuleFixer) =>
-                    paramterizeQueryFix(
-                      { ruleContext: context },
-                      fixer,
-                      arrayNode,
-                      node,
-                      countPlaceholders(templateLiteralArray, indexCount),
-                      true
-                    ),
-                },
-                {
-                  messageId: MessageIds.ESCAPE_FIX_VALUES,
-                  fix: (fixer: TSESLint.RuleFixer) =>
-                    escapeQueryValuesFix(fixer, arrayNode, idLeft),
-                },
-                {
-                  messageId: MessageIds.ESCAPE_FIX_IDENTIFIERS,
-                  fix: (fixer: TSESLint.RuleFixer) =>
-                    escapeQueryIdentifiersFix(fixer, arrayNode, idLeft),
-                },
-              ],
-            });
-          }
+
+        let valuesArray: TSESTree.ArrayExpression | undefined = undefined;
+
+        const queryValues = idRight?.parent?.parent.arguments[1];
+
+        if (!isArrowFunctionExpression(queryValues) && queryValues) {
+          valuesArray = extractValuesArray(
+            { ruleContext: context },
+            queryValues
+          );
         }
+
+        const totalPlaceholders = countPlaceholders(maybeQuery);
+
+        context.report({
+          node: maybeNode,
+          messageId: MessageIds.VULNERABLE_QUERY,
+          data: { maybeNode },
+          suggest: [
+            {
+              messageId: MessageIds.ESCAPE_FIX_VALUES,
+              fix: (fixer: TSESLint.RuleFixer) =>
+                escapeQueryValuesFix(fixer, maybeNode, idLeft),
+            },
+            {
+              messageId: MessageIds.ESCAPE_FIX_IDENTIFIERS,
+              fix: (fixer: TSESLint.RuleFixer) =>
+                escapeQueryIdentifiersFix(fixer, maybeNode, idLeft),
+            } /* 
+            // @TODO: Count numbers of occourences of an identifier
+            // in the query to place it correctly in the array.
+            {
+              messageId: MessageIds.PARAMTERIZED_FIX_VALUES,
+              fix: (fixer: TSESLint.RuleFixer) =>
+                paramterizeQueryFix(
+                  { ruleContext: context },
+                  fixer,
+                  totalPlaceholders,
+                  query,
+                  false,
+                  valuesArray,
+                  maybeNode
+                ),
+            },
+            {
+              messageId: MessageIds.PARAMTERIZED_FIX_IDENTIFIERS,
+              fix: (fixer: TSESLint.RuleFixer) =>
+                paramterizeQueryFix(
+                  { ruleContext: context },
+                  fixer,
+                  totalPlaceholders,
+                  query,
+                  true,
+                  valuesArray,
+                  maybeNode
+                ),
+            }, */,
+          ],
+        });
       },
     };
   },
 });
 
-export function report(node: TSESTree.Node, ctx: HandlingContext) {
-  ctx.ruleContext.report({
-    node,
-    messageId: MessageIds.VULNERABLE_QUERY,
-    data: { node },
-  });
-}
-
 function* escapeQueryValuesFix(
   fixer: TSESLint.RuleFixer,
-  node: TSESTree.Expression,
+  node: TSESTree.Node,
   escapeIdentifier: TSESTree.Identifier | undefined
 ): Generator<TSESLint.RuleFix> {
   if (!escapeIdentifier) {
@@ -164,7 +155,7 @@ function* escapeQueryValuesFix(
 
 function* escapeQueryIdentifiersFix(
   fixer: TSESLint.RuleFixer,
-  node: TSESTree.Expression,
+  node: TSESTree.Node,
   escapeIdentifier: TSESTree.Identifier | undefined
 ): Generator<TSESLint.RuleFix> {
   if (!escapeIdentifier) {
@@ -178,63 +169,48 @@ function* escapeQueryIdentifiersFix(
 function* paramterizeQueryFix(
   ctx: HandlingContext,
   fixer: TSESLint.RuleFixer,
-  arrayNode: TSESTree.Node,
-  node: TSESTree.CallExpression,
-  // index: number,
   totalPlaceholders: number,
-  replaceWithIdentifier: boolean
+  queryLocation: TSESTree.CallExpressionArgument,
+  identifierFix: boolean,
+  arrayNode?: TSESTree.ArrayExpression,
+  replaceNode?: TSESTree.Node
 ): Generator<TSESLint.RuleFix> {
-  const query = node.arguments[0];
-  const paramsArray = node.arguments[1];
-
-  if (!query) {
+  if (!replaceNode || !queryLocation) {
     return;
   }
-  const nodeText = ctx.ruleContext.getSourceCode().getText(arrayNode);
-  // Include the "${" characters
-  const startR = arrayNode.range[0] - 2;
-  // Include the "}" character
-  const endR = arrayNode.range[1] + 1;
 
-  if (replaceWithIdentifier) {
-    yield fixer.replaceTextRange([startR, endR], "??");
+  if (totalPlaceholders > 0 && !arrayNode) {
+    return;
+  }
+
+  // Since index starts counting from 0 and not 1, we can just set it to
+  // placeholders.
+  const index = totalPlaceholders;
+
+  const nodeText = ctx.ruleContext.getSourceCode().getText(replaceNode);
+
+  // Parameterization
+  if (identifierFix) {
+    yield fixer.replaceText(replaceNode, '"??"');
   } else {
-    yield fixer.replaceTextRange([startR, endR], "?");
+    yield fixer.replaceText(replaceNode, '"?"');
   }
 
-  if (!isArrayExpression(paramsArray) && !isLiteral(paramsArray)) {
-    yield fixer.insertTextAfter(query, ", [" + nodeText + "]");
-    return;
-  } else if (isLiteral(paramsArray)) {
-    yield fixer.replaceText(paramsArray, "[" + nodeText + "]");
-    return;
+  // No array
+  if (!arrayNode) {
+    yield fixer.insertTextAfter(queryLocation, ", [" + nodeText + "]");
   }
-
-  const paramsLength = paramsArray.elements.length;
-
-  if (paramsLength === 0) {
-    yield fixer.insertTextAfterRange([0, paramsArray.range[0] + 1], nodeText);
-  } else if (paramsLength > totalPlaceholders) {
-    const replacableNode = paramsArray.elements[totalPlaceholders];
-    if (!replacableNode) {
+  // If we need to replace an array element
+  else if (arrayNode.elements.length >= index) {
+    const elm = arrayNode.elements[index];
+    if (!elm) {
       return;
     }
-    yield fixer.replaceText(replacableNode, nodeText);
-  } else if (paramsLength === totalPlaceholders) {
-    const prevNode = paramsArray.elements[totalPlaceholders - 1];
-    if (!prevNode) {
-      return;
-    }
-    yield fixer.insertTextAfter(prevNode, ", " + nodeText);
-  } else {
-    let insertText = "";
-    const prevNode = paramsArray.elements[paramsLength - 1];
-    if (!prevNode) {
-      return;
-    }
-    for (let i = paramsLength; i < totalPlaceholders; i++) {
-      insertText += ", undefined";
-    }
-    yield fixer.insertTextAfter(prevNode, insertText + ", " + nodeText);
+    yield fixer.insertTextBefore(elm, nodeText + ", ");
+  }
+  // Existing placeholder array
+  else if (arrayNode) {
+    const rangeEnd = arrayNode.range[1] - 1;
+    yield fixer.insertTextAfterRange([0, rangeEnd], ", " + nodeText);
   }
 }
