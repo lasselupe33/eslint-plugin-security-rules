@@ -40,9 +40,14 @@ export function makeTraceCallbacksWithTrace(
 
   let terminalInsertionIndex = 0;
   const terminalGroups: TerminalNode[][] = [];
+  let didHalt = false;
 
   function onNodeVisited(node: TraceNode) {
     let toReturn = callbacks.onNodeVisited?.(currentTrace, node);
+    if (toReturn?.halt || didHalt) {
+      didHalt = true;
+      return toReturn;
+    }
 
     let prevNode = currentTrace[currentTrace.length - 1];
 
@@ -65,6 +70,10 @@ export function makeTraceCallbacksWithTrace(
       currentTrace.push(node);
     } else {
       toReturn = callbacks.onTraceFinished?.(currentTrace);
+      if (toReturn?.halt || didHalt) {
+        didHalt = true;
+        return toReturn;
+      }
 
       // Go back the trace until our new node fits the connection.
       prevNode = currentTrace.pop();
@@ -104,7 +113,9 @@ export function makeTraceCallbacksWithTrace(
       finalNode
     );
 
-    callbacks.onTraceFinished?.(currentTrace);
+    if (!didHalt) {
+      callbacks.onTraceFinished?.(currentTrace);
+    }
     callbacks.onFinished?.(terminalGroups);
   }
 

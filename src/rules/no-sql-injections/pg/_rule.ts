@@ -21,10 +21,10 @@ import {
 import { extractIdentifier } from "../../../utils/extract-identifier";
 import { isPackage } from "../../../utils/is-package";
 import { resolveDocsRoute } from "../../../utils/resolve-docs-route";
+import { extractValuesArray } from "../utils/extract-values-array";
 import { MessageIds, errorMessages } from "../utils/messages";
 
 import { countPlaceholders } from "./utils/count-placeholders";
-import { extractValuesArray } from "./utils/extract-values-array";
 import { isQuerySafe } from "./utils/is-query-safe";
 
 export type HandlingContext = {
