@@ -2,6 +2,8 @@ import fs from "fs";
 
 import resolve from "enhanced-resolve";
 
+import { sanitizePath } from "../sanitize-path";
+
 const resolver = resolve.create.sync({
   extensions: [".ts", ".tsx", ".js", ".jsx"],
 });
@@ -14,7 +16,16 @@ export function getCode(dirname: string, name: string) {
   }
 
   return {
-    code: fs.readFileSync(resolvedPath, "utf-8"),
+    code: fs.readFileSync(
+      sanitizePath(
+        {
+          baseDir: __dirname,
+          relativeOrAbsoluteRootDir: "../../../",
+        },
+        resolvedPath
+      ),
+      "utf-8"
+    ),
     filename: resolvedPath,
     name,
   };

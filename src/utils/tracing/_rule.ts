@@ -4,6 +4,7 @@ import { TSESTree } from "@typescript-eslint/utils";
 import { RuleCreator } from "@typescript-eslint/utils/dist/eslint-utils";
 
 import { resolveDocsRoute } from "../resolve-docs-route";
+import { sanitizePath } from "../sanitize-path";
 
 import { traceVariable } from "./_trace-variable";
 import { makeTraceCallbacksWithTrace } from "./callbacks/with-current-trace";
@@ -62,7 +63,13 @@ export const traceTestRule = createRule<[], MessageIds>({
 
               const expectedStrings = fs
                 .readFileSync(
-                  context.getFilename().replace(/\.[^.]*$/, ".expected"),
+                  sanitizePath(
+                    {
+                      baseDir: __dirname,
+                      relativeOrAbsoluteRootDir: "../../../",
+                    },
+                    context.getFilename().replace(/\.[^.]*$/, ".expected")
+                  ),
                   "utf8"
                 )
                 .split("\n")
@@ -74,7 +81,8 @@ export const traceTestRule = createRule<[], MessageIds>({
                   node,
                   messageId: MessageIds.FAILED_TRACE,
                   data: {
-                    received: `expected (${expectedStrings.length}) vs. output length (${terminalGroups.length}) mismatch`,
+                    received: `invalid output length (${terminalGroups.length})`,
+                    expected: `(${expectedStrings.length})`,
                   },
                 });
               }

@@ -12,6 +12,7 @@ import { JSONProperty } from "jsonc-eslint-parser/lib/parser/ast";
 import { coerce, diff, gte } from "semver";
 
 import { resolveDocsRoute } from "../../../utils/resolve-docs-route";
+import { sanitizePath } from "../../../utils/sanitize-path";
 import { Package } from "../_utils/find-relevant-packages";
 import {
   BulkAdvisoryResponse,
@@ -122,7 +123,15 @@ export const noPackageVulnerableDependencies = createRule<[], MessageIds>({
             paths: [
               {
                 path: context.getPhysicalFilename?.() ?? context.getFilename(),
-                modifiedAt: fs.statSync(pkgPath).mtimeMs,
+                modifiedAt: fs.statSync(
+                  sanitizePath(
+                    {
+                      baseDir: __dirname,
+                      relativeOrAbsoluteRootDir: "../../../../",
+                    },
+                    pkgPath
+                  )
+                ).mtimeMs,
               },
             ],
             pkg,

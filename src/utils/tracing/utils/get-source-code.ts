@@ -5,6 +5,7 @@ import { Linter, SourceCode } from "@typescript-eslint/utils/dist/ts-eslint";
 import resolve from "enhanced-resolve";
 
 import { createCache } from "../../cache";
+import { sanitizePath } from "../../sanitize-path";
 import { Meta } from "../types/context";
 
 export type NewFileSourceCode = {
@@ -54,7 +55,16 @@ function loadSourceCode(path: string, parserPath: string): SourceCode {
   }
 
   const linter = new Linter();
-  const code = readFileSync(path, "utf-8");
+  const code = readFileSync(
+    sanitizePath(
+      {
+        baseDir: __dirname,
+        relativeOrAbsoluteRootDir: "../../../../",
+      },
+      path
+    ),
+    "utf-8"
+  );
 
   // eslint-disable-next-line @typescript-eslint/no-var-requires
   linter.defineParser("parser", require(parserPath));

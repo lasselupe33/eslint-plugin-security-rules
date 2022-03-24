@@ -2,10 +2,12 @@ import { Scope } from "@typescript-eslint/utils/dist/ts-eslint";
 
 import { Connection } from "../types/connection";
 
-const MAX_ALLOWED_CYCLES = 1_000;
+const MAX_ALLOWED_CYCLES = 100;
 
-export function isCycle(connection: Connection) {
-  const encounteredMap: WeakMap<Scope.Variable, number> = new WeakMap();
+export function isCycle(
+  encounteredMap: WeakMap<Scope.Variable, number>,
+  connection: Connection
+) {
   let currentConnection: Connection | undefined = connection;
 
   while (currentConnection != null) {

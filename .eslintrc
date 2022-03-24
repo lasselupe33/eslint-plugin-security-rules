@@ -21,6 +21,13 @@
     "ecmaVersion": 2020
   },
   "rules": {
+    "security-rules/node/no-unsafe-path-traversal": ["error", {
+      "sanitation": {
+        "method": "sanitizePath",
+        "filename": "{{root}}/src/utils/sanitize-path"
+      },
+      "root": "{{root}}"
+    }],
     "spaced-comment": "warn",
     "import/no-unresolved": "off",
     "import/namespace": "off",

@@ -2,6 +2,7 @@ import fs from "fs";
 import path from "path";
 
 import { createCache } from "../../../utils/cache";
+import { sanitizePath } from "../../../utils/sanitize-path";
 
 export type Package = {
   devDependencies?: Record<string, string>;
@@ -68,7 +69,17 @@ function getPackageCacheEntry(key: string):
   }
 
   for (const { path, modifiedAt } of entry.paths) {
-    if (fs.statSync(path).mtimeMs !== modifiedAt) {
+    if (
+      fs.statSync(
+        sanitizePath(
+          {
+            baseDir: __dirname,
+            relativeOrAbsoluteRootDir: "../../../../",
+          },
+          path
+        )
+      ).mtimeMs !== modifiedAt
+    ) {
       return { invalidated: true };
     }
   }
@@ -95,12 +106,42 @@ export function findRelevantPackages(
     let pkg: Package | undefined;
 
     do {
-      if (fs.existsSync(packagePath)) {
+      if (
+        fs.existsSync(
+          sanitizePath(
+            {
+              baseDir: __dirname,
+              relativeOrAbsoluteRootDir: "../../../../",
+            },
+            packagePath
+          )
+        )
+      ) {
         paths.unshift({
           path: packagePath,
-          modifiedAt: fs.statSync(packagePath).mtimeMs,
+          modifiedAt: fs.statSync(
+            sanitizePath(
+              {
+                baseDir: __dirname,
+                relativeOrAbsoluteRootDir: "../../../../",
+              },
+              packagePath
+            )
+          ).mtimeMs,
         });
-        pkg = JSON.parse(fs.readFileSync(packagePath).toString("utf8"));
+        pkg = JSON.parse(
+          fs
+            .readFileSync(
+              sanitizePath(
+                {
+                  baseDir: __dirname,
+                  relativeOrAbsoluteRootDir: "../../../../",
+                },
+                packagePath
+              )
+            )
+            .toString("utf8")
+        );
 
         for (const dependency of remainingDependencies) {
           if (

@@ -51,6 +51,7 @@ export function traceVariable(
   }
 
   const abortedMap: WeakMap<Scope.Variable, boolean> = new WeakMap();
+  const encounteredMap: WeakMap<Scope.Variable, number> = new WeakMap();
 
   // Bootstrap the tracing queue by handling the node passed by the integration.
   const remainingVariables = handleNode(
@@ -132,7 +133,7 @@ export function traceVariable(
       meta,
     };
 
-    if (isCycle(handlingContext.connection)) {
+    if (isCycle(encounteredMap, handlingContext.connection)) {
       onNodeVisited?.(
         makeUnresolvedTerminalNode({
           reason: "Encountered cycle",

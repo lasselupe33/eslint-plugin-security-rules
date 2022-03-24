@@ -9,6 +9,7 @@ import { makeTraceCallbacksWithTrace } from "../../../utils/tracing/callbacks/wi
 import { isImportTerminalNode } from "../../../utils/tracing/types/nodes";
 import { printTrace } from "../../../utils/tracing/utils/print-trace";
 
+import { addSanitationFix } from "./_utils/add-sanitation-fix";
 import { isPathSafe } from "./_utils/is-path-safe";
 import { fsSinks } from "./data";
 
@@ -27,20 +28,31 @@ export enum MessageIds {
   ADD_SANITATION_FIX = "add-sanitation-fix",
 }
 
+export type Config = {
+  sanitation: {
+    method: string;
+    filename: `{{root}}/${string}` | "{{inplace}}" | `{{abs}}:${string}`;
+    defaultExport?: boolean;
+  };
+  root: `{{root}}` | `{{root}}/${string}` | `{{abs}}:${string}`;
+};
+
+export type RootConfig = string;
+
 const createRule = RuleCreator(resolveDocsRoute);
 
 /**
  * !!!
  */
-export const noNodeUnsafePathTraversal = createRule<any[], MessageIds>({
+export const noNodeUnsafePathTraversal = createRule<[Config], MessageIds>({
   name: "no-unsafe-path-traversal/node",
   defaultOptions: [
     {
       sanitation: {
-        package: "dompurify",
-        method: "sanitize",
-        usage: "sanitize(<% html %>, { USE_PROFILES: { html: true } })",
+        method: "sanitizePath",
+        filename: "{{inplace}}",
       },
+      root: "{{root}}",
     },
   ],
   meta: {
@@ -66,16 +78,16 @@ export const noNodeUnsafePathTraversal = createRule<any[], MessageIds>({
             type: "object",
             required: false,
             properties: {
-              package: { type: "string", required: true },
               method: { type: "string", required: true },
-              usage: { type: "string", required: false },
+              filename: { type: "string", required: true },
             },
           },
+          root: { type: "string", required: false },
         },
       },
     ],
   },
-  create: (context, [sanitationOptions]) => {
+  create: (context, [config]) => {
     return {
       CallExpression: (node) => {
         const identifier =
@@ -101,18 +113,35 @@ export const noNodeUnsafePathTraversal = createRule<any[], MessageIds>({
           return;
         }
 
-        argumentsToCheck
-          .map((argumentIndex) =>
-            isPathSafe(node.arguments[argumentIndex], { context })
-          )
-          .forEach(({ isSafe, unsafeNode }) => {
-            if (!isSafe && unsafeNode) {
-              context.report({
-                node: unsafeNode,
-                messageId: MessageIds.VULNERABLE_PATH,
-              });
-            }
+        for (const argumentIndex of argumentsToCheck) {
+          const isSafe = isPathSafe(node.arguments[argumentIndex], {
+            context,
+            config,
           });
+          const unsafeArgument = node.arguments[argumentIndex];
+          const cwd = context.getCwd?.();
+
+          if (!isSafe && unsafeArgument && cwd) {
+            context.report({
+              node: unsafeArgument,
+              messageId: MessageIds.VULNERABLE_PATH,
+              suggest: [
+                {
+                  messageId: MessageIds.ADD_SANITATION_FIX,
+                  fix(fixer) {
+                    return addSanitationFix(
+                      config,
+                      context,
+                      cwd,
+                      fixer,
+                      unsafeArgument
+                    );
+                  },
+                },
+              ],
+            });
+          }
+        }
       },
     };
   },

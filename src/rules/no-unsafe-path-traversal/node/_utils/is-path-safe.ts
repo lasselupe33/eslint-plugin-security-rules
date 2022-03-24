@@ -3,23 +3,27 @@ import { RuleContext } from "@typescript-eslint/utils/dist/ts-eslint";
 
 import { traceVariable } from "../../../../utils/tracing/_trace-variable";
 import { makeTraceCallbacksWithTrace } from "../../../../utils/tracing/callbacks/with-current-trace";
-import { isConstantTerminalNode } from "../../../../utils/tracing/types/nodes";
+import {
+  isConstantTerminalNode,
+  isImportTerminalNode,
+} from "../../../../utils/tracing/types/nodes";
 import { printTrace } from "../../../../utils/tracing/utils/print-trace";
+import { Config } from "../_rule";
 
 type Context = {
   context: RuleContext<string, unknown[]>;
+  config: Config;
 };
 
 export function isPathSafe(
   node: TSESTree.Node | undefined,
   { context }: Context
-): { isSafe: boolean; unsafeNode?: TSESTree.Node } {
+): boolean {
   if (!node) {
-    return { isSafe: true };
+    return true;
   }
 
   let isSafe = true;
-  let unsafeNode: TSESTree.Node | undefined;
 
   /**
    * Iterates through traces to determine whether or not the path has been
@@ -43,22 +47,18 @@ export function isPathSafe(
         printTrace(trace);
 
         const finalNode = trace[trace.length - 1];
-        // const hasSanitationInTrace = trace.some((node) => {
-        //   if (!isImportTerminalNode(node)) {
-        //     return false;
-        //   }
+        const hasSanitationInTrace = trace.some((node) => {
+          if (!isImportTerminalNode(node)) {
+            return false;
+          }
 
-        //   return (
-        //     node.source === options.sanitation.package &&
-        //     node.imported === options.sanitation.method
-        //   );
-        // });
+          return node.source === "sanitize-filename";
+        });
 
-        const isTraceSafe = isConstantTerminalNode(finalNode);
+        const isTraceSafe =
+          isConstantTerminalNode(finalNode) || hasSanitationInTrace;
 
         if (!isTraceSafe) {
-          unsafeNode = trace[1]?.astNodes[trace[1].astNodes.length - 1];
-
           isSafe = false;
           return { halt: true };
         }
@@ -66,5 +66,5 @@ export function isPathSafe(
     })
   );
 
-  return { isSafe, unsafeNode };
+  return isSafe;
 }

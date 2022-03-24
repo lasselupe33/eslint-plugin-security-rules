@@ -20,6 +20,7 @@ const ruleTester = new ESLintUtils.RuleTester({
 ruleTester.run("tracing/test", traceTestRule, {
   valid: [
     getCode(__dirname, "reassign"),
+    getCode(__dirname, "split"),
 
     getCode(__dirname, "array/access-invalid"),
     getCode(__dirname, "array/access-variable"),
