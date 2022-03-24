@@ -33,6 +33,19 @@ export function handleCallExpression(
     callExpression.callee
   );
 
+  // Generate parameter to argument mapping
+  for (const calleeIdentifier of calleeIdentifiers) {
+    const identifierAstNode =
+      calleeIdentifier?.astNodes[calleeIdentifier.astNodes.length - 1];
+
+    if (isIdentifier(identifierAstNode)) {
+      nextCtx.meta.parameterContext.set(identifierAstNode, {
+        scope: getInnermostScope(ctx.scope, callExpression),
+        arguments: callExpression.arguments,
+      });
+    }
+  }
+
   // In case overrides (of e.g. native API's such as arr.join()) has been
   // supplied, then we return these immediately.
   const overrides =
@@ -45,13 +58,6 @@ export function handleCallExpression(
 
   return calleeIdentifiers.flatMap((it) => {
     const identifierAstNode = it?.astNodes[it.astNodes.length - 1];
-
-    if (isIdentifier(identifierAstNode)) {
-      nextCtx.meta.parameterContext.set(identifierAstNode, {
-        scope: getInnermostScope(ctx.scope, callExpression),
-        arguments: callExpression.arguments,
-      });
-    }
 
     return handleNode(
       deepMerge(nextCtx, {

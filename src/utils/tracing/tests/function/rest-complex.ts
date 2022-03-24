@@ -1,4 +1,4 @@
-function myFunc(a: string, ...[b, c]: [string, { c: string }]) {
+function myFunc(a: string, ...[b, { c }]: [string, { c: string }]) {
   return `${a}-${b}-${c}`;
 }
 

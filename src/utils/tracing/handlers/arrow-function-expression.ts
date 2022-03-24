@@ -38,6 +38,9 @@ export function handleArrowFunctionExpression(
   return returnStatements.flatMap((returnStatement) =>
     handleNode(
       deepMerge(nextCtx, {
+        connection: {
+          astNodes: [...nextCtx.connection.astNodes, returnStatement],
+        },
         scope: getInnermostScope(ctx.rootScope, returnStatement),
       }),
       isReturnStatement(returnStatement)

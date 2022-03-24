@@ -41,6 +41,9 @@ export function visitFunctionName(
     (returnStatement) =>
       handleNode(
         deepMerge(nextCtx, {
+          connection: {
+            astNodes: [...nextCtx.connection.astNodes, returnStatement],
+          },
           scope: getInnermostScope(functionScope, returnStatement),
         }),
         returnStatement.argument

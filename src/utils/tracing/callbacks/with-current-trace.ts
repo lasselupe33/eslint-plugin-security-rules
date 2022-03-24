@@ -20,7 +20,7 @@ type TraceCallbacksWithCurrentTrace = {
     trace: Trace
   ) => ReturnType<Required<TraceCallbacks>["onNodeVisited"]>;
   onFinished?: (
-    terminals: TerminalNode[][],
+    terminalGroups: TerminalNode[][],
     ...args: Parameters<Required<TraceCallbacks>["onFinished"]>
   ) => ReturnType<Required<TraceCallbacks>["onFinished"]>;
 };
@@ -71,20 +71,11 @@ export function makeTraceCallbacksWithTrace(
 
       // Record terminals such that they can be reconstructed into a complete
       // source if required by integration later on.
-      if (isTerminalNode(prevNode)) {
-        if (
-          terminalGroups[terminalInsertionIndex] &&
-          prevNode.connection.flags.has(ConnectionFlags.REASSIGN)
-        ) {
-          terminalInsertionIndex++;
-        }
-
-        if (!terminalGroups[terminalInsertionIndex]) {
-          terminalGroups[terminalInsertionIndex] = [];
-        }
-
-        terminalGroups[terminalInsertionIndex]?.push(prevNode);
-      }
+      terminalInsertionIndex = handleTerminalGroupsInsertion(
+        terminalGroups,
+        terminalInsertionIndex,
+        prevNode
+      );
 
       while (
         currentTrace.length > 0 &&
@@ -107,24 +98,38 @@ export function makeTraceCallbacksWithTrace(
 
   function onFinished() {
     const finalNode = currentTrace[currentTrace.length - 1];
-    if (isTerminalNode(finalNode)) {
-      if (
-        terminalGroups[terminalInsertionIndex] &&
-        finalNode.connection.flags.has(ConnectionFlags.REASSIGN)
-      ) {
-        terminalInsertionIndex++;
-      }
-
-      if (!terminalGroups[terminalInsertionIndex]) {
-        terminalGroups[terminalInsertionIndex] = [];
-      }
-
-      terminalGroups[terminalInsertionIndex]?.push(finalNode);
-    }
+    terminalInsertionIndex = handleTerminalGroupsInsertion(
+      terminalGroups,
+      terminalInsertionIndex,
+      finalNode
+    );
 
     callbacks.onTraceFinished?.(currentTrace);
     callbacks.onFinished?.(terminalGroups);
   }
 
   return { onNodeVisited, onFinished };
+}
+
+function handleTerminalGroupsInsertion(
+  terminalGroups: TerminalNode[][],
+  insertionIndex: number,
+  node: RootNode | TraceNode | undefined
+) {
+  if (isTerminalNode(node)) {
+    if (
+      terminalGroups[insertionIndex] &&
+      node.connection.flags.has(ConnectionFlags.REASSIGN)
+    ) {
+      insertionIndex++;
+    }
+
+    if (!terminalGroups[insertionIndex]) {
+      terminalGroups[insertionIndex] = [];
+    }
+
+    terminalGroups[insertionIndex]?.push(node);
+  }
+
+  return insertionIndex;
 }

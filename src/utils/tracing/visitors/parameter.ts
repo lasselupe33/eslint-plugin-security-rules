@@ -136,7 +136,7 @@ function handleParameter(
       }
     }
 
-    // In case our restElemeent is defined as an array pattern, then it is
+    // In case our restElement is defined as an array pattern, then it is
     // possible to trace to a specific argument instead of all possible
     // arguments that could take on the restElement value
     if (isArrayPattern(parameterNode)) {
@@ -163,10 +163,34 @@ function handleParameter(
     // Finally, in case the current node actually maps to the correct param,
     // then we can continue our trace
     if (indexOfParam !== -1 && argToParamContext) {
-      const node = argToParamContext.arguments[indexOfParam + (restSkew ?? 0)];
+      let accessSkew: undefined | number;
 
       if (isRestElement(parameterNode)) {
-        if (restSkew) {
+        // In case we're accessing a particular element of the rest index (not
+        // destructuring), we need to consume this access as well
+        if (
+          !Number.isNaN(
+            Number(
+              handlingContext.meta.memberPath[
+                handlingContext.meta.memberPath.length - 1
+              ]
+            )
+          )
+        ) {
+          accessSkew = Number(handlingContext.meta.memberPath.pop());
+        }
+
+        const node =
+          argToParamContext.arguments[
+            indexOfParam + (restSkew ?? 0) + (accessSkew ?? 0)
+          ];
+
+        // In case we are able to resolve to a specific element in the rest
+        // array, then trace that.
+        if (
+          typeof restSkew !== "undefined" ||
+          typeof accessSkew !== "undefined"
+        ) {
           return handleNode(
             deepMerge(currContext, {
               connection: {
@@ -177,19 +201,24 @@ function handleParameter(
             node
           );
         } else {
-          argToParamContext.arguments.splice(indexOfParam).flatMap((node) =>
-            handleNode(
-              deepMerge(currContext, {
-                connection: {
-                  astNodes: [...currContext.connection.astNodes, node],
-                },
-                scope: argToParamContext.scope,
-              }),
-              node
-            )
-          );
+          // ... else we'll fall back to trace all elements in the rest array
+          return argToParamContext.arguments
+            .slice(indexOfParam)
+            .flatMap((node) =>
+              handleNode(
+                deepMerge(currContext, {
+                  connection: {
+                    astNodes: [...currContext.connection.astNodes, node],
+                  },
+                  scope: argToParamContext.scope,
+                }),
+                node
+              )
+            );
         }
       }
+
+      const node = argToParamContext.arguments[indexOfParam];
 
       return handleNode(
         deepMerge(currContext, {

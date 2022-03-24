@@ -5,6 +5,7 @@ export enum ConnectionFlags {
   APPEND = "append",
   REASSIGN = "reassign",
   MODIFICATION = "modification",
+  SPLIT = "split",
   OVERRIDE = "override",
   CALL = "call",
 }
