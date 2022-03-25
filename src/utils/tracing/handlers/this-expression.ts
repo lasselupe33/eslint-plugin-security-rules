@@ -1,3 +1,4 @@
+import { Scope } from "@typescript-eslint/scope-manager";
 import { TSESTree } from "@typescript-eslint/utils";
 
 import {
@@ -26,11 +27,13 @@ export function handleThisExpression(
   });
 
   const targetName = ctx.meta.memberPath.pop();
+  const classDeclaration = getNearestClassDeclaration(ctx);
 
-  if (!targetName || !isClassDeclaration(ctx.scope.block)) {
+  if (!targetName || !classDeclaration) {
     return [
       makeUnresolvedTerminalNode({
-        reason: "Unable to resolve target on thisExpression",
+        reason:
+          "Unable to resolve target on thisExpression ('this' is supported only inside classes)",
         astNodes: nextCtx.connection.astNodes,
         connection: nextCtx.connection,
         meta: nextCtx.meta,
@@ -38,7 +41,7 @@ export function handleThisExpression(
     ];
   }
 
-  const targetProperty = ctx.scope.block.body.body.find(
+  const targetProperty = classDeclaration.body.body.find(
     (it): it is TSESTree.PropertyDefinition =>
       isPropertyDefinition(it) &&
       isIdentifier(it.key) &&
@@ -72,4 +75,18 @@ export function handleThisExpression(
   }
 
   return handleNode(nextCtx, targetProperty?.value);
+}
+
+function getNearestClassDeclaration(
+  ctx: HandlingContext
+): TSESTree.ClassDeclaration | undefined {
+  let currentScope: Scope | null = ctx.scope;
+
+  while (currentScope !== null) {
+    if (isClassDeclaration(currentScope.block)) {
+      return currentScope.block;
+    }
+
+    currentScope = currentScope.upper;
+  }
 }

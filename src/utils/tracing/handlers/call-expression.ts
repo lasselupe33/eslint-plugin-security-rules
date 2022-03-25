@@ -3,8 +3,8 @@ import { getInnermostScope } from "@typescript-eslint/utils/dist/ast-utils";
 
 import { isIdentifier } from "../../ast/guards";
 import { deepMerge } from "../../deep-merge";
-import { handleBrowserOverrides } from "../overrides/browser";
 import { handleNodeOverrides } from "../overrides/node";
+import { handleVanillaOverrides } from "../overrides/vanilla";
 import { HandlingContext } from "../types/context";
 import { TraceNode } from "../types/nodes";
 
@@ -50,7 +50,7 @@ export function handleCallExpression(
   // supplied, then we return these immediately.
   const overrides =
     handleNodeOverrides(nextCtx, callExpression, calleeIdentifiers) ??
-    handleBrowserOverrides(nextCtx, callExpression);
+    handleVanillaOverrides(nextCtx, callExpression);
 
   if (overrides) {
     return overrides;

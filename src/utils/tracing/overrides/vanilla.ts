@@ -16,7 +16,7 @@ import { TraceNode } from "../types/nodes";
  * Overrides can be useful to handle naitve JS API's such as arr.join() which
  * alters the default way we need to follow variables.
  */
-export function handleBrowserOverrides(
+export function handleVanillaOverrides(
   ctx: HandlingContext,
   callExpression: TSESTree.CallExpression
 ): TraceNode[] | undefined {

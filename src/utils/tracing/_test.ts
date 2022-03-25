@@ -31,11 +31,19 @@ ruleTester.run("tracing/test", traceTestRule, {
     getCode(__dirname, "array/complex-1"),
     getCode(__dirname, "array/complex-2"),
 
+    getCode(__dirname, "class/getter"),
+    getCode(__dirname, "class/method-access-simple"),
+    getCode(__dirname, "class/method-access-mutable"),
+    getCode(__dirname, "class/method-access-with-constructor"),
+    getCode(__dirname, "class/static-method-access-simple"),
+    getCode(__dirname, "class/static-method-access-mutable"),
+
     getCode(__dirname, "expression/unary"),
     getCode(__dirname, "expression/binary"),
     getCode(__dirname, "expression/logical"),
     getCode(__dirname, "expression/sequence"),
 
+    getCode(__dirname, "object/this"),
     getCode(__dirname, "object/simple"),
     getCode(__dirname, "object/nested"),
     getCode(__dirname, "object/rest-inline"),
