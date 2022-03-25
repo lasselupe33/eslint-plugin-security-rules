@@ -5,10 +5,10 @@ import {
   isArrayPattern,
   isIdentifier,
   isLiteral,
-  isObjectExpression,
-  isProperty,
 } from "../../../utils/ast/guards";
 import { isSafeValue } from "../utils/is-safe-value";
+
+import { errorMessages, MessageIds } from "./utils/messages";
 
 /**
  * Progress
@@ -29,16 +29,10 @@ import { isSafeValue } from "../utils/is-safe-value";
  * - certificate: a certificate
  */
 
-export enum MessageIds {
-  ERRROR1 = "string",
-}
-
 export const uniNoHardcodedCredentials: TSESLint.RuleModule<MessageIds> = {
   meta: {
     type: "problem",
-    messages: {
-      [MessageIds.ERRROR1]: "Including passwords is bad",
-    },
+    messages: errorMessages,
     docs: {
       recommended: "error",
       description: "Description",
@@ -50,29 +44,30 @@ export const uniNoHardcodedCredentials: TSESLint.RuleModule<MessageIds> = {
     function report(node: TSESTree.Node) {
       context.report({
         node,
-        messageId: MessageIds.ERRROR1,
+        messageId: MessageIds.HARDCODED_CREDENTIAL,
         data: { node },
       });
     }
 
     return {
+      Property: (property) => {
+        if (
+          !isIdentifier(property.key) ||
+          !isPasswordName(property.key.name) ||
+          isSafeValue(context, property.value)
+        ) {
+          return;
+        }
+
+        report(property.value);
+      },
+
       VariableDeclarator: (node) => {
         if (!node.init) {
           return;
         }
 
-        if (isObjectExpression(node.init)) {
-          for (const property of node.init.properties) {
-            if (
-              isProperty(property) &&
-              isIdentifier(property.key) &&
-              isPasswordName(property.key.name) &&
-              !isSafeValue(context, property.value)
-            ) {
-              report(property.value);
-            }
-          }
-        } else if (isArrayPattern(node.id) && isArrayExpression(node.init)) {
+        if (isArrayPattern(node.id) && isArrayExpression(node.init)) {
           const table = retrieveNameAndValues(node.id, node.init);
           for (const pair of table) {
             if (

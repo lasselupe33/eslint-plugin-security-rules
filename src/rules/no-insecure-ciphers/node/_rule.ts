@@ -42,7 +42,6 @@ export const cipherNoInsecureCiphers = createRule<never[], MessageIds>({
     schema: {},
   },
   create: (context) => {
-    return {};
     return {
       CallExpression: (node) => {
         const [idLeft, idRight] = extractIdentifier(node);
