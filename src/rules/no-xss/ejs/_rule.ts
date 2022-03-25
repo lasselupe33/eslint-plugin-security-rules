@@ -13,6 +13,8 @@ import {
   isImportTerminalNode,
   isNodeTerminalNode,
 } from "../../../utils/tracing/types/nodes";
+import { getNodeModule } from "../../../utils/types/get-node-module";
+import { getTypeProgram } from "../../../utils/types/get-type-program";
 import { addSanitazionAtSink } from "../_utils/fixes/add-sanitation-sink";
 import { NoXssOptions } from "../_utils/options";
 import { isSourceSafe } from "../_utils/source/is-source-safe";
@@ -109,6 +111,7 @@ export const noEjsXSSRule = createRule<NoXssOptions, MessageIds>({
           if (isSafe) {
             return;
           }
+
           context.report({
             node: secondArg,
             messageId: MessageIds.VULNERABLE_DATA,
@@ -138,6 +141,12 @@ function isEjsImport({
   context: RuleContext<MessageIds, NoXssOptions>;
   node: TSESTree.Node;
 }): boolean {
+  const typeProgram = getTypeProgram(context);
+
+  if (typeProgram) {
+    return !!getNodeModule(typeProgram, node)?.includes("@types/ejs");
+  }
+
   let isMatch = false;
 
   traceVariable(
