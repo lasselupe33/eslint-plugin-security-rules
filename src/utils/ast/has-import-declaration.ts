@@ -5,8 +5,7 @@ import { isImportDeclaration, isProgram } from "./guards";
 
 export function hasImportDeclaration(
   moduleScope: Scope.Scope,
-  pkg: string,
-  method: string
+  toImport: { package: string; method: string }
 ): boolean {
   if (!isProgram(moduleScope.block)) {
     return false;
@@ -19,9 +18,9 @@ export function hasImportDeclaration(
 
   return importDeclarations.some(
     (declaration) =>
-      declaration.source.value === pkg &&
+      declaration.source.value === toImport.package &&
       declaration.specifiers.some(
-        (specifier) => specifier.local.name === method
+        (specifier) => specifier.local.name === toImport.method
       )
   );
 }

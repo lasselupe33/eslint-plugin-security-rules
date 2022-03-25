@@ -119,10 +119,10 @@ export const noEjsXSSRule = createRule<NoXssOptions, MessageIds>({
               {
                 fix: (fixer: RuleFixer) =>
                   addSanitazionAtSink(
+                    context,
                     sanitationOptions,
                     fixer,
-                    property.value,
-                    context.getScope()
+                    property.value
                   ),
                 messageId: MessageIds.ADD_SANITATION_FIX,
               },

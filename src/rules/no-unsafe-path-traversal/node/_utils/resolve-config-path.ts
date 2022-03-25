@@ -1,5 +1,13 @@
 import path from "path";
 
+/**
+ * The path where the sanitation method/root for this rule is located can be
+ * configured in a variety of different ways.
+ *
+ * Firstly we may need to resolve it relative to the root of the current
+ * working directory ({{root}}), based on an absolute path ({{abs}}:) or it
+ * should point to the current file ({{inplace}})
+ */
 export function resolveConfigPath(
   configPath:
     | "{{root}}"

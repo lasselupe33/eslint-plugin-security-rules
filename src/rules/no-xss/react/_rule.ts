@@ -144,12 +144,7 @@ export const noReactXSSRule = createRule<NoXssOptions, MessageIds>({
           suggest: [
             {
               fix: (fixer: RuleFixer) =>
-                addSanitazionAtSink(
-                  sanitationOptions,
-                  fixer,
-                  value,
-                  context.getScope()
-                ),
+                addSanitazionAtSink(context, sanitationOptions, fixer, value),
               messageId: MessageIds.ADD_SANITATION_FIX,
             },
           ],
