@@ -1,11 +1,11 @@
+/**
+ * Sanitizes a path-string to ensure that it does not exceed the supplied root
+ * folder while also ensuring that it does not contain malicious patterns using
+ * the package 'sanitize-filename'.
+ */
 function {{methodName}}(
-  {
-    baseDir,
-    relativeOrAbsoluteRootDir,
-  }: {
-    baseDir: string;
-    relativeOrAbsoluteRootDir: string;
-  },
+  baseDir: string,
+  relativeOrAbsoluteRootDir: string,
   relativeOrAbsolutePath: string
 ) {
   const rootDir = path.isAbsolute(relativeOrAbsoluteRootDir)

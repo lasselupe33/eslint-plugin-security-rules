@@ -1,4 +1,4 @@
-import { Trace } from "../callbacks/with-current-trace";
+import { Trace } from "../callbacks/with-trace";
 import {
   isConstantTerminalNode,
   isImportTerminalNode,

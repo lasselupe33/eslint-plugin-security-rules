@@ -2,7 +2,7 @@ import { TSESTree } from "@typescript-eslint/utils";
 
 import { isImportSpecifier } from "../../../../utils/ast/guards";
 import { traceVariable } from "../../../../utils/tracing/_trace-variable";
-import { makeTraceCallbacksWithTrace } from "../../../../utils/tracing/callbacks/with-current-trace";
+import { withTrace } from "../../../../utils/tracing/callbacks/with-trace";
 import {
   isConstantTerminalNode,
   isNodeTerminalNode,
@@ -41,7 +41,7 @@ export function isQuerySafe(
       context: context.ruleContext,
       node,
     },
-    makeTraceCallbacksWithTrace({
+    withTrace({
       onNodeVisited: (trace, traceNode) => {
         const testNode = traceNode.astNodes[0];
         // If we hit an import statement, the node we return will no longer be

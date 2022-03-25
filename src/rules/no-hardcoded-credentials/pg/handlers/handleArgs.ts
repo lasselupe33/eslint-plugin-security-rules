@@ -2,7 +2,7 @@ import { TSESTree } from "@typescript-eslint/utils";
 
 import { isObjectExpression } from "../../../../utils/ast/guards";
 import { traceVariable } from "../../../../utils/tracing/_trace-variable";
-import { makeTraceCallbacksWithTrace } from "../../../../utils/tracing/callbacks/with-current-trace";
+import { withTrace } from "../../../../utils/tracing/callbacks/with-trace";
 import {
   isConstantTerminalNode,
   isNodeTerminalNode,
@@ -28,7 +28,7 @@ export function handleArgs(
       context: context.ruleContext,
       node,
     },
-    makeTraceCallbacksWithTrace({
+    withTrace({
       onTraceFinished: (trace) => {
         const finalTraceNode = trace[trace.length - 1];
 

@@ -8,15 +8,25 @@ import {
   RuleFixer,
 } from "@typescript-eslint/utils/dist/ts-eslint";
 
-import { getFinalRange } from "../../../../utils/ast/get-final-node";
-import { hasImportDeclaration } from "../../../../utils/ast/has-import-declaration";
-import { createImportFix } from "../../../../utils/create-import-fix";
-import { getModuleScope } from "../../../../utils/get-module-scope";
+import { getFinalRange } from "../../../../utils/ast/get-final-range";
+import { isFunctionDeclaration } from "../../../../utils/ast/guards";
+import { createImportFix } from "../../../../utils/import-fix";
 import { getTypeProgram } from "../../../../utils/types/get-type-program";
 import { Config } from "../_rule";
 
 import { resolveConfigPath } from "./resolve-config-path";
 
+/**
+ * This fix wraps the vulnerable path inside a call to the sanitation method.
+ *
+ * If the fix is configured to place this method in the same file
+ * ({{inplace}}), then we must also include the template to the sanitation
+ * method in the bottom of the file.
+ *
+ * If the sanitation method exists in another file, then we simply add an
+ * import to it instead (either relative or absolute depending on
+ * configuration.)
+ */
 export function* addSanitationFix(
   config: Config,
   ctx: RuleContext<string, unknown[]>,
@@ -25,7 +35,7 @@ export function* addSanitationFix(
   unsafeNode: TSESTree.Node
 ): Generator<RuleFix> {
   const importPath = resolveConfigPath(
-    config.sanitation.filename,
+    config.sanitation.location,
     path.dirname(ctx.getPhysicalFilename?.() ?? ctx.getFilename()),
     cwd
   );
@@ -33,54 +43,41 @@ export function* addSanitationFix(
   if (!importPath) {
     const finalRange = getFinalRange(ctx.getSourceCode());
 
-    if (finalRange) {
-      if (
-        !hasImportDeclaration(getModuleScope(ctx.getScope()), "path", "path")
-      ) {
-        yield createImportFix(fixer, "path", "path", { asDefault: true });
+    yield createImportFix(
+      ctx,
+      { package: "path", method: "path" },
+      { asDefault: true }
+    );
+    yield createImportFix(
+      ctx,
+      { package: "sanitize-filename", method: "sanitizeFilename" },
+      {
+        asDefault: true,
       }
+    );
 
-      if (
-        !hasImportDeclaration(
-          getModuleScope(ctx.getScope()),
-          "sanitize-filename",
-          "sanitizeFilename"
-        )
-      ) {
-        yield createImportFix(fixer, "sanitize-filename", "sanitizeFilename", {
-          asDefault: true,
-        });
-      }
-
+    if (!hasImplementationTemplateInPlace(ctx, config))
       yield fixer.insertTextAfterRange(
         finalRange,
         `\n\n${getImplementationTemplate(config, ctx)}`
       );
-    }
   } else {
-    if (
-      !hasImportDeclaration(
-        getModuleScope(ctx.getScope()),
-        importPath,
-        config.sanitation.method
-      )
-    ) {
-      yield createImportFix(fixer, importPath, config.sanitation.method, {
+    yield createImportFix(
+      ctx,
+      { package: importPath, method: config.sanitation.method },
+      {
         asDefault: config.sanitation.defaultExport ?? false,
-      });
-    }
+      }
+    );
   }
 
   yield fixer.insertTextBefore(
     unsafeNode,
-    `${config.sanitation.method}({
-  baseDir: __dirname, 
-  relativeOrAbsoluteRootDir: "${resolveConfigPath(
-    config.root,
-    path.dirname(ctx.getPhysicalFilename?.() ?? ctx.getFilename()),
-    cwd
-  )}",
-}, `
+    `${config.sanitation.method}(__dirname, "${resolveConfigPath(
+      config.root,
+      path.dirname(ctx.getPhysicalFilename?.() ?? ctx.getFilename()),
+      cwd
+    )}", `
   );
   yield fixer.insertTextAfter(unsafeNode, `)`);
 }
@@ -112,4 +109,16 @@ function getImplementationTemplate(
   }
 
   return fixImplementation;
+}
+
+function hasImplementationTemplateInPlace(
+  ctx: RuleContext<string, unknown[]>,
+  config: Config
+): boolean {
+  return ctx
+    .getSourceCode()
+    .ast.body.filter((it): it is TSESTree.FunctionDeclaration =>
+      isFunctionDeclaration(it)
+    )
+    .some((it) => it.id?.name === config.sanitation.method);
 }

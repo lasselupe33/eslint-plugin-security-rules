@@ -8,11 +8,13 @@ import {
 import { isObjectExpression, isProperty } from "../../../utils/ast/guards";
 import { resolveDocsRoute } from "../../../utils/resolve-docs-route";
 import { traceVariable } from "../../../utils/tracing/_trace-variable";
-import { makeTraceCallbacksWithTrace } from "../../../utils/tracing/callbacks/with-current-trace";
+import { withTrace } from "../../../utils/tracing/callbacks/with-trace";
 import {
   isImportTerminalNode,
   isNodeTerminalNode,
 } from "../../../utils/tracing/types/nodes";
+import { getNodeModule } from "../../../utils/types/get-node-module";
+import { getTypeProgram } from "../../../utils/types/get-type-program";
 import { addSanitazionAtSink } from "../_utils/fixes/add-sanitation-sink";
 import { NoXssOptions } from "../_utils/options";
 import { isSourceSafe } from "../_utils/source/is-source-safe";
@@ -109,6 +111,7 @@ export const noEjsXSSRule = createRule<NoXssOptions, MessageIds>({
           if (isSafe) {
             return;
           }
+
           context.report({
             node: secondArg,
             messageId: MessageIds.VULNERABLE_DATA,
@@ -116,10 +119,10 @@ export const noEjsXSSRule = createRule<NoXssOptions, MessageIds>({
               {
                 fix: (fixer: RuleFixer) =>
                   addSanitazionAtSink(
+                    context,
                     sanitationOptions,
                     fixer,
-                    property.value,
-                    context.getScope()
+                    property.value
                   ),
                 messageId: MessageIds.ADD_SANITATION_FIX,
               },
@@ -138,6 +141,12 @@ function isEjsImport({
   context: RuleContext<MessageIds, NoXssOptions>;
   node: TSESTree.Node;
 }): boolean {
+  const typeProgram = getTypeProgram(context);
+
+  if (typeProgram) {
+    return !!getNodeModule(typeProgram, node)?.includes("@types/ejs");
+  }
+
   let isMatch = false;
 
   traceVariable(
@@ -145,7 +154,7 @@ function isEjsImport({
       node,
       context,
     },
-    makeTraceCallbacksWithTrace({
+    withTrace({
       onTraceFinished: (trace) => {
         const finalNode = trace[trace.length - 1];
 
@@ -179,7 +188,7 @@ function getObjectExpression(
       node: maybeObj,
       context,
     },
-    makeTraceCallbacksWithTrace({
+    withTrace({
       onTraceFinished: (trace) => {
         const terminal = trace[trace.length - 1];
 

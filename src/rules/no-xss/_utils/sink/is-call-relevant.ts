@@ -2,8 +2,10 @@ import { TSESTree } from "@typescript-eslint/utils";
 import { RuleContext } from "@typescript-eslint/utils/dist/ts-eslint";
 
 import { traceVariable } from "../../../../utils/tracing/_trace-variable";
-import { makeTraceGenerator } from "../../../../utils/tracing/callbacks/generate-traces";
-import { Trace } from "../../../../utils/tracing/callbacks/with-current-trace";
+import {
+  withTrace,
+  Trace,
+} from "../../../../utils/tracing/callbacks/with-trace";
 import { isConstantTerminalNode } from "../../../../utils/tracing/types/nodes";
 
 import { CallExpressionSink } from "./types";
@@ -41,7 +43,11 @@ function validateIfPredicate(
         node: argumentNode,
         context,
       },
-      makeTraceGenerator(traces, { printTraces: false })
+      withTrace({
+        onTraceFinished: (trace) => {
+          traces.push(trace);
+        },
+      })
     );
   }
 

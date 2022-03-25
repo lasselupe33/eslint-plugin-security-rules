@@ -2,10 +2,12 @@ import { TSESTree } from "@typescript-eslint/utils";
 import { RuleContext } from "@typescript-eslint/utils/dist/ts-eslint";
 
 import { traceVariable } from "../../../../utils/tracing/_trace-variable";
-import { makeTraceCallbacksWithTrace } from "../../../../utils/tracing/callbacks/with-current-trace";
+import { withTrace } from "../../../../utils/tracing/callbacks/with-trace";
+import { ConnectionFlags } from "../../../../utils/tracing/types/connection";
 import {
   isConstantTerminalNode,
   isImportTerminalNode,
+  isVariableNode,
 } from "../../../../utils/tracing/types/nodes";
 import { printTrace } from "../../../../utils/tracing/utils/print-trace";
 import { SanitationOptions } from "../options";
@@ -41,12 +43,24 @@ export function isSourceSafe(
       context,
       node,
     },
-    makeTraceCallbacksWithTrace({
+    withTrace({
       onTraceFinished: (trace) => {
         printTrace(trace);
-
         const finalNode = trace[trace.length - 1];
-        const hasSanitationInTrace = trace.some((node) => {
+
+        // Once we encounter a modification connection in the current
+        // trace we know that we do not need to continue. Sanitation MUST have
+        // occured before this point, which will be checked in
+        // onTraceFinished.
+        const modifiedAtIndex = trace.findIndex(
+          (it) =>
+            isVariableNode(it) &&
+            it.connection.flags.has(ConnectionFlags.MODIFICATION)
+        );
+        const unmodifiedTrace =
+          modifiedAtIndex === -1 ? trace : trace.slice(0, modifiedAtIndex);
+
+        const hasSanitationInTrace = unmodifiedTrace.some((node) => {
           if (!isImportTerminalNode(node)) {
             return false;
           }
@@ -68,9 +82,6 @@ export function isSourceSafe(
           isSafe = false;
           return { halt: true };
         }
-      },
-      onFinished: (g) => {
-        console.log(g);
       },
     })
   );

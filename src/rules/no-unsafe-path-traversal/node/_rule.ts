@@ -5,7 +5,7 @@ import { RuleContext } from "@typescript-eslint/utils/dist/ts-eslint";
 import { isIdentifier, isMemberExpression } from "../../../utils/ast/guards";
 import { resolveDocsRoute } from "../../../utils/resolve-docs-route";
 import { traceVariable } from "../../../utils/tracing/_trace-variable";
-import { makeTraceCallbacksWithTrace } from "../../../utils/tracing/callbacks/with-current-trace";
+import { withTrace } from "../../../utils/tracing/callbacks/with-trace";
 import { isImportTerminalNode } from "../../../utils/tracing/types/nodes";
 import { printTrace } from "../../../utils/tracing/utils/print-trace";
 
@@ -31,7 +31,7 @@ export enum MessageIds {
 export type Config = {
   sanitation: {
     method: string;
-    filename: `{{root}}/${string}` | "{{inplace}}" | `{{abs}}:${string}`;
+    location: `{{root}}/${string}` | "{{inplace}}" | `{{abs}}:${string}`;
     defaultExport?: boolean;
   };
   root: `{{root}}` | `{{root}}/${string}` | `{{abs}}:${string}`;
@@ -50,7 +50,7 @@ export const noNodeUnsafePathTraversal = createRule<[Config], MessageIds>({
     {
       sanitation: {
         method: "sanitizePath",
-        filename: "{{inplace}}",
+        location: "{{inplace}}",
       },
       root: "{{root}}",
     },
@@ -158,7 +158,7 @@ function isFsImport(
       node: node.callee,
       context,
     },
-    makeTraceCallbacksWithTrace({
+    withTrace({
       onTraceFinished: (trace) => {
         const finalNode = trace[trace.length - 1];
 

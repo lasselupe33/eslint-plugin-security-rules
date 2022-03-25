@@ -17,13 +17,7 @@ export function getCode(dirname: string, name: string) {
 
   return {
     code: fs.readFileSync(
-      sanitizePath(
-        {
-          baseDir: __dirname,
-          relativeOrAbsoluteRootDir: "../../../",
-        },
-        resolvedPath
-      ),
+      sanitizePath(__dirname, "../../../", resolvedPath),
       "utf-8"
     ),
     filename: resolvedPath,

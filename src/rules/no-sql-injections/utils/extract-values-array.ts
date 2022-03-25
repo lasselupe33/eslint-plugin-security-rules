@@ -2,7 +2,7 @@ import { TSESTree } from "@typescript-eslint/utils";
 
 import { isArrayExpression } from "../../../utils/ast/guards";
 import { traceVariable } from "../../../utils/tracing/_trace-variable";
-import { makeTraceCallbacksWithTrace } from "../../../utils/tracing/callbacks/with-current-trace";
+import { withTrace } from "../../../utils/tracing/callbacks/with-trace";
 import { isNodeTerminalNode } from "../../../utils/tracing/types/nodes";
 import { HandlingContext } from "../pg/_rule";
 
@@ -20,7 +20,7 @@ export function extractValuesArray(
       context: context.ruleContext,
       node,
     },
-    makeTraceCallbacksWithTrace({
+    withTrace({
       onTraceFinished: (trace) => {
         const finalNode = trace[trace.length - 1];
 
