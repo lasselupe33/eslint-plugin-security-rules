@@ -1,6 +1,3 @@
-// Currently unhandled due to the way the tracer handles arrays. If we start
-// tracing each object in an array, it may lead to big runtimes.
-
 const clientConfig = [
   {
     user: "root",
