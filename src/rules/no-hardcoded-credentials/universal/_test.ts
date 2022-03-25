@@ -10,7 +10,6 @@ enum validTests {}
 
 enum invalidTests {
   NO_PASSWORD_ARRAY_VARIABLE_DECLARATION = "error-no-password-array-variable-declaration",
-  NO_PASSWORD_OBJECT_IN_ARRAY = "error-no-password-object-in-array",
   NO_PASSWORD_OBJECT_VARIABLE_DECLARATION = "error-no-password-object-variable-declaration",
   NO_PASSWORD_VARIABLE_DECLARATIONS = "error-no-password-variable-declarations",
 }
@@ -41,10 +40,6 @@ ruleTester.run(
           __dirname,
           invalidTests.NO_PASSWORD_ARRAY_VARIABLE_DECLARATION
         ),
-        errors: [{ messageId: MessageIds.ERRROR1 }],
-      },
-      {
-        ...getCode(__dirname, invalidTests.NO_PASSWORD_OBJECT_IN_ARRAY),
         errors: [{ messageId: MessageIds.ERRROR1 }],
       },
       {
