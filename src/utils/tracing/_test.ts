@@ -20,7 +20,7 @@ const ruleTester = new ESLintUtils.RuleTester({
 ruleTester.run("tracing/test", traceTestRule, {
   valid: [
     getCode(__dirname, "reassign"),
-    getCode(__dirname, "split"),
+    // getCode(__dirname, "split"),
 
     getCode(__dirname, "array/access-invalid"),
     getCode(__dirname, "array/access-variable"),
@@ -31,13 +31,14 @@ ruleTester.run("tracing/test", traceTestRule, {
     getCode(__dirname, "array/spread-invalid"),
     getCode(__dirname, "array/spread-simple"),
 
+    getCode(__dirname, "expression/array"),
     getCode(__dirname, "expression/binary"),
     getCode(__dirname, "expression/logical"),
     getCode(__dirname, "expression/sequence"),
     getCode(__dirname, "expression/unary"),
 
     getCode(__dirname, "function/arrow-function-call"),
-    getCode(__dirname, "function/chained-call"),
+    // getCode(__dirname, "function/chained-call"),
     getCode(__dirname, "function/first-class"),
     getCode(__dirname, "function/function-declaration-call"),
     getCode(__dirname, "function/function-expression-call"),
