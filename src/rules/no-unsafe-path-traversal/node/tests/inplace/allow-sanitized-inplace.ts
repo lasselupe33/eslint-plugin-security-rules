@@ -1,13 +1,13 @@
+import fs from "fs";
 import path from "path";
 
 import sanitizeFilename from "sanitize-filename";
 
-/**
- * Sanitizes a path-string to ensure that it does not exceed the supplied root
- * folder while also ensuring that it does not contain malicious patterns using
- * the package 'sanitize-filename'.
- */
-export function sanitizePath(
+const unsafe = await (await fetch("evil.site")).text();
+
+fs.readFileSync(sanitizePath(__dirname, "@test-root", unsafe), "utf-8");
+
+function sanitizePath(
   baseDir: string,
   relativeOrAbsoluteRootDir: string,
   relativeOrAbsolutePath: string

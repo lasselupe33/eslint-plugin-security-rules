@@ -8,7 +8,7 @@ export function createImportFix(
   toImport: { package: string; method: string },
   { asDefault }: { asDefault: boolean } = { asDefault: false }
 ): RuleFix {
-  if (!hasImportDeclaration(getModuleScope(context.getScope()), toImport)) {
+  if (hasImportDeclaration(getModuleScope(context.getScope()), toImport)) {
     return { range: [0, 0], text: "" };
   }
 

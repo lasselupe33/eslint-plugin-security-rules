@@ -33,7 +33,7 @@ type TraceCallbacksWithCurrentTrace = {
  * Furthermore an additional function, onTraceFinished(), is added, which will
  * be called every time the current trace reaches its end.
  */
-export function makeTraceCallbacksWithTrace(
+export function withTrace(
   callbacks: TraceCallbacksWithCurrentTrace
 ): TraceCallbacks {
   const currentTrace: Trace = [makeRootNode()];
@@ -44,6 +44,11 @@ export function makeTraceCallbacksWithTrace(
 
   function onNodeVisited(node: TraceNode) {
     let toReturn = callbacks.onNodeVisited?.(currentTrace, node);
+
+    if (toReturn?.stopFollowingVariable) {
+      return toReturn;
+    }
+
     if (toReturn?.halt || didHalt) {
       didHalt = true;
       return toReturn;
@@ -69,7 +74,15 @@ export function makeTraceCallbacksWithTrace(
     ) {
       currentTrace.push(node);
     } else {
-      toReturn = callbacks.onTraceFinished?.(currentTrace);
+      const returnUpdates = callbacks.onTraceFinished?.(currentTrace);
+
+      toReturn = {
+        stopFollowingVariable:
+          toReturn?.stopFollowingVariable ||
+          returnUpdates?.stopFollowingVariable,
+        halt: toReturn?.halt || returnUpdates?.halt,
+      };
+
       if (toReturn?.halt || didHalt) {
         didHalt = true;
         return toReturn;

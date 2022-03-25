@@ -70,15 +70,8 @@ function getPackageCacheEntry(key: string):
 
   for (const { path, modifiedAt } of entry.paths) {
     if (
-      fs.statSync(
-        sanitizePath(
-          {
-            baseDir: __dirname,
-            relativeOrAbsoluteRootDir: "../../../../",
-          },
-          path
-        )
-      ).mtimeMs !== modifiedAt
+      fs.statSync(sanitizePath(__dirname, "../../../../", path)).mtimeMs !==
+      modifiedAt
     ) {
       return { invalidated: true };
     }
@@ -106,41 +99,18 @@ export function findRelevantPackages(
     let pkg: Package | undefined;
 
     do {
-      if (
-        fs.existsSync(
-          sanitizePath(
-            {
-              baseDir: __dirname,
-              relativeOrAbsoluteRootDir: "../../../../",
-            },
-            packagePath
-          )
-        )
-      ) {
+      if (fs.existsSync(sanitizePath(__dirname, "../../../../", packagePath))) {
         paths.unshift({
           path: packagePath,
           modifiedAt: fs.statSync(
-            sanitizePath(
-              {
-                baseDir: __dirname,
-                relativeOrAbsoluteRootDir: "../../../../",
-              },
-              packagePath
-            )
+            sanitizePath(__dirname, "../../../../", packagePath)
           ).mtimeMs,
         });
         pkg = JSON.parse(
-          fs
-            .readFileSync(
-              sanitizePath(
-                {
-                  baseDir: __dirname,
-                  relativeOrAbsoluteRootDir: "../../../../",
-                },
-                packagePath
-              )
-            )
-            .toString("utf8")
+          fs.readFileSync(
+            sanitizePath(__dirname, "../../../../", packagePath),
+            "utf8"
+          )
         );
 
         for (const dependency of remainingDependencies) {

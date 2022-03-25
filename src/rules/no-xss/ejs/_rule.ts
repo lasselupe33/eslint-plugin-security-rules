@@ -8,7 +8,7 @@ import {
 import { isObjectExpression, isProperty } from "../../../utils/ast/guards";
 import { resolveDocsRoute } from "../../../utils/resolve-docs-route";
 import { traceVariable } from "../../../utils/tracing/_trace-variable";
-import { makeTraceCallbacksWithTrace } from "../../../utils/tracing/callbacks/with-current-trace";
+import { withTrace } from "../../../utils/tracing/callbacks/with-trace";
 import {
   isImportTerminalNode,
   isNodeTerminalNode,
@@ -154,7 +154,7 @@ function isEjsImport({
       node,
       context,
     },
-    makeTraceCallbacksWithTrace({
+    withTrace({
       onTraceFinished: (trace) => {
         const finalNode = trace[trace.length - 1];
 
@@ -188,7 +188,7 @@ function getObjectExpression(
       node: maybeObj,
       context,
     },
-    makeTraceCallbacksWithTrace({
+    withTrace({
       onTraceFinished: (trace) => {
         const terminal = trace[trace.length - 1];
 

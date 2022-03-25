@@ -8,7 +8,7 @@ import {
 } from "../../../utils/ast/guards";
 import { makeMapNodeToHandler } from "../../../utils/ast/map-node-to-handler";
 import { traceVariable } from "../../../utils/tracing/_trace-variable";
-import { makeTraceCallbacksWithTrace } from "../../../utils/tracing/callbacks/with-current-trace";
+import { withTrace } from "../../../utils/tracing/callbacks/with-trace";
 
 const mapNodeToHandler = makeMapNodeToHandler({ disableWarnings: true });
 
@@ -55,7 +55,7 @@ function traceIdentifier(
       context,
       node,
     },
-    makeTraceCallbacksWithTrace({
+    withTrace({
       onNodeVisited: (trace, traceNode) => {
         const valueToCheck = traceNode.astNodes[0];
 

@@ -3,7 +3,7 @@ import { TSESTree } from "@typescript-eslint/utils";
 import { isArrayExpression, isSpreadElement } from "../../ast/guards";
 import { deepMerge } from "../../deep-merge";
 import { traceVariable } from "../_trace-variable";
-import { makeTraceCallbacksWithTrace } from "../callbacks/with-current-trace";
+import { withTrace } from "../callbacks/with-trace";
 import { HandlingContext } from "../types/context";
 import {
   isNodeTerminalNode,
@@ -56,7 +56,7 @@ export function handleArrayExpression(
             node: element,
             context: nextCtx.ruleContext,
           },
-          makeTraceCallbacksWithTrace({
+          withTrace({
             onTraceFinished: (trace) => {
               const finalNode = trace[trace.length - 1];
               if (

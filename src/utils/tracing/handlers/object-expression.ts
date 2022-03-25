@@ -7,7 +7,7 @@ import {
 } from "../../ast/guards";
 import { deepMerge } from "../../deep-merge";
 import { traceVariable } from "../_trace-variable";
-import { makeTraceCallbacksWithTrace } from "../callbacks/with-current-trace";
+import { withTrace } from "../callbacks/with-trace";
 import { getNodeName } from "../get-node-name";
 import { HandlingContext } from "../types/context";
 import {
@@ -73,7 +73,7 @@ export function handleObjectExpression(
           node: property.argument,
           context: nextCtx.ruleContext,
         },
-        makeTraceCallbacksWithTrace({
+        withTrace({
           onTraceFinished: (trace) => {
             const finalNode = trace[trace.length - 1];
 

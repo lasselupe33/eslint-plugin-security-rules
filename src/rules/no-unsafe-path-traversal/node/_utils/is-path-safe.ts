@@ -1,11 +1,13 @@
 import { TSESTree } from "@typescript-eslint/utils";
 import { RuleContext } from "@typescript-eslint/utils/dist/ts-eslint";
 
+import { isCallExpression, isIdentifier } from "../../../../utils/ast/guards";
 import { traceVariable } from "../../../../utils/tracing/_trace-variable";
-import { makeTraceCallbacksWithTrace } from "../../../../utils/tracing/callbacks/with-current-trace";
+import { withTrace } from "../../../../utils/tracing/callbacks/with-trace";
+import { ConnectionFlags } from "../../../../utils/tracing/types/connection";
 import {
   isConstantTerminalNode,
-  isImportTerminalNode,
+  isVariableNode,
 } from "../../../../utils/tracing/types/nodes";
 import { printTrace } from "../../../../utils/tracing/utils/print-trace";
 import { Config } from "../_rule";
@@ -17,7 +19,7 @@ type Context = {
 
 export function isPathSafe(
   node: TSESTree.Node | undefined,
-  { context }: Context
+  { context, config }: Context
 ): boolean {
   if (!node) {
     return true;
@@ -42,21 +44,39 @@ export function isPathSafe(
       context,
       node,
     },
-    makeTraceCallbacksWithTrace({
+    withTrace({
       onTraceFinished: (trace) => {
         printTrace(trace);
-
         const finalNode = trace[trace.length - 1];
-        const hasSanitationInTrace = trace.some((node) => {
-          if (!isImportTerminalNode(node)) {
-            return false;
+
+        // Once we encounter a modification connection in the current
+        // trace we know that we do not need to continue. Sanitation MUST have
+        // occured before this point, which will be checked in
+        // onTraceFinished.
+        const modifiedAtIndex = trace.findIndex(
+          (it) =>
+            isVariableNode(it) &&
+            it.connection.flags.has(ConnectionFlags.MODIFICATION)
+        );
+        const unmodifiedTrace =
+          modifiedAtIndex === -1 ? trace : trace.slice(0, modifiedAtIndex);
+
+        const hasSanitationBeforeModification = unmodifiedTrace.some((node) => {
+          for (const astNode of node.astNodes) {
+            if (
+              isCallExpression(astNode) &&
+              isIdentifier(astNode.callee) &&
+              astNode.callee.name === config.sanitation.method
+            ) {
+              return true;
+            }
           }
 
-          return node.source === "sanitize-filename";
+          return false;
         });
 
         const isTraceSafe =
-          isConstantTerminalNode(finalNode) || hasSanitationInTrace;
+          isConstantTerminalNode(finalNode) || hasSanitationBeforeModification;
 
         if (!isTraceSafe) {
           isSafe = false;

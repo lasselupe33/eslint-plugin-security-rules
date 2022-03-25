@@ -1,7 +1,7 @@
 import { TSESLint, TSESTree } from "@typescript-eslint/utils";
 
 import { traceVariable } from "../../../utils/tracing/_trace-variable";
-import { makeTraceCallbacksWithTrace } from "../../../utils/tracing/callbacks/with-current-trace";
+import { withTrace } from "../../../utils/tracing/callbacks/with-trace";
 import { isConstantTerminalNode } from "../../../utils/tracing/types/nodes";
 import { printTrace } from "../../../utils/tracing/utils/print-trace";
 
@@ -20,7 +20,7 @@ export function isSafeValue(
       context,
       node,
     },
-    makeTraceCallbacksWithTrace({
+    withTrace({
       onTraceFinished: (trace) => {
         // printTrace(trace);
         const finalNode = trace[trace.length - 1];

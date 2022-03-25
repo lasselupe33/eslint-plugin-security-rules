@@ -56,13 +56,7 @@ function loadSourceCode(path: string, parserPath: string): SourceCode {
 
   const linter = new Linter();
   const code = readFileSync(
-    sanitizePath(
-      {
-        baseDir: __dirname,
-        relativeOrAbsoluteRootDir: "../../../../",
-      },
-      path
-    ),
+    sanitizePath(__dirname, "../../../../", path),
     "utf-8"
   );
 

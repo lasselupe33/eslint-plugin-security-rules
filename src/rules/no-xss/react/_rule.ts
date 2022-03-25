@@ -15,7 +15,7 @@ import {
 } from "../../../utils/ast/guards";
 import { resolveDocsRoute } from "../../../utils/resolve-docs-route";
 import { traceVariable } from "../../../utils/tracing/_trace-variable";
-import { makeTraceCallbacksWithTrace } from "../../../utils/tracing/callbacks/with-current-trace";
+import { withTrace } from "../../../utils/tracing/callbacks/with-trace";
 import { isNodeTerminalNode } from "../../../utils/tracing/types/nodes";
 import { getTypeProgram } from "../../../utils/types/get-type-program";
 import { addSanitazionAtSink } from "../_utils/fixes/add-sanitation-sink";
@@ -166,7 +166,7 @@ function getObjectProperty(
       node: maybeObj,
       context,
     },
-    makeTraceCallbacksWithTrace({
+    withTrace({
       onTraceFinished: (trace) => {
         const terminal = trace[trace.length - 1];
 

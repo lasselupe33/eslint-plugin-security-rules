@@ -7,7 +7,7 @@ import { resolveDocsRoute } from "../resolve-docs-route";
 import { sanitizePath } from "../sanitize-path";
 
 import { traceVariable } from "./_trace-variable";
-import { makeTraceCallbacksWithTrace } from "./callbacks/with-current-trace";
+import { withTrace } from "./callbacks/with-trace";
 import { printTrace } from "./utils/print-trace";
 import { terminalsToSourceString } from "./utils/terminals-to-source-string";
 
@@ -46,7 +46,7 @@ export const traceTestRule = createRule<[], MessageIds>({
             node: node.init,
             context,
           },
-          makeTraceCallbacksWithTrace({
+          withTrace({
             onTraceFinished: (trace) => {
               printTrace(trace);
             },
@@ -64,10 +64,8 @@ export const traceTestRule = createRule<[], MessageIds>({
               const expectedStrings = fs
                 .readFileSync(
                   sanitizePath(
-                    {
-                      baseDir: __dirname,
-                      relativeOrAbsoluteRootDir: "../../../",
-                    },
+                    __dirname,
+                    "../../../",
                     context.getFilename().replace(/\.[^.]*$/, ".expected")
                   ),
                   "utf8"

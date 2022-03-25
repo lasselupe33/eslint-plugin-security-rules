@@ -9,6 +9,7 @@ import {
 } from "@typescript-eslint/utils/dist/ts-eslint";
 
 import { getFinalRange } from "../../../../utils/ast/get-final-range";
+import { isFunctionDeclaration } from "../../../../utils/ast/guards";
 import { createImportFix } from "../../../../utils/import-fix";
 import { getTypeProgram } from "../../../../utils/types/get-type-program";
 import { Config } from "../_rule";
@@ -34,7 +35,7 @@ export function* addSanitationFix(
   unsafeNode: TSESTree.Node
 ): Generator<RuleFix> {
   const importPath = resolveConfigPath(
-    config.sanitation.filename,
+    config.sanitation.location,
     path.dirname(ctx.getPhysicalFilename?.() ?? ctx.getFilename()),
     cwd
   );
@@ -55,10 +56,11 @@ export function* addSanitationFix(
       }
     );
 
-    yield fixer.insertTextAfterRange(
-      finalRange,
-      `\n\n${getImplementationTemplate(config, ctx)}`
-    );
+    if (!hasImplementationTemplateInPlace(ctx, config))
+      yield fixer.insertTextAfterRange(
+        finalRange,
+        `\n\n${getImplementationTemplate(config, ctx)}`
+      );
   } else {
     yield createImportFix(
       ctx,
@@ -71,14 +73,11 @@ export function* addSanitationFix(
 
   yield fixer.insertTextBefore(
     unsafeNode,
-    `${config.sanitation.method}({
-  baseDir: __dirname, 
-  relativeOrAbsoluteRootDir: "${resolveConfigPath(
-    config.root,
-    path.dirname(ctx.getPhysicalFilename?.() ?? ctx.getFilename()),
-    cwd
-  )}",
-}, `
+    `${config.sanitation.method}(__dirname, "${resolveConfigPath(
+      config.root,
+      path.dirname(ctx.getPhysicalFilename?.() ?? ctx.getFilename()),
+      cwd
+    )}", `
   );
   yield fixer.insertTextAfter(unsafeNode, `)`);
 }
@@ -110,4 +109,16 @@ function getImplementationTemplate(
   }
 
   return fixImplementation;
+}
+
+function hasImplementationTemplateInPlace(
+  ctx: RuleContext<string, unknown[]>,
+  config: Config
+): boolean {
+  return ctx
+    .getSourceCode()
+    .ast.body.filter((it): it is TSESTree.FunctionDeclaration =>
+      isFunctionDeclaration(it)
+    )
+    .some((it) => it.id?.name === config.sanitation.method);
 }
