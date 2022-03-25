@@ -11,6 +11,7 @@ import { handleAwaitExpression } from "./await-expression";
 import { handleBinaryExpression } from "./binary-expression";
 import { handleCallExpression } from "./call-expression";
 import { handleChainExpression } from "./chain-expression";
+import { handleClassExpression } from "./class-expression";
 import { handleConditionalExpression } from "./conditional-expression";
 import { handleForOfStatement } from "./for-of-statement";
 import { handleFunctionDeclaration } from "./function-declaration";
@@ -34,6 +35,7 @@ import { handleTemplateLiteral } from "./template-literal";
 import { handleThisExpression } from "./this-expression";
 import { handleTSAsExpression } from "./ts-as-expression";
 import { handleTSNonNullExpression } from "./ts-non-null-expression";
+import { handleTSTypeAssertion } from "./ts-type-assertion";
 import { handleUnaryExpression } from "./unary-expression";
 import { handleUpdateExpression } from "./update-expression";
 import { handleVariableDeclarator } from "./variable-declarator";
@@ -54,7 +56,7 @@ export function handleNode(
       [AST_NODE_TYPES.BinaryExpression]: handleBinaryExpression,
       [AST_NODE_TYPES.CallExpression]: handleCallExpression,
       [AST_NODE_TYPES.ChainExpression]: handleChainExpression,
-      // [AST_NODE_TYPES.ClassExpression]: handleClassExpression, // Do we want this?
+      [AST_NODE_TYPES.ClassExpression]: handleClassExpression,
       [AST_NODE_TYPES.ConditionalExpression]: handleConditionalExpression,
       [AST_NODE_TYPES.ForOfStatement]: handleForOfStatement,
       [AST_NODE_TYPES.FunctionDeclaration]: handleFunctionDeclaration,
@@ -72,18 +74,16 @@ export function handleNode(
       [AST_NODE_TYPES.Property]: handleProperty,
       [AST_NODE_TYPES.SequenceExpression]: handleSequenceExpression,
       [AST_NODE_TYPES.SpreadElement]: handleSpreadElement,
-      // [AST_NODE_TYPES.Super]: handleSuper // Do we want this?
       [AST_NODE_TYPES.TaggedTemplateExpression]: handleTaggedTemplateExpression,
       [AST_NODE_TYPES.TemplateElement]: handleTemplateElement,
       [AST_NODE_TYPES.TemplateLiteral]: handleTemplateLiteral,
       [AST_NODE_TYPES.ThisExpression]: handleThisExpression,
       [AST_NODE_TYPES.TSAsExpression]: handleTSAsExpression,
       [AST_NODE_TYPES.TSNonNullExpression]: handleTSNonNullExpression,
-      // [AST_NODE_TYPES.TSTypeAssertion]: handleTSTypeAssertion,
+      [AST_NODE_TYPES.TSTypeAssertion]: handleTSTypeAssertion,
       [AST_NODE_TYPES.UnaryExpression]: handleUnaryExpression,
       [AST_NODE_TYPES.UpdateExpression]: handleUpdateExpression,
       [AST_NODE_TYPES.VariableDeclarator]: handleVariableDeclarator,
-      // [AST_NODE_TYPES.YieldExpression]: handleYieldExpression,
       fallback: (ctx, node) => [
         makeUnresolvedTerminalNode({
           astNodes: [...ctx.connection.astNodes, node],

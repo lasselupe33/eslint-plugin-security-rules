@@ -31,6 +31,13 @@ ruleTester.run("tracing/test", traceTestRule, {
     getCode(__dirname, "array/spread-invalid"),
     getCode(__dirname, "array/spread-simple"),
 
+    getCode(__dirname, "class/getter"),
+    getCode(__dirname, "class/method-access-simple"),
+    getCode(__dirname, "class/method-access-mutable"),
+    getCode(__dirname, "class/method-access-with-constructor"),
+    getCode(__dirname, "class/static-method-access-simple"),
+    getCode(__dirname, "class/static-method-access-mutable"),
+
     getCode(__dirname, "expression/array"),
     getCode(__dirname, "expression/binary"),
     getCode(__dirname, "expression/logical"),
@@ -66,6 +73,7 @@ ruleTester.run("tracing/test", traceTestRule, {
     getCode(__dirname, "object/rest-overwrite"),
     getCode(__dirname, "object/rest-simple"),
     getCode(__dirname, "object/simple"),
+    getCode(__dirname, "object/this"),
     getCode(__dirname, "object/without-path"),
   ],
   invalid: [],

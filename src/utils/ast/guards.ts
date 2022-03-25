@@ -1,4 +1,4 @@
-// Imported from
+// Extended from
 // https://github.com/testing-library/eslint-plugin-testing-library/blob/main/lib/node-utils/is-node-of-type.ts
 
 import { AST_NODE_TYPES, TSESTree } from "@typescript-eslint/utils";
