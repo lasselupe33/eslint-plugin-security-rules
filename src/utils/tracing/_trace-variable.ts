@@ -1,13 +1,13 @@
 import { TSESTree } from "@typescript-eslint/utils";
 import { RuleContext, Scope } from "@typescript-eslint/utils/dist/ts-eslint";
 
+import { getModuleScope } from "../ast/get-module-scope";
 import {
   isClassName,
   isFunctionName,
   isImportBinding,
   isParameter,
 } from "../ast/guards";
-import { getModuleScope } from "../get-module-scope";
 
 import { getRelevantReferences } from "./get-relevant-references";
 import { handleNode } from "./handlers/_handle-node";

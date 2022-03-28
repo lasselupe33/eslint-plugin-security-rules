@@ -1,10 +1,10 @@
 import { TSESLint, TSESTree } from "@typescript-eslint/utils";
 
-import { isImportDeclaration, isLiteral } from "../utils/ast/guards";
-import { traceVariable } from "../utils/tracing/_trace-variable";
-import { isImportTerminalNode } from "../utils/tracing/types/nodes";
+import { traceVariable } from "../tracing/_trace-variable";
+import { withTrace } from "../tracing/callbacks/with-trace";
+import { isImportTerminalNode } from "../tracing/types/nodes";
 
-import { withTrace } from "./tracing/callbacks/with-trace";
+import { isImportDeclaration, isLiteral } from "./guards";
 
 export function getIdentifierImportModule(
   context: Readonly<TSESLint.RuleContext<string, unknown[]>>,

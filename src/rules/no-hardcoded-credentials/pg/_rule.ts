@@ -1,11 +1,11 @@
-import { TSESLint, TSESTree } from "@typescript-eslint/utils";
+import { TSESLint } from "@typescript-eslint/utils";
 
 import {
   isIdentifier,
   isObjectExpression,
   isProperty,
 } from "../../../utils/ast/guards";
-import { isPackage } from "../../../utils/is-package";
+import { isPackage } from "../../../utils/ast/is-package";
 import { resolveDocsRoute } from "../../../utils/resolve-docs-route";
 import { isSafeValue } from "../utils/is-safe-value";
 

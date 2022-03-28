@@ -1,6 +1,6 @@
 import { TSESLint, TSESTree } from "@typescript-eslint/utils";
 
-import { getIdentifierImportModule } from "../utils/get-identifier-import-module";
+import { getIdentifierImportModule } from "./get-identifier-import-module";
 
 export function isPackage(
   context: Readonly<TSESLint.RuleContext<string, unknown[]>>,

@@ -1,7 +1,7 @@
 import { RuleContext, RuleFix } from "@typescript-eslint/utils/dist/ts-eslint";
 
-import { hasImportDeclaration } from "./ast/has-import-declaration";
 import { getModuleScope } from "./get-module-scope";
+import { hasImportDeclaration } from "./has-import-declaration";
 
 export function createImportFix(
   context: RuleContext<string, unknown[]>,

@@ -10,7 +10,7 @@ import {
 
 import { getFinalRange } from "../../../../utils/ast/get-final-range";
 import { isFunctionDeclaration } from "../../../../utils/ast/guards";
-import { createImportFix } from "../../../../utils/import-fix";
+import { createImportFix } from "../../../../utils/ast/import-fix";
 import { getTypeProgram } from "../../../../utils/types/get-type-program";
 import { Config } from "../_rule";
 

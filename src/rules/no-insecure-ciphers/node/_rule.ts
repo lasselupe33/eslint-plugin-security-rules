@@ -11,10 +11,10 @@
 import { TSESLint } from "@typescript-eslint/utils";
 import { RuleCreator } from "@typescript-eslint/utils/dist/eslint-utils";
 
+import { extractIdentifier } from "../../../utils/ast/extract-identifier";
 import { isLiteral } from "../../../utils/ast/guards";
-import { extractIdentifier } from "../../../utils/extract-identifier";
-import { isPackage } from "../../../utils/is-package";
-import { isPackageAndFunction } from "../../../utils/is-package-and-function";
+import { isPackage } from "../../../utils/ast/is-package";
+import { isPackageAndFunction } from "../../../utils/ast/is-package-and-function";
 import { resolveDocsRoute } from "../../../utils/resolve-docs-route";
 import { isAlgorithmSafe } from "../utils/is-algorithm-safe";
 

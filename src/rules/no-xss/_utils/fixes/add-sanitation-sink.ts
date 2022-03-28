@@ -5,7 +5,7 @@ import {
   RuleFixer,
 } from "@typescript-eslint/utils/dist/ts-eslint";
 
-import { createImportFix } from "../../../../utils/import-fix";
+import { createImportFix } from "../../../../utils/ast/import-fix";
 import { SanitationOptions } from "../options";
 
 export function* addSanitazionAtSink(

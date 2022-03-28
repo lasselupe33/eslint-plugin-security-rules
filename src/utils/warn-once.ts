@@ -4,7 +4,7 @@ import { generateVariableId } from "./generate-variable-id";
 const HAS_WARNED = new Set<string>();
 
 export function warnOnce<TArgs extends unknown[]>(
-  cb: (...args: TArgs) => unknown[],
+  cb: (...args: TArgs) => string,
   ...args: TArgs
 ): void {
   if (process.env["NODE_ENV"] === "production") {
@@ -19,6 +19,6 @@ export function warnOnce<TArgs extends unknown[]>(
   if (!HAS_WARNED.has(key)) {
     HAS_WARNED.add(key);
 
-    console.warn(...cb(...args));
+    console.warn(cb(...args));
   }
 }

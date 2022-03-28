@@ -1,6 +1,6 @@
 import { AST_NODE_TYPES, TSESTree } from "@typescript-eslint/utils";
 
-import { makeMapNodeToHandler } from "./ast/map-node-to-handler";
+import { makeMapNodeToHandler } from "./map-node-to-handler";
 
 const mapNodeToHandler = makeMapNodeToHandler({ disableWarnings: true });
 

@@ -1,6 +1,6 @@
 import { TSESLint, TSESTree } from "@typescript-eslint/utils";
 
-import { isPackage } from "../../../utils/is-package";
+import { isPackage } from "../../../utils/ast/is-package";
 import { resolveDocsRoute } from "../../../utils/resolve-docs-route";
 import { extractIdentifier } from "../utils/extract-identifier";
 

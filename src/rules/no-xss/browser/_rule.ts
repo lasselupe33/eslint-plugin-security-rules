@@ -54,7 +54,7 @@ export const noBrowserXSSRule = createRule<NoXssOptions, MessageIds>({
     fixable: "code",
     messages: {
       [MessageIds.VULNERABLE_SINK]:
-        "[{{sinkType}} sink] This assignment may vulnerable to XSS attacks.",
+        "This assignment may vulnerable to XSS attacks",
       [MessageIds.ADD_SANITATION_FIX]:
         "Add sanitation before assigning unsafe value",
     },

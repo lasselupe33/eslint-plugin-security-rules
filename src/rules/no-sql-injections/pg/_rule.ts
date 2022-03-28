@@ -11,6 +11,7 @@
 import { TSESLint, TSESTree } from "@typescript-eslint/utils";
 import { RuleCreator } from "@typescript-eslint/utils/dist/eslint-utils";
 
+import { extractIdentifier } from "../../../utils/ast/extract-identifier";
 import {
   isCallExpression,
   isIdentifier,
@@ -18,8 +19,7 @@ import {
   isArrowFunctionExpression,
   isProperty,
 } from "../../../utils/ast/guards";
-import { extractIdentifier } from "../../../utils/extract-identifier";
-import { isPackage } from "../../../utils/is-package";
+import { isPackage } from "../../../utils/ast/is-package";
 import { resolveDocsRoute } from "../../../utils/resolve-docs-route";
 import { extractValuesArray } from "../utils/extract-values-array";
 import { MessageIds, errorMessages } from "../utils/messages";

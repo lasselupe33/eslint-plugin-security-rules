@@ -55,7 +55,7 @@ export function createCache<T>({ useFileSystem }: Options = {}) {
             fs.readFileSync(path.join(fileSystemPath, key), "utf-8")
           ) as T;
         } catch (err) {
-          // Silently fail..
+          // Silently fail since the file is not available and thus not cached
           return undefined;
         }
       }

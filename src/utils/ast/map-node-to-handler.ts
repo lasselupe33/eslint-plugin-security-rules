@@ -38,10 +38,7 @@ export function makeMapNodeToHandler(
     }
 
     if (!callback && !disableWarnings) {
-      warnOnce(() => [
-        `mapNodeToHandler(%s): No handler associated to type.`,
-        node.type,
-      ]);
+      warnOnce(warnAboutMissingHandler, node.type);
     }
 
     if (withLogs) {
@@ -52,6 +49,10 @@ export function makeMapNodeToHandler(
     // this helper, however when used externally we get what we expect.
     return callback?.(ctx, node) as ReturnType;
   };
+}
+
+function warnAboutMissingHandler(type: string) {
+  return `mapNodeToHandler(${type}): No handler associated to type.`;
 }
 
 export const mapNodeToHandler = makeMapNodeToHandler();

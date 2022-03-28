@@ -1,6 +1,7 @@
 import { ParameterDefinition } from "@typescript-eslint/scope-manager";
 import { TSESTree } from "@typescript-eslint/utils";
 
+import { getModuleScope } from "../../ast/get-module-scope";
 import {
   isArrayPattern,
   isArrowFunctionExpression,
@@ -15,7 +16,6 @@ import {
 } from "../../ast/guards";
 import { deepMerge } from "../../deep-merge";
 import { findReverse } from "../../find-reverse";
-import { getModuleScope } from "../../get-module-scope";
 import { handleNode } from "../handlers/_handle-node";
 import { Connection } from "../types/connection";
 import { HandlingContext, ParameterContext } from "../types/context";
