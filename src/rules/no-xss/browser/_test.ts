@@ -19,11 +19,18 @@ const ruleTester = new ESLintUtils.RuleTester({
 });
 
 ruleTester.run("browser/no-xss", noBrowserXSSRule, {
-  valid: [getCode(__dirname, "allow-assign-safe-value")],
+  valid: [
+    getCode(__dirname, "allow-assign-safe-value"),
+    getCode(__dirname, "allow-assign-sanitized-value"),
+  ],
   invalid: [
     {
       ...getCode(__dirname, "error-assign-unsafe-value"),
       errors: repeat({ messageId: MessageIds.VULNERABLE_SINK }, 27),
+    },
+    {
+      ...getCode(__dirname, "error-unsafe-modification"),
+      errors: repeat({ messageId: MessageIds.VULNERABLE_SINK }, 1),
     },
   ],
 });
