@@ -30,7 +30,6 @@ export const configs = {
       "plugin:security-rules/browser",
       "plugin:security-rules/node",
       "plugin:security-rules/react",
-      "plugin:security-rules/ejs",
       "plugin:security-rules/universal",
       "plugin:security-rules/mysql",
       "plugin:security-rules/pg",
