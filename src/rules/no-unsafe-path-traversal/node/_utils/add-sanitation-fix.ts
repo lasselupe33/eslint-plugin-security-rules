@@ -56,11 +56,12 @@ export function* addSanitationFix(
       }
     );
 
-    if (!hasImplementationTemplateInPlace(ctx, config))
+    if (!hasImplementationTemplateInPlace(ctx, config)) {
       yield fixer.insertTextAfterRange(
         finalRange,
         `\n\n${getImplementationTemplate(config, ctx)}`
       );
+    }
   } else {
     yield createImportFix(
       ctx,

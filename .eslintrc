@@ -24,7 +24,7 @@
     "security-rules/node/no-unsafe-path-traversal": ["error", {
       "sanitation": {
         "method": "sanitizePath",
-        "filename": "{{root}}/src/utils/sanitize-path"
+        "location": "{{root}}/src/utils/sanitize-path"
       },
       "root": "{{root}}"
     }],
