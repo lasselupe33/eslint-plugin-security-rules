@@ -101,6 +101,8 @@ ruleTester.run("tracing/test", traceTestRule, {
     getCode(__dirname, "import/require"),
 
     getCode(__dirname, "object/nested"),
+    getCode(__dirname, "object/rest-advanced-1"),
+    getCode(__dirname, "object/rest-advanced-2"),
     getCode(__dirname, "object/rest-inline"),
     getCode(__dirname, "object/rest-overwrite"),
     getCode(__dirname, "object/rest-simple"),

@@ -1,39 +1,5 @@
-type MyObj = {
-  name: string;
-  animals: Record<string, { name: string; age: number }>;
-};
+const arrayAges = [0, 2, 3, 4, 5];
 
-let object: MyObj = {
-  name: "Ball",
-  animals: {
-    cat: {
-      name: "Mittens",
-      age: 3,
-    },
-    dog: {
-      name: "Fido",
-      age: 2,
-    },
-  },
-};
-
-if (Math.random() > 0.5) {
-  object = {
-    name: "Derp",
-    animals: {
-      ...object.animals,
-      turtle: {
-        name: "Turtle",
-        age: 1,
-      },
-    },
-  };
-}
-
-const totalAge = (object?.animals["cat"]?.age ?? 0) + 0;
-// (object?.animals["dog"]?.age ?? 0) +
-// (object?.animals["turtle"]?.age ?? 0);
-
-const start = totalAge;
+const start = arrayAges?.[1];
 
 export {};
