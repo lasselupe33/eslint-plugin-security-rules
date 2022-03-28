@@ -21,8 +21,8 @@ import {
 } from "../../../utils/ast/guards";
 import { isPackage } from "../../../utils/ast/is-package";
 import { resolveDocsRoute } from "../../../utils/resolve-docs-route";
-import { extractValuesArray } from "../utils/extract-values-array";
-import { MessageIds, errorMessages } from "../utils/messages";
+import { extractValuesArray } from "../_utils/extract-values-array";
+import { MessageIds, errorMessages } from "../_utils/messages";
 
 import { countPlaceholders } from "./utils/count-placeholders";
 import { isQuerySafe } from "./utils/is-query-safe";

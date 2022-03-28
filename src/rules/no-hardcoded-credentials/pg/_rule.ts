@@ -7,7 +7,7 @@ import {
 } from "../../../utils/ast/guards";
 import { isPackage } from "../../../utils/ast/is-package";
 import { resolveDocsRoute } from "../../../utils/resolve-docs-route";
-import { isSafeValue } from "../utils/is-safe-value";
+import { isSafeValue } from "../_utils/is-safe-value";
 
 import { handleArgs } from "./handlers/handleArgs";
 import { MessageIds, errorMessages } from "./utils/messages";

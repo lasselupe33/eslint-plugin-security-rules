@@ -2,7 +2,7 @@ import { TSESLint, TSESTree } from "@typescript-eslint/utils";
 
 import { isPackage } from "../../../utils/ast/is-package";
 import { resolveDocsRoute } from "../../../utils/resolve-docs-route";
-import { extractIdentifier } from "../utils/extract-identifier";
+import { extractIdentifier } from "../_utils/extract-identifier";
 
 import { checkArgumentsForPassword } from "./utils/check-arguments-for-password";
 import { extractObjectProperties } from "./utils/extract-object-properties";

@@ -1,11 +1,7 @@
 import { TSESTree } from "@typescript-eslint/utils";
 
-import {
-  isIdentifier,
-  isProperty,
-  isLiteral,
-} from "../../../../utils/ast/guards";
-import { isSafeValue } from "../../utils/is-safe-value";
+import { isIdentifier, isProperty } from "../../../../utils/ast/guards";
+import { isSafeValue } from "../../_utils/is-safe-value";
 import { HandlingContext, report } from "../_rule";
 
 export function checkArgumentsForPassword(

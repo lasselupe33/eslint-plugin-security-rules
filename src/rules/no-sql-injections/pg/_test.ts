@@ -3,7 +3,7 @@ import path from "path";
 import { ESLintUtils } from "@typescript-eslint/utils";
 
 import { getCode } from "../../../utils/testing/get-code";
-import { MessageIds } from "../utils/messages";
+import { MessageIds } from "../_utils/messages";
 
 import { pgNoSQLInjections } from "./_rule";
 

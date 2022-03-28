@@ -16,7 +16,7 @@ import { isLiteral } from "../../../utils/ast/guards";
 import { isPackage } from "../../../utils/ast/is-package";
 import { isPackageAndFunction } from "../../../utils/ast/is-package-and-function";
 import { resolveDocsRoute } from "../../../utils/resolve-docs-route";
-import { isAlgorithmSafe } from "../utils/is-algorithm-safe";
+import { isAlgorithmSafe } from "../_utils/is-algorithm-safe";
 
 import { MessageIds, errorMessages } from "./utils/messages";
 

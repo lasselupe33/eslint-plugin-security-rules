@@ -6,7 +6,7 @@ import {
   isIdentifier,
   isLiteral,
 } from "../../../utils/ast/guards";
-import { isSafeValue } from "../utils/is-safe-value";
+import { isSafeValue } from "../_utils/is-safe-value";
 
 import { errorMessages, MessageIds } from "./utils/messages";
 
