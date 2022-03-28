@@ -1,6 +1,7 @@
 **/package-lock.json
 
 # Build artefacts
+src/.cache/
 **/node_modules/
 **/lib/
 repos/

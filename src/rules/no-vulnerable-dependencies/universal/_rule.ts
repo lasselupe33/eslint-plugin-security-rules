@@ -12,7 +12,7 @@ import { getSeverityString } from "../_utils/get-severity-string";
  *  [X] Detection
  *  [/] Automatic fix / Suggestions
  *  [X] Reduction of false positives
- *  [ ] Fulfilling unit testing
+ *  [-] Fulfilling unit testing
  *  [ ] Extensive documentation
  *  [?] Fulfilling configuration options
  */

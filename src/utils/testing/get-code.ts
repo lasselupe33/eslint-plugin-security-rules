@@ -5,7 +5,7 @@ import resolve from "enhanced-resolve";
 import { sanitizePath } from "../sanitize-path";
 
 const resolver = resolve.create.sync({
-  extensions: [".ts", ".tsx", ".js", ".jsx"],
+  extensions: [".ts", ".tsx", ".js", ".jsx", ".json"],
 });
 
 export function getCode(dirname: string, name: string) {

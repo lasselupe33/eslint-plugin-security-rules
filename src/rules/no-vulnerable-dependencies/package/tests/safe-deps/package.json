@@ -1,0 +1,9 @@
+{
+  "name": "safe-deps-test",
+  "version": "0.0.0",
+  "description": "",
+  "license": "MIT",
+  "devDependencies": {
+    "typescript": "^4.6.3"
+  }
+}
