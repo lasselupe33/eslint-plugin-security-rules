@@ -29,6 +29,7 @@ To include the recommended `eslint-plugin-security-rules` to your ruleset add th
 `eslint-plugin-security-rules` comes with several rulesets, scoped to the environment that they target, allowing you to only enable rules relevant to your project.
 
 - `'plugin:security-rules/recommended'`: recommended security rules, including all available rules that you can drop in without any additional configuration.
+- `'plugin:security-rules/node'`: rules related to vulnerabilities occuring in code that is intended to be executed in a NodeJS environment.
 - `'plugin:security-rules/browser'`: rules related to vulnerabilities occuring in code that is intended to be executed in a browser.
 - `'plugin:security-rules/universal'`: rules related to vulnerabilities that may occur regardless of which environment the code is being run.
 - `'plugin:security-rules/package'`: rules related to ensure safe usage of dependencies by scanning `package.json`-files.
@@ -48,6 +49,10 @@ To include the recommended `eslint-plugin-security-rules` to your ruleset add th
 | **Name** | **Description** | ✅ | 🔧 | 💭 | 🌩 |
 |:--------|:------------|:--:|:--:|:--:|:----:|
 | [security-rules/browser/no-xss](https://github.com/lasselupe33/eslint-plugin-security-rules/blob/master/src/rules/no-xss/browser/_docs.md) | Detects DOM-based XSS vulnerabilities | ✅ | 🔧 | 💭 | |
+
+| **Name** | **Description** | ✅ | 🔧 | 💭 | 🌩 |
+|:--------|:------------|:--:|:--:|:--:|:----:|
+| [security-rules/node/no-unsafe-path](https://github.com/lasselupe33/eslint-plugin-security-rules/blob/master/src/rules/no-unsafe-path/node/_docs.md) | Avoids usage of unsafe paths when interacting with the file-system using "fs" | ✅ | 🔧 | 💭 | |
 
 ### Universal
 

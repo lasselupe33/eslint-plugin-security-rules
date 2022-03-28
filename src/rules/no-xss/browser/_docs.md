@@ -21,7 +21,7 @@ In order to mitigate the issue reported by this rule you may take one of the fol
 
 You can apply the suggestion/automatic fix that this rules proposes, however do note that **this suggestion alters program functionality**.
 
-The  will ensure that the unsafe value is sanitized before being inserted into the vulnerable sink using your preferred sanitation library. *(This can be [configured](#configuration))*
+This will ensure that the unsafe value is sanitized before being inserted into the vulnerable sink using your preferred sanitation library. *(This can be [configured](#configuration))*
 
 Using this suggestion, with default configurations, the following vulnerable code...
 
@@ -50,8 +50,6 @@ Once you have done so the error reported from this rule should vanish.
 ### Ignore (Manual)
 
 In case you are certain that you have encountered a false positive, then you can simply ignore the report.
-
-**NB: In case you know that a domain is trusted, then you can supply this as a [configuration](#configuration) option!**
 
 ## Configuration
 
@@ -89,7 +87,7 @@ Secondly, you can **specify domains that are known to be safe** to reduce the am
 
 - [X] ✅ Recommended for ```.js,.jsx,.ts,.tsx```
 - [X] 🔧 Provides suggestion
-- [X] 💭 Enchanced with type information
+- [X] 💭 Enhanced with type information
 - [ ] 🌩 Requires type information
 
 ## Background

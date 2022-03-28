@@ -92,7 +92,7 @@ Secondly, you can **specify domains that are known to be safe** to reduce the am
 
 - [X] ✅ Recommended for ```.jsx,.tsx```
 - [X] 🔧 Provides suggestion
-- [X] 💭 Enchanced with type information
+- [X] 💭 Enhanced with type information
 - [ ] 🌩 Requires type information
 
 ## Background

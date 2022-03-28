@@ -5,7 +5,7 @@ import { ESLintUtils } from "@typescript-eslint/utils";
 import { getCode } from "../../../utils/testing/get-code";
 import { repeat } from "../../../utils/testing/repeat";
 
-import { MessageIds, noNodeUnsafePathTraversal } from "./_rule";
+import { MessageIds, noNodeUnsafePath } from "./_rule";
 
 const ruleTester = new ESLintUtils.RuleTester({
   parser: "@typescript-eslint/parser",
@@ -18,7 +18,7 @@ const ruleTester = new ESLintUtils.RuleTester({
   },
 });
 
-ruleTester.run("node/no-unsafe-path-traversal", noNodeUnsafePathTraversal, {
+ruleTester.run("node/no-unsafe-path", noNodeUnsafePath, {
   valid: [
     getCode(__dirname, "allow-safe-path"),
     getCode(__dirname, "allow-safe-with-nodejs-path"),

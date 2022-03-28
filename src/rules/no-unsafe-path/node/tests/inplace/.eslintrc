@@ -1,9 +1,9 @@
 {
   "extends": "../../../../../../.eslintrc",
   "rules": {
-    "security-rules/node/no-unsafe-path-traversal": ["error", {
+    "security-rules/node/no-unsafe-path": ["error", {
       "sanitation": {
-        "location": "{{root}}/src/utils/sanitize-path",
+        "location": "{{inplace}}",
         "method": "sanitizePath"
       },
       "root": "{{abs}}:@test-root"

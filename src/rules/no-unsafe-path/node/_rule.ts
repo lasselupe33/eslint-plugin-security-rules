@@ -16,11 +16,11 @@ import { fsSinks } from "./data";
 /**
  * Progress
  *  [X] Detection
- *  [ ] Automatic fix / Suggestions
- *  [ ] Reduction of false positives
- *  [ ] Fulfilling unit testing
- *  [ ] Extensive documentation
- *  [ ] Fulfilling configuration options
+ *  [X] Automatic fix / Suggestions
+ *  [X] Reduction of false positives
+ *  [-] Fulfilling unit testing
+ *  [X] Extensive documentation
+ *  [X] Fulfilling configuration options
  */
 
 export enum MessageIds {
@@ -42,10 +42,11 @@ export type RootConfig = string;
 const createRule = RuleCreator(resolveDocsRoute);
 
 /**
- * !!!
+ * Detects and reports if any unsafe values are used to access the filesystem
+ * using the NodeJS 'fs' package.
  */
-export const noNodeUnsafePathTraversal = createRule<[Config], MessageIds>({
-  name: "no-unsafe-path-traversal/node",
+export const noNodeUnsafePath = createRule<[Config], MessageIds>({
+  name: "no-unsafe-path/node",
   defaultOptions: [
     {
       sanitation: {
@@ -60,12 +61,11 @@ export const noNodeUnsafePathTraversal = createRule<[Config], MessageIds>({
     fixable: "code",
     messages: {
       [MessageIds.VULNERABLE_PATH]:
-        "Path from external sources must be sanitized before usage",
-      [MessageIds.ADD_SANITATION_FIX]:
-        "Add sanitation before assigning unsafe value",
+        "Paths from unknown sources must be sanitized before usage",
+      [MessageIds.ADD_SANITATION_FIX]: "Add sanitation of path value",
     },
     docs: {
-      description: "TODO",
+      description: `Avoids usage of unsafe paths when interacting with the file-system using the NodeJS "fs"-package`,
       recommended: "error",
       suggestion: true,
     },
