@@ -79,7 +79,8 @@ export const noNodeUnsafePathTraversal = createRule<[Config], MessageIds>({
             required: false,
             properties: {
               method: { type: "string", required: true },
-              filename: { type: "string", required: true },
+              location: { type: "string", required: true },
+              defaultExport: { type: "string", required: false },
             },
           },
           root: { type: "string", required: false },

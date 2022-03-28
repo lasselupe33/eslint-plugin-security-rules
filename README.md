@@ -35,7 +35,6 @@ To include the recommended `eslint-plugin-security-rules` to your ruleset add th
 - `'plugin:security-rules/react'`: security related rules targeting code using the `react` package.
 - `'plugin:security-rules/pg'`: security related rules targeting code using the `pg` (postgres) package.
 - `'plugin:security-rules/mysql'`: security related rules targeting code using the `mysql` package.
-- `'plugin:security-rules/ejs'`: security related rules targeting code using the `ejs` package.
 
 **Key**:
 
@@ -86,9 +85,3 @@ The following ruleset are related to specific popular packages, scanning for vul
 |:--------|:------------|:--:|:--:|:--:|:----:|
 | [security-rules/mysql/no-sql-injections](https://github.com/lasselupe33/eslint-plugin-security-rules/blob/master/src/rules/no-sql-injections/mysql/_docs.md) | Detects queries vulnerable to SQL Injections | ✅ | 🔧 | 💭 | |
 | [security-rules/mysql/no-hardcoded-credentials](https://github.com/lasselupe33/eslint-plugin-security-rules/blob/master/src/rules/no-hardcoded-credentials/mysql/_docs.md) | Detects hardcoded secrets in a file  | ✅ | | | |
-
-#### EJS
-
-| **Name** | **Description** | ✅ | 🔧 | 💭 | 🌩 |
-|:--------|:------------|:--:|:--:|:--:|:----:|
-| [security-rules/ejs/no-xss](https://github.com/lasselupe33/eslint-plugin-security-rules/blob/master/src/rules/no-xss/ejs/_docs.md) | Detects Stored/Reflcted XSS vulnerabilities introduced by using EJS | ✅ | 🔧 | 💭 | |

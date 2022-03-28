@@ -8,7 +8,6 @@ import { noNodeUnsafePathTraversal } from "./rules/no-unsafe-path-traversal/node
 import { noPackageVulnerableDependencies } from "./rules/no-vulnerable-dependencies/package/_rule";
 import { noUniversalVulnerableDependencies } from "./rules/no-vulnerable-dependencies/universal/_rule";
 import { noBrowserXSSRule } from "./rules/no-xss/browser/_rule";
-import { noEjsXSSRule } from "./rules/no-xss/ejs/_rule";
 import { noReactXSSRule } from "./rules/no-xss/react/_rule";
 
 export const rules = {
@@ -16,7 +15,6 @@ export const rules = {
   "node/no-insecure-ciphers": cipherNoInsecureCiphers,
   "browser/no-xss": noBrowserXSSRule,
   "react/no-xss": noReactXSSRule,
-  "ejs/no-xss": noEjsXSSRule,
   "universal/no-hardcoded-credentials": uniNoHardcodedCredentials,
   "universal/no-vulnerable-dependencies": noUniversalVulnerableDependencies,
   "mysql/no-hardcoded-credentials": mysqlNoHardcodedCredentials,
@@ -32,7 +30,6 @@ export const configs = {
       "plugin:security-rules/browser",
       "plugin:security-rules/node",
       "plugin:security-rules/react",
-      "plugin:security-rules/ejs",
       "plugin:security-rules/universal",
       "plugin:security-rules/mysql",
       "plugin:security-rules/pg",
@@ -57,12 +54,6 @@ export const configs = {
     plugins: ["security-rules"],
     rules: {
       "security-rules/react/no-xss": ["error"],
-    },
-  },
-  ejs: {
-    plugins: ["security-rules"],
-    rules: {
-      "security-rules/ejs/no-xss": ["error"],
     },
   },
   universal: {
