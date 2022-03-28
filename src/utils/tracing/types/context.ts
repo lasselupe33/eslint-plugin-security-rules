@@ -35,6 +35,8 @@ export type Meta = {
 
   callCount: number;
 
+  encounteredSpreadElements: WeakMap<TSESTree.Node, boolean>;
+
   parserPath: string;
   filePath: string;
 };

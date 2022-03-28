@@ -71,6 +71,7 @@ export function traceVariable(
         memberPath: [],
         parameterContext: new WeakMap(),
         callCount: 0,
+        encounteredSpreadElements: new WeakMap(),
       },
     },
     ctx.node

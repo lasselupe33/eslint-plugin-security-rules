@@ -12,7 +12,6 @@ import { getNodeName } from "../get-node-name";
 import { HandlingContext } from "../types/context";
 import {
   isNodeTerminalNode,
-  isTerminalNode,
   isUnresolvedTerminalNode,
   makeNodeTerminalNode,
   makeUnresolvedTerminalNode,
@@ -32,6 +31,9 @@ export function handleObjectExpression(
   const nextCtx = deepMerge(ctx, {
     connection: {
       astNodes,
+    },
+    meta: {
+      memberPath: memberPath.slice(0, -1),
     },
   });
 
@@ -54,7 +56,7 @@ export function handleObjectExpression(
     ];
   }
 
-  const targetProperty = memberPath.pop();
+  const targetProperty = memberPath[memberPath.length - 1];
 
   for (const property of [...objectExpression.properties].reverse()) {
     if (isProperty(property) || isMethodDefinition(property)) {
@@ -64,7 +66,7 @@ export function handleObjectExpression(
         return handleNode(nextCtx, property.value);
       }
     } else if (isSpreadElement(property)) {
-      const objects: (TraceNode | undefined)[] = [];
+      const objects: (NodeTerminalNode | undefined)[] = [];
 
       // We need to trace to the next available object and follow that in case
       // we've encountered a spread element
@@ -77,7 +79,7 @@ export function handleObjectExpression(
           onTraceFinished: (trace) => {
             const finalNode = trace[trace.length - 1];
 
-            if (isTerminalNode(finalNode)) {
+            if (isNodeTerminalNode(finalNode)) {
               objects.push(finalNode);
             }
           },
@@ -85,13 +87,19 @@ export function handleObjectExpression(
       );
 
       const matches = objects
-        .filter((it): it is NodeTerminalNode => isNodeTerminalNode(it))
+        .filter(
+          (it): it is NodeTerminalNode =>
+            !!it && !nextCtx.meta.encounteredSpreadElements.has(it.astNode)
+        )
         .flatMap(
           (object) =>
             handleNode(
               deepMerge(nextCtx, {
                 meta: {
                   memberPath: [...nextCtx.meta.memberPath, targetProperty],
+                  encounteredSpreadElements: new WeakMap([
+                    [object.astNode, true],
+                  ]),
                 },
               }),
               object.astNode

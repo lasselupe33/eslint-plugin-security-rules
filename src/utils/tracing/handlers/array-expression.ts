@@ -24,6 +24,9 @@ export function handleArrayExpression(
     connection: {
       astNodes: [...ctx.connection.astNodes, arrayExpression],
     },
+    meta: {
+      memberPath: memberPath.slice(0, -1),
+    },
   });
 
   if (forceFollowObjectProperties) {
@@ -43,7 +46,7 @@ export function handleArrayExpression(
     ];
   }
 
-  const targetIndex = Number(memberPath.pop());
+  const targetIndex = Number(memberPath[memberPath.length - 1]);
   let currIndex = 0;
 
   if (!Number.isNaN(targetIndex)) {
@@ -79,16 +82,22 @@ export function handleArrayExpression(
         currIndex += Math.min(...arrays.map((it) => it.elements.length));
 
         if (currIndex > targetIndex) {
-          return arrays.flatMap((it) =>
-            handleNode(
-              deepMerge(nextCtx, {
-                meta: {
-                  memberPath: [...nextCtx.meta.memberPath, String(spreadIndex)],
-                },
-              }),
-              it
-            )
-          );
+          return arrays
+            .filter((it) => !nextCtx.meta.encounteredSpreadElements.has(it))
+            .flatMap((it) =>
+              handleNode(
+                deepMerge(nextCtx, {
+                  meta: {
+                    memberPath: [
+                      ...nextCtx.meta.memberPath,
+                      String(spreadIndex),
+                    ],
+                    encounteredSpreadElements: new WeakMap([[it, true]]),
+                  },
+                }),
+                it
+              )
+            );
         }
       } else {
         if (currIndex === targetIndex) {
