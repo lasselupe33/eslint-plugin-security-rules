@@ -71,7 +71,7 @@ export function isQuerySafe(
       },
       onTraceFinished: (trace) => {
         const finalNode = trace[trace.length - 1];
-        printTrace(trace);
+        // printTrace(trace);
 
         const isTraceSafe =
           isConstantTerminalNode(finalNode) || isCurrentTraceSafe;

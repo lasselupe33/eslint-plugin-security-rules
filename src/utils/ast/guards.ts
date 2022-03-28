@@ -101,7 +101,13 @@ export const isJSXNamespacedName = isNodeOfType(
 export const isArrayPattern = isNodeOfType(AST_NODE_TYPES.ArrayPattern);
 
 export function isNode(value: unknown): value is TSESTree.Node {
-  return !value;
+  return (
+    typeof value === "object" &&
+    value != null &&
+    "type" in value &&
+    // @ts-expect-error type exists due to prev. checks
+    Object.values(AST_NODE_TYPES).includes(value.type)
+  );
 }
 
 export const isParameter = (
