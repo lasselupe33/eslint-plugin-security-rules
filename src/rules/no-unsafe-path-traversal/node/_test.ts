@@ -21,12 +21,17 @@ const ruleTester = new ESLintUtils.RuleTester({
 ruleTester.run("node/no-unsafe-path-traversal", noNodeUnsafePathTraversal, {
   valid: [
     getCode(__dirname, "allow-safe-path"),
+    getCode(__dirname, "allow-safe-with-nodejs-path"),
     getCode(__dirname, "inplace/allow-sanitized-inplace"),
     getCode(__dirname, "external/allow-sanitized-external"),
   ],
   invalid: [
     {
       ...getCode(__dirname, "error-unsafe-path"),
+      errors: repeat({ messageId: MessageIds.VULNERABLE_PATH }, 4),
+    },
+    {
+      ...getCode(__dirname, "error-unsafe-with-nodejs-path"),
       errors: repeat({ messageId: MessageIds.VULNERABLE_PATH }, 4),
     },
     {
