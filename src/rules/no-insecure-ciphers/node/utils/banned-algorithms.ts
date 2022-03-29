@@ -1,7 +1,10 @@
 export const bannedAlgs = new Set<string>([
-  "DES", // DES / 3DES is unsecure
-  "DES-EDE", // DES / 3DES is unsecure
-  "DES-EDE3", // DES / 3DES is unsecure
+  "DES", // DES is insecure due to the short key length.
+  // 3DES is disallowed after 2023, disallowed in new applications after 2017
+  // Source: https://csrc.nist.gov/publications/detail/sp/800-131a/rev-2/final
+  // (Table 1, Page 7)
+  "DES-EDE",
+  "DES-EDE3",
   "RC2", // RC2 is vulnerable to a related-key attack
   "RC4", // RC4 is vulnerable to several attacks
   "BF", // Blowfish use a 64-bit block size makes it vulnerable to birthday attacks
