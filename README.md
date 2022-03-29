@@ -1,6 +1,8 @@
 <h1 align="center">ESLint Plugin Security Rules</h1>
 
-ESLint security rules to help harden your project as early as possible!
+ESLint security rules to help harden your project as early as possible.
+
+**NB:** This project was written as an artefact for a master's thesis at the IT University of Copenhagen and it should still be considered a work in progress.
 
 ## Installation
 
