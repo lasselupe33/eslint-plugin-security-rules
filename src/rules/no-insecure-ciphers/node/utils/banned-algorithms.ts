@@ -7,15 +7,15 @@ export const bannedAlgs = new Set<string>([
   "BF", // Blowfish use a 64-bit block size makes it vulnerable to birthday attacks
   // ECB is vulnerable in that a block is encrypted without randomness. That
   // means that a block will always get encrypted to the same ciphertext.
-  "aes-128-ecb",
-  "aes-192-ecb",
-  "aes-256-ecb",
-  "bf-ecb",
-  "camellia-128-ecb",
-  "camellia-192-ecb",
-  "camellia-256-ecb",
-  "cast5-ecb",
-  "des-ecb",
-  "gost89-ecb",
-  "rc2-ecb",
+  "AES-128-ECB",
+  "AES-192-ECB",
+  "AES-256-ECB",
+  "BF-ECB",
+  "CAMELLIA-128-ECB",
+  "CAMELLIA-192-ECB",
+  "CAMELLIA-256-ECB",
+  "CAST5-ECB",
+  "DES-ECB",
+  "GOST89-ECB",
+  "RC2-ECB",
 ]);
