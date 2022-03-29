@@ -14,7 +14,7 @@ A successfull SQL injection attack may cause:
 
 ## Actions
 
-In order to mitigate the issue reported by this rule, unsafe data needs to be sanitized. The `pg` package has a built-in feature, that does this work. 
+In order to mitigate the issue reported by this rule, unsafe data needs to be sanitized. The `pg` package has a built-in feature, that does this work.
 
 ### Apply the provided ESLint suggestion (Automatic fix)
 
@@ -69,7 +69,7 @@ In case you are certain that you have encountered a false positive, then you can
 
 - [X] ✅ Recommended for ```.js,.jsx,.ts,.tsx```
 - [X] 🔧 Provides suggestion
-- [X] 💭 Enhanced with type information
+- [ ] 💭 Enhanced with type information
 - [ ] 🌩 Requires type information
 
 ## Background

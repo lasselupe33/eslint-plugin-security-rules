@@ -54,9 +54,9 @@ const selectStatement = await (await fetch("https://malicious.site")).text();
 
 const data = { id: 1, lastName: "Tables" };
 
-const query = `SELECT ?? FROM health_records WHERE id = ${data.id}`; // Compliant
+const query = `SELECT ${connection.escapeId(selectStatement)} FROM health_records WHERE id = ${data.id}`; // Compliant
 
-connection.query(query, [selectStatement], (err, rows) => {
+connection.query(query, (err, rows) => {
   if (err) throw err;
 });
 ```
@@ -102,7 +102,7 @@ In case you are certain that you have encountered a false positive, then you can
 
 - [X] ✅ Recommended for ```.js,.jsx,.ts,.tsx```
 - [X] 🔧 Provides suggestion
-- [X] 💭 Enhanced with type information
+- [ ] 💭 Enhanced with type information
 - [ ] 🌩 Requires type information
 
 ## Background
