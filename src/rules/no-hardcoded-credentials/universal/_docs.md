@@ -1,4 +1,4 @@
-# No Hardcoded Credentials (No Hardcoded Credentials/universal)
+# No Hardcoded Credentials (no-hardcoded-credentials/universal)
 
 This rule aims to detect potential hardcoded credentials.
 
