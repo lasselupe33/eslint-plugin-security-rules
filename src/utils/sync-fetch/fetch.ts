@@ -1,4 +1,5 @@
 import { execSync } from "child_process";
+import fs from "fs";
 import path from "path";
 
 import { AxiosRequestHeaders } from "axios";
@@ -24,7 +25,23 @@ export type BackgroundResponse<T> = {
  */
 export function syncFetch<T>(url: string, config: FetchConfig): T | undefined {
   try {
-    const res = execSync(`node ${path.join(__dirname, "background.js")}`, {
+    const file = fs.existsSync(path.join(__dirname, "background.js"))
+      ? path.join(__dirname, "background.js")
+      : // When run with jest, then files will be resolved relative to the source
+        // folder, however the background script will always only exist in the
+        // lib folder.
+        path.join(
+          __dirname,
+          "..",
+          "..",
+          "..",
+          "lib",
+          "utils",
+          "sync-fetch",
+          "background.js"
+        );
+
+    const res = execSync(`node ${file}`, {
       encoding: "utf8",
       input: JSON.stringify({
         url,
