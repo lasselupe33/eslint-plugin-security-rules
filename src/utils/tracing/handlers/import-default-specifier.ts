@@ -45,6 +45,7 @@ export function handleImportDefaultSpecifier(
   }
 
   const sourceCodeToFollow = getSourceCodeOfFile(
+    ctx.ruleContext,
     ctx.meta,
     sourceNode.astNode.source.value
   );

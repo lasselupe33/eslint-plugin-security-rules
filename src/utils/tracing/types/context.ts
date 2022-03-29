@@ -45,7 +45,7 @@ export type Meta = {
  * Context available to all handlers when tracing a given node
  */
 export type HandlingContext = {
-  ruleContext: RuleContext<string, unknown[]>;
+  ruleContext: RuleContext<string, readonly unknown[]>;
   connection: Connection;
   scope: Scope.Scope;
   rootScope: Scope.Scope;

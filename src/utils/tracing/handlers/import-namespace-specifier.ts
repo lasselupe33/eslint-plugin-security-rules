@@ -44,6 +44,7 @@ export function handleImportNamespaceSpecifier(
   }
 
   const sourceCodeToFollow = getSourceCodeOfFile(
+    ctx.ruleContext,
     ctx.meta,
     sourceNode.astNode.source.value
   );

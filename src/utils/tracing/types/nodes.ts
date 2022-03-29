@@ -1,5 +1,5 @@
 import { TSESTree } from "@typescript-eslint/utils";
-import { Scope } from "@typescript-eslint/utils/dist/ts-eslint";
+import { RuleContext, Scope } from "@typescript-eslint/utils/dist/ts-eslint";
 
 import { Connection } from "./connection";
 import { Meta } from "./context";
@@ -56,6 +56,7 @@ export type VariableNode = BaseNode & {
   connection: Connection;
   scope: Scope.Scope;
   rootScope: Scope.Scope;
+  ruleContext: RuleContext<string, readonly unknown[]>;
   meta: Meta;
 };
 

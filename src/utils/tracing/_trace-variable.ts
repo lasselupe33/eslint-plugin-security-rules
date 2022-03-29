@@ -26,7 +26,7 @@ import { visitParameter } from "./visitors/parameter";
 import { visitReference } from "./visitors/reference";
 
 export type TraceContext = {
-  context: RuleContext<string, unknown[]>;
+  context: RuleContext<string, readonly unknown[]>;
   initialScope?: Scope.Scope;
   node?: TSESTree.Node | null | undefined;
 };
@@ -119,10 +119,11 @@ export function traceVariable(
       scope,
       rootScope,
       connection: prevConnection,
+      ruleContext,
     } = traceNode;
 
     const handlingContext: HandlingContext = {
-      ruleContext: ctx.context,
+      ruleContext,
       scope,
       rootScope,
       connection: {

@@ -10,6 +10,7 @@ const keysToSkip = [
   "scope",
   "rootScope",
   "encounteredSpreadElements",
+  "ruleContext",
 ];
 
 export function deepMerge<T extends Record<string, unknown>>(

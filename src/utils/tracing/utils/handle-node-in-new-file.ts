@@ -35,7 +35,7 @@ type NodeToFollow =
  */
 export function handleNodeInNewFile(
   ctx: HandlingContext,
-  { sourceCode, resolvedPath }: NewFileSourceCode,
+  { sourceCode, resolvedPath, ruleContext }: NewFileSourceCode,
   nodeIdentifierName: string,
   getAggregateIdentifier: (
     ctx: HandlingContext,
@@ -54,6 +54,7 @@ export function handleNodeInNewFile(
   }
 
   const newFileCtx = deepMerge(ctx, {
+    ruleContext: ruleContext ?? ctx.ruleContext,
     scope: sourceCode.scopeManager.globalScope,
     rootScope: sourceCode.scopeManager.globalScope,
     meta: {
@@ -132,6 +133,7 @@ export function handleNodeInNewFile(
   // trace into new files!
   if (nodeToFollow?.source) {
     const sourceCodeToFollow = getSourceCodeOfFile(
+      newFileCtx.ruleContext,
       newFileCtx.meta,
       nodeToFollow.source
     );
@@ -174,6 +176,7 @@ export function handleNodeInNewFile(
     }
 
     const sourceCodeToFollow = getSourceCodeOfFile(
+      newFileCtx.ruleContext,
       newFileCtx.meta,
       exportAllDeclaration.source.value
     );

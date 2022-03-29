@@ -30,12 +30,12 @@ export type TypeProgram =
   | undefined;
 
 const typeProgramCache = new WeakMap<
-  RuleContext<string, unknown[]>,
+  RuleContext<string, readonly unknown[]>,
   TypeProgram
 >();
 
 export function getTypeProgram(
-  context: RuleContext<string, unknown[]>
+  context: RuleContext<string, readonly unknown[]>
 ): TypeProgram {
   if (typeProgramCache.has(context)) {
     return typeProgramCache.get(context);
@@ -43,7 +43,6 @@ export function getTypeProgram(
 
   try {
     const parserServices = getParserServices(context);
-    parserServices.program.isSourceFileDefaultLibrary;
 
     const typeProgram = {
       parserServices,

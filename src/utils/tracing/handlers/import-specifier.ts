@@ -45,6 +45,7 @@ export function handleImportSpecifier(
   }
 
   const sourceCodeToFollow = getSourceCodeOfFile(
+    ctx.ruleContext,
     ctx.meta,
     sourceNode.astNode.source.value
   );
@@ -53,7 +54,7 @@ export function handleImportSpecifier(
   // now by calling handleNode on the node from the new file.
   if (
     sourceCodeToFollow &&
-    sourceCodeToFollow.sourceCode.scopeManager?.globalScope
+    sourceCodeToFollow.sourceCode?.scopeManager?.globalScope
   ) {
     return handleNodeInNewFile(nextCtx, sourceCodeToFollow, imported, (ctx) =>
       ctx.meta.memberPath.pop()
