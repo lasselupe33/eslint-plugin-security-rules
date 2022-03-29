@@ -1,6 +1,7 @@
 import { Trace } from "../callbacks/with-trace";
 import {
   isConstantTerminalNode,
+  isGlobalTerminalNode,
   isImportTerminalNode,
   isNodeTerminalNode,
   isRootNode,
@@ -46,6 +47,10 @@ function nodeToString(node: TraceNode | RootNode): string {
 
     if (isImportTerminalNode(node)) {
       return `{ imported: ${node.imported}, source: ${node.source} } ${postfix}`;
+    }
+
+    if (isGlobalTerminalNode(node)) {
+      return `Global(${node.name})`;
     }
 
     return `---unknown-trace-node---(${node})`;

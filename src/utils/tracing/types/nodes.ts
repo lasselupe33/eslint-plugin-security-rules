@@ -25,6 +25,11 @@ export type ImportTerminalNode = BaseTerminalNode & {
   source: string;
 };
 
+export type GlobalTerminalNode = BaseTerminalNode & {
+  type: "global";
+  name: string;
+};
+
 export type UnresolvedTerminalNode = BaseTerminalNode & {
   type: "unresolved";
   reason: string;
@@ -46,6 +51,7 @@ export type RootNode = {
 export type TerminalNode =
   | ConstantTerminalNode
   | ImportTerminalNode
+  | GlobalTerminalNode
   | UnresolvedTerminalNode
   | NodeTerminalNode;
 
@@ -78,6 +84,16 @@ export function makeImportTerminalNode(
   return {
     __isTerminalNode: true,
     type: "import",
+    ...node,
+  };
+}
+
+export function makeGlobalTerminalNode(
+  node: Omit<GlobalTerminalNode, "type" | "__isTerminalNode">
+): GlobalTerminalNode {
+  return {
+    __isTerminalNode: true,
+    type: "global",
     ...node,
   };
 }
@@ -128,6 +144,12 @@ export function isImportTerminalNode(
   node: TraceNode | RootNode | undefined
 ): node is ImportTerminalNode {
   return isTerminalNode(node) && node.type === "import";
+}
+
+export function isGlobalTerminalNode(
+  node: TraceNode | RootNode | undefined
+): node is GlobalTerminalNode {
+  return isTerminalNode(node) && node.type === "global";
 }
 
 export function isUnresolvedTerminalNode(

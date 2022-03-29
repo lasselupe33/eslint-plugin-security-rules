@@ -16,9 +16,14 @@
   "plugins": [
     "import"
   ],
+  "env": {
+    "node": true,
+    "browser": true,
+    "es6": true
+  },
   "parserOptions": {
-    "sourceType": "module",
-    "ecmaVersion": 2020
+    "ecmaVersion": "latest",
+    "es6": true
   },
   "rules": {
     "security-rules/node/no-unsafe-path": ["error", {

@@ -15,6 +15,7 @@ import { HandlingContext } from "./types/context";
 import {
   isTerminalNode,
   isVariableNode,
+  makeGlobalTerminalNode,
   makeUnresolvedTerminalNode,
   TraceNode,
 } from "./types/nodes";
@@ -176,6 +177,19 @@ export function traceVariable(
         ...visitImportBinding(handlingContext, variable, variable.defs[0])
       );
       continue;
+    }
+
+    // In case 'eslintExplicitGlobal' is set, then this means that ESLint has
+    // resolved to current variable to be a form of global variable (e.g.
+    // Object/Promise)
+    if ("eslintExplicitGlobal" in variable) {
+      remainingVariables.unshift(
+        makeGlobalTerminalNode({
+          name: variable.name,
+          astNodes: [],
+          ...handlingContext,
+        })
+      );
     }
 
     for (const reference of getRelevantReferences(variable.references)) {

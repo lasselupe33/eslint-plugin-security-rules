@@ -50,6 +50,16 @@ export function visitParameter(
   const relevantParameterContext = findRelevantParameterContext(ctx);
 
   if (!relevantParameterContext) {
+    // In case the parameter lives within a function that has been used as a
+    // callback, then we assume that we can attempt to trace the caller of the
+    // callback to determine involved variables.
+    if (
+      isNewExpression(parameter.node.parent) ||
+      isCallExpression(parameter.node.parent)
+    ) {
+      return handleNode(ctx, parameter.node.parent);
+    }
+
     return [
       makeUnresolvedTerminalNode({
         reason: "Unable to resolve related parameter",

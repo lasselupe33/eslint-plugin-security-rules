@@ -5,7 +5,11 @@ import { isFunctionDeclaration, isFunctionExpression } from "../../ast/guards";
 import { deepMerge } from "../../deep-merge";
 import { handleNode } from "../handlers/_handle-node";
 import { HandlingContext } from "../types/context";
-import { makeUnresolvedTerminalNode, TraceNode } from "../types/nodes";
+import {
+  makeNodeTerminalNode,
+  makeUnresolvedTerminalNode,
+  TraceNode,
+} from "../types/nodes";
 import { getReturnStatements } from "../utils/get-return-statements";
 
 export function visitFunctionName(
@@ -35,9 +39,20 @@ export function visitFunctionName(
     },
   });
 
+  if (ctx.meta.callCount <= 0) {
+    return [
+      makeNodeTerminalNode({
+        astNode: functionName.node,
+        connection: nextCtx.connection,
+        astNodes: nextCtx.connection.astNodes,
+        meta: nextCtx.meta,
+      }),
+    ];
+  }
+
   const functionScope = getInnermostScope(nextCtx.rootScope, functionName.node);
 
-  return getReturnStatements(functionName.node.body.body).flatMap(
+  const newNodes = getReturnStatements(functionName.node.body.body).flatMap(
     (returnStatement) =>
       handleNode(
         deepMerge(nextCtx, {
@@ -49,4 +64,17 @@ export function visitFunctionName(
         returnStatement.argument
       )
   );
+
+  if (newNodes.length > 0) {
+    return newNodes;
+  }
+
+  return [
+    makeNodeTerminalNode({
+      astNode: functionName.node,
+      connection: nextCtx.connection,
+      astNodes: nextCtx.connection.astNodes,
+      meta: nextCtx.meta,
+    }),
+  ];
 }

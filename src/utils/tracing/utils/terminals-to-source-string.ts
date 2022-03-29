@@ -1,5 +1,6 @@
 import {
   isConstantTerminalNode,
+  isGlobalTerminalNode,
   isImportTerminalNode,
   isNodeTerminalNode,
   isUnresolvedTerminalNode,
@@ -15,6 +16,8 @@ export function terminalsToSourceString(terminals: TerminalNode[]): string {
         return `\${${terminal.astNode.type}}`;
       } else if (isImportTerminalNode(terminal)) {
         return `${terminal.imported}(${terminal.source})`;
+      } else if (isGlobalTerminalNode(terminal)) {
+        return `Global(${terminal.name})`;
       } else if (isUnresolvedTerminalNode(terminal)) {
         return `__${terminal.reason}__`;
       }

@@ -6,6 +6,7 @@ import { withTrace } from "../../../../utils/tracing/callbacks/with-trace";
 import { ConnectionFlags } from "../../../../utils/tracing/types/connection";
 import {
   isConstantTerminalNode,
+  isGlobalTerminalNode,
   isImportTerminalNode,
   isNodeTerminalNode,
   isVariableNode,
@@ -84,6 +85,7 @@ export function isSourceSafe(
         const isTraceSafe =
           hasSanitationInTrace ||
           isConstantTerminalNode(finalNode) ||
+          isGlobalTerminalNode(finalNode) ||
           (sinkType === SinkTypes.EXECUTION && isNodeTerminalNode(finalNode));
 
         if (!isTraceSafe) {
