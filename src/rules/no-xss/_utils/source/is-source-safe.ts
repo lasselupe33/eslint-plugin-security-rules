@@ -7,19 +7,22 @@ import { ConnectionFlags } from "../../../../utils/tracing/types/connection";
 import {
   isConstantTerminalNode,
   isImportTerminalNode,
+  isNodeTerminalNode,
   isVariableNode,
 } from "../../../../utils/tracing/types/nodes";
 import { printTrace } from "../../../../utils/tracing/utils/print-trace";
 import { SanitationOptions } from "../options";
+import { SinkTypes } from "../sink/types";
 
 type Context = {
   context: RuleContext<string, unknown[]>;
   options: SanitationOptions;
+  sinkType: SinkTypes;
 };
 
 export function isSourceSafe(
   node: TSESTree.Node | undefined,
-  { context, options }: Context
+  { context, options, sinkType }: Context
 ): boolean {
   if (!node) {
     return true;
@@ -75,8 +78,13 @@ export function isSourceSafe(
         // safe. Or, in the case that a trace ends with a constant value we
         // assume the trace to be safe as well (due to the belief that the
         // developer herself would not explicitly include XSS in their code).
+        //
+        // However, for execution sinks, only string inputs should be considered
+        // harmful, but functions and other nodes should be allowed.
         const isTraceSafe =
-          hasSanitationInTrace || isConstantTerminalNode(finalNode);
+          hasSanitationInTrace ||
+          isConstantTerminalNode(finalNode) ||
+          (sinkType === SinkTypes.EXECUTION && isNodeTerminalNode(finalNode));
 
         if (!isTraceSafe) {
           isSafe = false;

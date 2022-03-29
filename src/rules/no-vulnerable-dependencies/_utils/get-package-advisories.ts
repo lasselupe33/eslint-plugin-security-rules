@@ -1,7 +1,7 @@
 import { minVersion } from "semver";
-import fetch from "sync-fetch";
 
 import { createCache } from "../../../utils/cache";
+import { syncFetch } from "../../../utils/sync-fetch/fetch";
 
 import { Package, PackageLocationMeta } from "./find-relevant-packages";
 
@@ -75,21 +75,17 @@ export function fetchPackageAdvisories(
   pkg: Package
 ): BulkAdvisoryResponse | undefined {
   try {
-    const advisoriesResponse = fetch<BulkAdvisoryResponse>(BULK_ADVISORY_API, {
+    return syncFetch<BulkAdvisoryResponse>(BULK_ADVISORY_API, {
       method: "POST",
       headers: {
         ["content-type"]: "application/json",
       },
-      body: JSON.stringify(convertDependenciesToBulkRequest(pkg)),
+      data: convertDependenciesToBulkRequest(pkg),
       timeout: 5_000,
     });
-
-    if (advisoriesResponse.status !== 200) {
-      return undefined;
-    }
-
-    return advisoriesResponse.json() ?? {};
   } catch (err) {
+    console.warn(err);
+
     return undefined;
   }
 }

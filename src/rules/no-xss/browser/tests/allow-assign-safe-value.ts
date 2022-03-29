@@ -36,6 +36,9 @@ location.replace(value);
 
 eval(value);
 setTimeout(value, 0);
+setTimeout(() => {
+  console.log("hello world");
+}, 0);
 setInterval(value, 0);
 new Function(value);
 

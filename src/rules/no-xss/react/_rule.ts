@@ -129,6 +129,7 @@ export const noReactXSSRule = createRule<NoXssOptions, MessageIds>({
         const isSafe = isSourceSafe(value, {
           context,
           options: sanitationOptions,
+          sinkType: sink.type,
         });
 
         if (isSafe) {
