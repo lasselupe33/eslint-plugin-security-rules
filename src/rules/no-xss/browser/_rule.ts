@@ -99,6 +99,7 @@ export const noBrowserXSSRule = createRule<NoXssOptions, MessageIds>({
         const isSafe = isSourceSafe(node.right, {
           context,
           options: sanitationOptions,
+          sinkType: sink.type,
         });
 
         if (isSafe) {
@@ -153,7 +154,11 @@ export const noBrowserXSSRule = createRule<NoXssOptions, MessageIds>({
 
         const vulnerableNodes = nodesToCheck.filter(
           (variable) =>
-            !isSourceSafe(variable, { context, options: sanitationOptions })
+            !isSourceSafe(variable, {
+              context,
+              options: sanitationOptions,
+              sinkType: sink.type,
+            })
         );
 
         if (vulnerableNodes.length === 0) {

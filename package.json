@@ -6,6 +6,12 @@
   "files": [
     "lib/**"
   ],
+  "private": true,
+  "workspaces": {
+    "packages": [
+      "./dummy"
+    ]
+  },
   "license": "MIT",
   "keywords": [
     "eslint",
@@ -42,6 +48,7 @@
     "@typescript-eslint/eslint-plugin": "^5.16.0",
     "@typescript-eslint/parser": "^5.16.0",
     "@typescript-eslint/scope-manager": "^5.16.0",
+    "axios": "^0.26.1",
     "eslint": "^8.12.0",
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-comment-length": "^0.5.1",
@@ -65,7 +72,6 @@
     "fs-extra": "^10.0.1",
     "jsonc-eslint-parser": "^2.1.0",
     "sanitize-filename": "^1.6.3",
-    "semver": "^7.3.5",
-    "sync-fetch": "git://github.com/lasselupe33/sync-fetch.git#fbcc9245270ed8f59c0911e9620a0e09b6198ab3"
+    "semver": "^7.3.5"
   }
 }
