@@ -4,7 +4,7 @@ This rule aims to detect outdated - or insecure encryption algorithms used in th
 
 The rule detects algorithms by tracing the algorithm identifier until a constant is met. If the constant appears on the banned list of algorithms, the error is triggered.
 
-If this error has flagged an issue in your code, this means that you should consider using an alternative - more secure encryption algorithm.
+If this rule has flagged an issue in your code, this means that you should consider using an alternative - more secure encryption algorithm.
 
 ## Risk
 

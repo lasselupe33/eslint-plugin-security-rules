@@ -28,7 +28,7 @@ ruleTester.run(
         ...getCode(__dirname, "unsafe-deps/index"),
         errors: repeat(
           { messageId: MessageIds.FOUND_VULNERABLE_DEPENDENCY },
-          3
+          9
         ),
       },
     ],

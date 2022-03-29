@@ -50,9 +50,9 @@ To include the recommended `eslint-plugin-security-rules` to your ruleset add th
 
 | **Name** | **Description** | ✅ | 🔧 | 💭 | 🌩 |
 |:--------|:------------|:--:|:--:|:--:|:----:|
-| [security-rules/browser/no-xss](https://github.com/lasselupe33/eslint-plugin-security-rules/blob/master/src/rules/no-xss/browser/_docs.md) | Detects DOM-based XSS vulnerabilities | ✅ | 🔧 | 💭 | |
+| [security-rules/browser/no-xss](https://github.com/lasselupe33/eslint-plugin-security-rules/blob/master/src/rules/no-xss/browser/_docs.md) | Detects DOM-based XSS vulnerabilities in browser sinks | ✅ | 🔧 | 💭 | |
 
-### Browser
+### Node
 
 | **Name** | **Description** | ✅ | 🔧 | 💭 | 🌩 |
 |:--------|:------------|:--:|:--:|:--:|:----:|
@@ -63,13 +63,13 @@ To include the recommended `eslint-plugin-security-rules` to your ruleset add th
 | **Name** | **Description** | ✅ | 🔧 | 💭 | 🌩 |
 |:--------|:------------|:--:|:--:|:--:|:----:|
 | [security-rules/universal/no-hardcoded-credentials](https://github.com/lasselupe33/eslint-plugin-security-rules/blob/master/src/rules/no-hardcoded-credentials/universal/_docs.md) | Detects hardcoded secrets in a file | ✅ | | | |
-| [security-rules/universal/no-vulnerable-dependencies](https://github.com/lasselupe33/eslint-plugin-security-rules/blob/master/src/rules/no-vulnerable-dependencies/universal/_docs.md) | **TODO** | ✅ | | | |
+| [security-rules/universal/no-vulnerable-dependencies](https://github.com/lasselupe33/eslint-plugin-security-rules/blob/master/src/rules/no-vulnerable-dependencies/universal/_docs.md) | Determines if import statements exist in a vulnerable version | ✅ | | | |
 
 ### Package.json
 
 | **Name** | **Description** | ✅ | 🔧 | 💭 | 🌩 |
 |:--------|:------------|:--:|:--:|:--:|:----:|
-| [security-rules/package/no-vulnerable-dependencies](https://github.com/lasselupe33/eslint-plugin-security-rules/blob/master/src/rules/no-vulnerable-dependencies/package/_docs.md) | **TODO** | ✅ | 🔧 | | |
+| [security-rules/package/no-vulnerable-dependencies](https://github.com/lasselupe33/eslint-plugin-security-rules/blob/master/src/rules/no-vulnerable-dependencies/package/_docs.md) | Determines if any of the projects installed dependencies exist in a vulnerable version | ✅ | 🔧 | | |
 
 ### Package specific rulesets
 
@@ -94,16 +94,3 @@ The following ruleset are related to specific popular packages, scanning for vul
 |:--------|:------------|:--:|:--:|:--:|:----:|
 | [security-rules/mysql/no-sql-injections](https://github.com/lasselupe33/eslint-plugin-security-rules/blob/master/src/rules/no-sql-injections/mysql/_docs.md) | Detects queries vulnerable to SQL Injections | ✅ | 🔧 | 💭 | |
 | [security-rules/mysql/no-hardcoded-credentials](https://github.com/lasselupe33/eslint-plugin-security-rules/blob/master/src/rules/no-hardcoded-credentials/mysql/_docs.md) | Detects hardcoded secrets in a file  | ✅ | | | |
-
-<style>
-table {
-    display:table;
-    width:100%;
-}
-table th:nth-of-type(1) {
-    width: 25%;
-}
-table th:nth-of-type(2) {
-    width: 55%;
-}
-</style>

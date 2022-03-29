@@ -4,7 +4,7 @@ This rule aims to detect potential hardcoded credentials in the mysql package.
 
 The rule detects secret by examining places where secrets are used and checking if the secret contains a literal.
 
-If this error has flagged an issue in your code, this means that you may have included a secret.
+If this rule has flagged an issue in your code, this means that you may have included a secret.
 
 ## Risk
 

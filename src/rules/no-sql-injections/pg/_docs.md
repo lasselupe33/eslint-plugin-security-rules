@@ -2,7 +2,7 @@
 
 This rule aims to detect potential SQL injection vulnerabilities, caused by the usage of unsanitized inputs.
 
-If this error has flagged an issue in your code, this means that you may be inserting data that can manipulate your query.
+If this rule has flagged an issue in your code, this means that you may be inserting data that can manipulate your query.
 
 ## Risk
 

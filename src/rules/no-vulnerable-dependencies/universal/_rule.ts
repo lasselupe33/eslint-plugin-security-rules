@@ -12,9 +12,9 @@ import { getSeverityString } from "../_utils/get-severity-string";
  *  [X] Detection
  *  [/] Automatic fix / Suggestions
  *  [X] Reduction of false positives
- *  [-] Fulfilling unit testing
- *  [ ] Extensive documentation
- *  [?] Fulfilling configuration options
+ *  [X] Fulfilling unit testing
+ *  [X] Extensive documentation
+ *  [/] Fulfilling configuration options
  */
 
 export enum MessageIds {
@@ -24,7 +24,11 @@ export enum MessageIds {
 const createRule = RuleCreator(resolveDocsRoute);
 
 /**
- * INTRODUCTION.
+ * Scans import statements to determine if any of the installed dependencies
+ * exist in a vulnerable version.
+ *
+ * The intent of this is to allow developers to
+ * act quickly once vulnerable dependencies are identified.
  */
 export const noUniversalVulnerableDependencies = createRule<[], MessageIds>({
   name: "no-vulnerable-dependencies/universal",
@@ -36,7 +40,8 @@ export const noUniversalVulnerableDependencies = createRule<[], MessageIds>({
       [MessageIds.FOUND_VULNERABLE_DEPENDENCY]: `{{ severity }} {{ id }} {{ title }} ({{ vulnerable_versions }})`,
     },
     docs: {
-      description: "TODO",
+      description:
+        "Determines if import statements exist in a vulnerable version",
       recommended: "error",
     },
     hasSuggestions: false,
@@ -44,7 +49,7 @@ export const noUniversalVulnerableDependencies = createRule<[], MessageIds>({
   },
   create: (context) => {
     const dependenciesInFile = new Set<string>();
-    const depToNode = new Map<string, TSESTree.Node>();
+    const depToNode = new Map<string, TSESTree.Node[]>();
 
     return {
       "ImportExpression, ImportDeclaration": (
@@ -54,8 +59,10 @@ export const noUniversalVulnerableDependencies = createRule<[], MessageIds>({
           return;
         }
 
-        dependenciesInFile.add(String(node.source.value));
-        depToNode.set(String(node.source.value), node);
+        const depName = String(node.source.value);
+
+        dependenciesInFile.add(depName);
+        depToNode.set(depName, [...(depToNode.get(depName) ?? []), node]);
       },
       "CallExpression[callee.name='require']": (
         node: TSESTree.CallExpression
@@ -66,8 +73,10 @@ export const noUniversalVulnerableDependencies = createRule<[], MessageIds>({
           return;
         }
 
-        dependenciesInFile.add(String(importSource.value));
-        depToNode.set(String(importSource.value), node);
+        const depName = String(importSource.value);
+
+        dependenciesInFile.add(depName);
+        depToNode.set(depName, [...(depToNode.get(depName) ?? []), node]);
       },
       "Program:exit": () => {
         if (dependenciesInFile.size === 0) {
@@ -85,26 +94,28 @@ export const noUniversalVulnerableDependencies = createRule<[], MessageIds>({
           // In case there exists an advisory for the current dependency, then
           // we need to flag it!
           if (advisoriesForDep) {
-            const node = depToNode.get(dependency);
+            const nodes = depToNode.get(dependency);
 
-            if (!node) {
+            if (!nodes) {
               continue;
             }
 
-            for (const advisory of advisoriesForDep.advisories) {
-              const idArr = advisory.url.split("/");
+            for (const node of nodes) {
+              for (const advisory of advisoriesForDep.advisories) {
+                const idArr = advisory.url.split("/");
 
-              context.report({
-                node,
-                messageId: MessageIds.FOUND_VULNERABLE_DEPENDENCY,
-                data: {
-                  id: chalk.dim(`[${idArr[idArr.length - 1]}]`),
-                  severity: getSeverityString(advisory.severity),
-                  title: advisory.title,
-                  url: advisory.url,
-                  vulnerable_versions: advisory.vulnerable_versions,
-                },
-              });
+                context.report({
+                  node,
+                  messageId: MessageIds.FOUND_VULNERABLE_DEPENDENCY,
+                  data: {
+                    id: chalk.dim(`[${idArr[idArr.length - 1]}]`),
+                    severity: getSeverityString(advisory.severity),
+                    title: advisory.title,
+                    url: advisory.url,
+                    vulnerable_versions: advisory.vulnerable_versions,
+                  },
+                });
+              }
             }
           }
         }

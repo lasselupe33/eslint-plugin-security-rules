@@ -3,7 +3,7 @@
 This rule aims to detect potential DOM-based Cross-Site Scripting (XSS) vulnerabilities, caused by unsafe usage of native JavaScript API's that manipulates the
 DOM *(e.g. element.innerHTML)*.
 
-If this error has flagged an issue in your code this means that you may be inserting unsafe data into a vulnerable [sink](#sinks-and-sources).
+If this rule has flagged an issue in your code this means that you may be inserting unsafe data into a vulnerable [sink](#sinks-and-sources).
 
 In order to reduce the amount of false positives reported by this rule we attempt to trace the value inserted into sinks back to their [source](#sinks-and-sources). During this trace, if we can observe that the value has been properly sanitized before insertion *(but after modification!)* or if the inserted data is a simple JavaScript primitive an error will not be reported.
 

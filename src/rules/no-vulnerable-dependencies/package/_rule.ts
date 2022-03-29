@@ -27,9 +27,9 @@ import { upgradeDependency } from "./fixes/upgrade-dependency";
  *  [X] Detection
  *  [X] Automatic fix / Suggestions
  *  [X] Reduction of false positives
- *  [-] Fulfilling unit testing
- *  [ ] Extensive documentation
- *  [?] Fulfilling configuration options
+ *  [X] Fulfilling unit testing
+ *  [X] Extensive documentation
+ *  [/] Fulfilling configuration options
  */
 
 export enum MessageIds {
@@ -40,7 +40,8 @@ export enum MessageIds {
 const createRule = RuleCreator(resolveDocsRoute);
 
 /**
- * INTRODUCTION.
+ * Scans package.json files to determine if any of the installed dependencies
+ * exist in a vulnerable version.
  */
 export const noPackageVulnerableDependencies = createRule<[], MessageIds>({
   name: "no-vulnerable-dependencies/package",
@@ -54,7 +55,8 @@ export const noPackageVulnerableDependencies = createRule<[], MessageIds>({
         "[{{ patch }} patch] Upgrade '{{ dependency }}' to version {{ minVersion }} from {{ currentVersion }}. Please re-install packages afterwards",
     },
     docs: {
-      description: "TODO",
+      description:
+        "Determines if any of the projects installed dependencies exist in a vulnerable version",
       recommended: "error",
       suggestion: true,
     },
