@@ -13,6 +13,7 @@ Different algorithms pose different risks in that they are insecure in different
 Furthermore, using a non-standad encryption algorithm is dangerous, as a determined attacker may be able to break the algorithm and compromise data.
 
 ### Example of exposure
+
 Here is an example of a picture encrypted using an `ECB` algorithm. As can be seen, key information can still be withdrawn from the picture.
 
 Unencrypted | Encrypted using ECB
@@ -23,7 +24,7 @@ Unencrypted | Encrypted using ECB
 
 In order to mitigate the issue reported by this rule, one would need to change the encryption algorithm that one uses. Changing the algorithm may sound easy, but it may break functionality, as the key size needs to furfill some requirements.
 
-We specifically recommend one algorithm that supports 3 different key sizes securely.
+We specifically recommend one algorithm, `AES-GCM`, that supports 3 different key sizes securely.
 
 ### Replacing the algorithm. (Semi-automatic)
 
@@ -65,6 +66,7 @@ In case you're certain that you want to continue using an unsafe algorithm, you 
 - [ ] 🌩 Requires type information
 
 ## Banned Algorithms
+
 The entire list of currently banned algorithms and the reasons for their ban can be seen in the file [banned-algorithms].
 
   [banned-algorithms]: utils/banned-algorithms.ts

@@ -1,6 +1,6 @@
 import * as crypto from "crypto";
 
-export const nonce = crypto.randomBytes(8);
-export const key = Buffer.from(crypto.randomBytes(64));
+const nonce = crypto.randomBytes(8);
+const key = Buffer.from(crypto.randomBytes(8));
 
 crypto.createCipheriv("DES", key, nonce); // Unsafe

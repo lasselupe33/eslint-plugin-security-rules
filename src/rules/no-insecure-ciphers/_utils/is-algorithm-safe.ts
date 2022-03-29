@@ -50,7 +50,7 @@ export function isAlgorithmSafe(
 
           const isTraceSafe =
             isConstantTerminalNode(finalNode) &&
-            !bannedAlgs.has(finalNode.value);
+            !bannedAlgs.has(finalNode.value.toUpperCase());
 
           // Reset hitImport for next trace.
           hitImport = false;

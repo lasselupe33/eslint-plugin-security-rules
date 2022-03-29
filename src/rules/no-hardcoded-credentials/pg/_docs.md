@@ -1,4 +1,4 @@
-# No Hardcoded Credentials (No Hardcoded Credentials/pg)
+# No Hardcoded Credentials (no-hardcoded-credentials/pg)
 
 This rule aims to detect potential hardcoded credentials in the pg package.
 
