@@ -48,11 +48,13 @@ To include the recommended `eslint-plugin-security-rules` to your ruleset add th
 
 ### Browser
 
-| **Name** | **Description** | ✅ | 🔧 | 💭 | 🌩 |
+| <div style="width:100px"><b>Name</b></div>| <div style="min-width:1000px"><b>Description</b></div>| ✅ | 🔧 | 💭 | 🌩 |
 |:--------|:------------|:--:|:--:|:--:|:----:|
 | [security-rules/browser/no-xss](https://github.com/lasselupe33/eslint-plugin-security-rules/blob/master/src/rules/no-xss/browser/_docs.md) | Detects DOM-based XSS vulnerabilities | ✅ | 🔧 | 💭 | |
 
-| **Name** | **Description** | ✅ | 🔧 | 💭 | 🌩 |
+### Node
+
+| **Name**  | **Description** | ✅ | 🔧 | 💭 | 🌩 |
 |:--------|:------------|:--:|:--:|:--:|:----:|
 | [security-rules/node/no-unsafe-path](https://github.com/lasselupe33/eslint-plugin-security-rules/blob/master/src/rules/no-unsafe-path/node/_docs.md) | Avoids usage of unsafe paths when interacting with the file-system using "fs" | ✅ | 🔧 | 💭 | |
 
