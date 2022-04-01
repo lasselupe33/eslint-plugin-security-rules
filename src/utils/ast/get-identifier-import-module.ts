@@ -10,7 +10,7 @@ import { printTrace } from "../tracing/utils/print-trace";
 import { getNodeModule } from "../types/get-node-module";
 import { getTypeProgram } from "../types/get-type-program";
 
-import { isImportDeclaration, isLiteral } from "./guards";
+import { isCallExpression, isImportDeclaration, isLiteral } from "./guards";
 
 export function getIdentifierImportModule(
   context: Readonly<TSESLint.RuleContext<string, unknown[]>>,
@@ -24,18 +24,21 @@ export function getIdentifierImportModule(
   }
 
   // If type information is available, use it to find the module
+
   const typeProgram = getTypeProgram(context);
   if (typeProgram) {
     const { modulePath, functionName: originalName } = getNodeModule(
       typeProgram,
-      node
+      isCallExpression(node) ? node.callee : node
     );
+
     let didMatchOriginalFunctionName = false;
     for (const name of functionName) {
       if (name === originalName) {
         didMatchOriginalFunctionName = true;
       }
     }
+
     if (modulePath && originalName) {
       result.push([modulePath, didMatchOriginalFunctionName]);
       return result;
@@ -49,7 +52,6 @@ export function getIdentifierImportModule(
     },
     withTrace({
       onTraceFinished: (trace) => {
-        printTrace(trace);
         const finalTraceNode = trace[trace.length - 1];
         const finalASTNode =
           finalTraceNode?.astNodes[finalTraceNode.astNodes.length - 1];

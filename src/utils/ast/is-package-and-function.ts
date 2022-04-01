@@ -6,7 +6,7 @@ export function isPackageAndFunction(
   context: Readonly<TSESLint.RuleContext<string, unknown[]>>,
   packageName: string,
   functionNames: string[] | string,
-  id?: TSESTree.Identifier
+  id?: TSESTree.Node
 ): boolean {
   let _functionNames = [];
   if (!Array.isArray(functionNames)) {
