@@ -17,7 +17,7 @@ export function handleArrayExpression(
   ctx: HandlingContext,
   arrayExpression: TSESTree.ArrayExpression
 ): TraceNode[] {
-  const { memberPath, forceFollowObjectProperties } = ctx.meta;
+  const { memberPath, forceFollowAllProperties } = ctx.meta;
   const astNodes = [...ctx.connection.astNodes, arrayExpression];
 
   const nextCtx = deepMerge(ctx, {
@@ -29,7 +29,7 @@ export function handleArrayExpression(
     },
   });
 
-  if (forceFollowObjectProperties) {
+  if (forceFollowAllProperties) {
     return arrayExpression.elements.flatMap((elm) => handleNode(nextCtx, elm));
   }
 
@@ -114,7 +114,7 @@ export function handleArrayExpression(
   // the whole array is safe.
   return arrayExpression.elements.flatMap((elm) =>
     handleNode(
-      deepMerge(nextCtx, { meta: { forceFollowObjectProperties: true } }),
+      deepMerge(nextCtx, { meta: { forceFollowAllProperties: true } }),
       elm
     )
   );

@@ -28,7 +28,7 @@ export function handleVanillaOverrides(
       case "join":
         return handleNode(
           deepMerge(ctx, {
-            meta: { forceFollowObjectProperties: true },
+            meta: { forceFollowAllProperties: true },
           }),
           callExpression.callee.object
         );
@@ -37,11 +37,7 @@ export function handleVanillaOverrides(
         return [
           ...handleNode(ctx, callExpression.callee.object),
           ...callExpression.arguments
-            .flatMap((arg) => {
-              if (!isSpreadElement(arg)) {
-                return handleNode(ctx, arg);
-              }
-            })
+            .flatMap((arg) => handleNode(ctx, arg))
             .filter((it): it is TraceNode => !!it),
         ];
 
@@ -53,7 +49,7 @@ export function handleVanillaOverrides(
           return handleNode(
             deepMerge(ctx, {
               meta: {
-                forceFollowObjectProperties: true,
+                forceFollowAllProperties: true,
               },
             }),
             callExpression.arguments[0]

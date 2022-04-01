@@ -8,7 +8,6 @@ import { sanitizePath } from "../sanitize-path";
 
 import { traceVariable } from "./_trace-variable";
 import { withTrace } from "./callbacks/with-trace";
-import { printTrace } from "./utils/print-trace";
 import { terminalsToSourceString } from "./utils/terminals-to-source-string";
 
 export enum MessageIds {
@@ -47,9 +46,6 @@ export const traceTestRule = createRule<[], MessageIds>({
             context,
           },
           withTrace({
-            onTraceFinished: (trace) => {
-              printTrace(trace);
-            },
             onFinished: (terminalGroups) => {
               if (!terminalGroups.length) {
                 context.report({
