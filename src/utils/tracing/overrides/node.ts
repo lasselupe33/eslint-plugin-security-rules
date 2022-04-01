@@ -25,7 +25,10 @@ function handlePathOverrides(
   calleeIdentifiers: TraceNode[]
 ): TraceNode[] | undefined {
   const typeProgram = getTypeProgram(ctx.ruleContext);
-  const moduleName = getNodeModule(typeProgram, callExpression.callee);
+  const { modulePath: moduleName } = getNodeModule(
+    typeProgram,
+    callExpression.callee
+  );
 
   if (!moduleName?.includes("@types/node/path")) {
     return;

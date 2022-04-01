@@ -18,6 +18,7 @@ import {
   isObjectExpression,
   isArrowFunctionExpression,
   isProperty,
+  isTemplateLiteral,
 } from "../../../utils/ast/guards";
 import { isPackage } from "../../../utils/ast/is-package";
 import { resolveDocsRoute } from "../../../utils/resolve-docs-route";
@@ -50,20 +51,21 @@ export const pgNoSQLInjections = createRule<never[], MessageIds>({
   },
   create: (context) => {
     return {
-      // Called on all ExpressionStatements with CallExpression
-      ["ExpressionStatement > CallExpression"]: (
-        node: TSESTree.CallExpression
-      ) => {
+      CallExpression: (node: TSESTree.CallExpression) => {
         const [idLeft, idRight] = extractIdentifier(node);
+        // Unused atm
+        const functionId = idRight ? idRight : idLeft;
+
         if (
+          !idRight ||
           !idRight?.parent?.parent ||
           !isCallExpression(idRight.parent.parent)
         ) {
           return;
         }
 
-        const didMatchIdentifierName = idRight?.name === "query";
-        const queryArgs = idRight?.parent?.parent.arguments[0];
+        const didMatchIdentifierName = idRight.name === "query";
+        const queryArgs = idRight.parent.parent.arguments[0];
 
         if (
           !didMatchIdentifierName ||
@@ -105,7 +107,7 @@ export const pgNoSQLInjections = createRule<never[], MessageIds>({
         }
 
         if (!valuesArray) {
-          const queryValues = idRight?.parent?.parent.arguments[1];
+          const queryValues = idRight.parent.parent.arguments[1];
           if (!isArrowFunctionExpression(queryValues) && queryValues) {
             valuesArray = extractValuesArray(
               { ruleContext: context },
@@ -172,10 +174,18 @@ function* paramterizeQueryFix(
   const nodeText = ctx.ruleContext.getSourceCode().getText(replaceNode);
 
   // Parameterization
-  yield fixer.replaceText(
-    replaceNode,
-    '"$' + (totalPlaceholders + 1).toString() + '"'
-  );
+  const [startR, endR] = replaceNode.range;
+  if (isTemplateLiteral(replaceNode.parent)) {
+    yield fixer.replaceTextRange(
+      [startR - 2, endR + 1],
+      "$" + (totalPlaceholders + 1).toString()
+    );
+  } else {
+    yield fixer.replaceTextRange(
+      [startR, endR],
+      '"$' + (totalPlaceholders + 1).toString() + '"'
+    );
+  }
 
   // No array and not in an object
   if (!arrayNode && !objNode) {
@@ -188,6 +198,13 @@ function* paramterizeQueryFix(
       [rangeStart, 0],
       ", values: [" + nodeText + "] "
     );
+  }
+  // Existing placeholder array and existing element
+  else if (arrayNode && arrayNode.elements.length >= totalPlaceholders) {
+    const overwriteNode = arrayNode.elements[totalPlaceholders];
+    if (overwriteNode) {
+      yield fixer.replaceText(overwriteNode, nodeText);
+    }
   }
   // Existing placeholder array
   else if (arrayNode) {
