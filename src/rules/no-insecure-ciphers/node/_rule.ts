@@ -2,9 +2,9 @@
  * Progress
  *  [x] Detection
  *  [x] Automatic fix / Suggestions
- *  [ ] Reduction of false positives
+ *  [x] Reduction of false positives
  *  [ ] Fulfilling unit testing
- *  [ ] Extensive documentation
+ *  [x] Extensive documentation
  *  [ ] Fulfilling configuration options
  */
 
@@ -13,7 +13,6 @@ import { RuleCreator } from "@typescript-eslint/utils/dist/eslint-utils";
 
 import { extractIdentifier } from "../../../utils/ast/extract-identifier";
 import { isLiteral } from "../../../utils/ast/guards";
-import { isPackage } from "../../../utils/ast/is-package";
 import { isPackageAndFunction } from "../../../utils/ast/is-package-and-function";
 import { resolveDocsRoute } from "../../../utils/resolve-docs-route";
 import { isAlgorithmSafe } from "../_utils/is-algorithm-safe";
@@ -44,23 +43,14 @@ export const cipherNoInsecureCiphers = createRule<never[], MessageIds>({
   create: (context) => {
     return {
       CallExpression: (node) => {
-        const [idLeft, idRight] = extractIdentifier(node);
+        const FUNCTION_NAME = "createCipheriv";
+        const MODULE_NAME = "crypto";
+        const identifiers = extractIdentifier(node);
+        const idRight = identifiers[identifiers.length - 1];
 
-        const functionName = "createCipheriv";
-        const moduleName = "crypto";
-
-        const didMatchIdentifierName = idRight?.name === functionName;
-
-        if (!idRight) {
-          if (
-            !idLeft ||
-            !isPackageAndFunction(context, moduleName, functionName, idLeft)
-          ) {
-            return;
-          }
-        } else if (
-          !didMatchIdentifierName ||
-          !isPackage(context, moduleName, idLeft)
+        if (
+          !idRight ||
+          !isPackageAndFunction(context, MODULE_NAME, FUNCTION_NAME, node)
         ) {
           return;
         }

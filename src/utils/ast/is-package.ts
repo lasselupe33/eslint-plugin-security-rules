@@ -5,7 +5,7 @@ import { getIdentifierImportModule } from "./get-identifier-import-module";
 export function isPackage(
   context: Readonly<TSESLint.RuleContext<string, unknown[]>>,
   packageName: string,
-  id?: TSESTree.Identifier
+  id?: TSESTree.Node
 ): boolean {
   const importModules = getIdentifierImportModule(context, [], id);
 
