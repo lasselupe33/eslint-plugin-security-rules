@@ -1,17 +1,11 @@
 {
   "name": "eslint-plugin-security-rules",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "description": "",
   "main": "./lib/index.js",
   "files": [
     "lib/**"
   ],
-  "private": true,
-  "workspaces": {
-    "packages": [
-      "./dummy"
-    ]
-  },
   "license": "MIT",
   "keywords": [
     "eslint",
