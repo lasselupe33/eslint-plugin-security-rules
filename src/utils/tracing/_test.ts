@@ -126,6 +126,8 @@ ruleTester.run("tracing/test", traceTestRule, {
     getCode(__dirname, "override/vanilla/array.join"),
     getCode(__dirname, "override/vanilla/array.concat"),
     getCode(__dirname, "override/vanilla/object.values"),
+
+    getCode(__dirname, "statement/for-of-statement"),
   ],
   invalid: [],
 });

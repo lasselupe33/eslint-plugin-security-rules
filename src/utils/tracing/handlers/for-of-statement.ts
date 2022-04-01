@@ -11,6 +11,9 @@ export function handleForOfStatement(
   statement: TSESTree.ForOfStatement
 ): TraceNode[] {
   const nextCtx = deepMerge(ctx, {
+    meta: {
+      forceFollowAllProperties: true,
+    },
     connection: {
       astNodes: [...ctx.connection.astNodes, statement],
     },
