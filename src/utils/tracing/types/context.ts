@@ -31,7 +31,7 @@ export type Meta = {
    */
   forceIdentifierLiteral?: boolean | undefined;
 
-  forceFollowObjectProperties?: boolean;
+  forceFollowAllProperties?: boolean;
 
   callCount: number;
 

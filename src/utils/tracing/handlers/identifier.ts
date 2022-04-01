@@ -10,7 +10,10 @@ import {
   TraceNode,
 } from "../types/nodes";
 
-const reservedSet = new Set(["__dirname", "__filename"]);
+const reservedGlobals = new Set(["__dirname", "__filename"]);
+const reservedObjects: Record<string, string[]> = {
+  path: ["sep", "delimiter"],
+};
 
 export function handleIdentifier(
   ctx: HandlingContext,
@@ -22,7 +25,11 @@ export function handleIdentifier(
     },
   });
 
-  if (ctx.meta.forceIdentifierLiteral || reservedSet.has(identifier.name)) {
+  if (
+    ctx.meta.forceIdentifierLiteral ||
+    reservedGlobals.has(identifier.name) ||
+    isReservedObjectIdentifier(ctx, identifier)
+  ) {
     return [
       makeConstantTerminalNode({
         astNodes: nextCtx.connection.astNodes,
@@ -51,4 +58,16 @@ export function handleIdentifier(
           meta: nextCtx.meta,
         }),
       ];
+}
+
+function isReservedObjectIdentifier(
+  ctx: HandlingContext,
+  identifier: TSESTree.Identifier
+): boolean {
+  return (
+    ctx.meta.memberPath.length > 0 &&
+    !!reservedObjects[identifier.name]?.includes(
+      ctx.meta.memberPath[ctx.meta.memberPath.length - 1] ?? ""
+    )
+  );
 }

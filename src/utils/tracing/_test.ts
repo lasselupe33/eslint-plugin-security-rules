@@ -119,6 +119,15 @@ ruleTester.run("tracing/test", traceTestRule, {
     getCode(__dirname, "object/simple"),
     getCode(__dirname, "object/this"),
     getCode(__dirname, "object/without-path"),
+
+    getCode(__dirname, "override/node/path-all"),
+    getCode(__dirname, "override/node/path-join-clash"),
+    getCode(__dirname, "override/react/state"),
+    getCode(__dirname, "override/vanilla/array.join"),
+    getCode(__dirname, "override/vanilla/array.concat"),
+    getCode(__dirname, "override/vanilla/object.values"),
+
+    getCode(__dirname, "statement/for-of-statement"),
   ],
   invalid: [],
 });

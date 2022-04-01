@@ -1,7 +1,37 @@
 # Tracing algorithm
 
-## Variables
+Include API.
 
-## Visitors
+Include Often used utils
 
-## Handlers
+## Trace Nodes
+
+### Variable Node
+
+### Terminal Node
+
+### Root Node
+
+## Support
+
+* Arrays
+  * Rest
+  * Spread
+* Objects
+  * Rest
+  * Spread
+* Expressions
+* Import/Export
+  * No dynamic import
+  * No require()
+* (Relevant) Statements
+
+## Implementation details
+
+High level overview
+
+### Visitors
+
+### Handlers
+
+### Overrides
