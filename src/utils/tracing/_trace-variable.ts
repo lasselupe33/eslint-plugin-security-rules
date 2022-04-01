@@ -15,13 +15,13 @@ import { HandlingContext } from "./types/context";
 import {
   isTerminalNode,
   isVariableNode,
-  makeGlobalTerminalNode,
   makeUnresolvedTerminalNode,
   TraceNode,
 } from "./types/nodes";
 import { isCycle } from "./utils/is-cycle";
 import { visitClassName } from "./visitors/class-name";
 import { visitFunctionName } from "./visitors/function-name";
+import { visitGlobalVariable } from "./visitors/global-variable";
 import { visitImportBinding } from "./visitors/import-binding";
 import { visitParameter } from "./visitors/parameter";
 import { visitReference } from "./visitors/reference";
@@ -184,12 +184,9 @@ export function traceVariable(
     // Object/Promise)
     if ("eslintExplicitGlobal" in variable) {
       remainingVariables.unshift(
-        makeGlobalTerminalNode({
-          name: variable.name,
-          astNodes: [],
-          ...handlingContext,
-        })
+        ...visitGlobalVariable(handlingContext, variable)
       );
+      continue;
     }
 
     for (const reference of getRelevantReferences(variable.references)) {
