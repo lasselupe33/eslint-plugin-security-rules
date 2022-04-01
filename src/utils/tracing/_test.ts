@@ -15,6 +15,11 @@ const ruleTester = new ESLintUtils.RuleTester({
       jsx: true,
     },
   },
+  env: {
+    node: true,
+    browser: true,
+    es6: true,
+  },
 });
 
 ruleTester.run("tracing/test", traceTestRule, {

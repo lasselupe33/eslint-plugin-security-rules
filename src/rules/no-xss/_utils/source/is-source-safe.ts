@@ -85,8 +85,8 @@ export function isSourceSafe(
         const isTraceSafe =
           hasSanitationInTrace ||
           isConstantTerminalNode(finalNode) ||
-          isGlobalTerminalNode(finalNode) ||
-          (sinkType === SinkTypes.EXECUTION && isNodeTerminalNode(finalNode));
+          (sinkType === SinkTypes.EXECUTION &&
+            (isNodeTerminalNode(finalNode) || isGlobalTerminalNode(finalNode)));
 
         if (!isTraceSafe) {
           isSafe = false;
