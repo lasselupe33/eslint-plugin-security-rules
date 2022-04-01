@@ -4,7 +4,7 @@
  *  [x] Automatic fix / Suggestions
  *  [-] Reduction of false positives
  *  [-] Fulfilling unit testing
- *  [ ] Extensive documentation
+ *  [x] Extensive documentation
  *  [ ] Fulfilling configuration options
  */
 
@@ -52,13 +52,12 @@ export const pgNoSQLInjections = createRule<never[], MessageIds>({
   create: (context) => {
     return {
       CallExpression: (node: TSESTree.CallExpression) => {
-        const [idLeft, idRight] = extractIdentifier(node);
-        // Unused atm
-        const functionId = idRight ? idRight : idLeft;
+        const identifiers = extractIdentifier(node);
+        const idRight = identifiers[identifiers.length - 1];
 
         if (
           !idRight ||
-          !idRight?.parent?.parent ||
+          !idRight.parent?.parent ||
           !isCallExpression(idRight.parent.parent)
         ) {
           return;
@@ -66,11 +65,12 @@ export const pgNoSQLInjections = createRule<never[], MessageIds>({
 
         const didMatchIdentifierName = idRight.name === "query";
         const queryArgs = idRight.parent.parent.arguments[0];
+        const isP = isPackage(context, "pg", node);
 
         if (
           !didMatchIdentifierName ||
           !queryArgs ||
-          !isPackage(context, "pg", idLeft)
+          !isPackage(context, "pg", node)
         ) {
           return;
         }

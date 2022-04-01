@@ -18,9 +18,9 @@ import { isQuerySafe } from "./utils/is-query-safe";
  * Progress
  *  [x] Detection
  *  [x] Automatic fix / Suggestions
- *  [-] Reduction of false positives
+ *  [x] Reduction of false positives
  *  [-] Fulfilling unit testing
- *  [ ] Extensive documentation
+ *  [x] Extensive documentation
  *  [ ] Fulfilling configuration options
  */
 
@@ -50,8 +50,12 @@ export const mysqlNoSQLInjections = createRule<never[], MessageIds>({
       CallExpression: (node) => {
         // We need to extract connection as well, as users may
         // have defined some other name for it.
-        // connection.query
-        const [idLeft, idRight] = extractIdentifier(node);
+        // connection.query | this.connection.query
+
+        const identifiers = extractIdentifier(node);
+        const idRight = identifiers[identifiers.length - 1];
+        const idsLeft = identifiers.slice(0, -1);
+        const escapeIdentifier = idsLeft.map((id) => id.name).join(".");
 
         const didMatchIdentifierName = idRight?.name === "query";
         // Assuming that query is always the first argument
@@ -62,7 +66,7 @@ export const mysqlNoSQLInjections = createRule<never[], MessageIds>({
           !query ||
           !idRight?.parent?.parent ||
           !isCallExpression(idRight.parent.parent) ||
-          !isPackage(context, "mysql", idLeft)
+          !isPackage(context, "mysql", node)
         ) {
           return;
         }
@@ -88,7 +92,8 @@ export const mysqlNoSQLInjections = createRule<never[], MessageIds>({
           );
         }
 
-        const totalPlaceholders = countPlaceholders(maybeQuery);
+        // @TODO: Parameterization fix
+        // const totalPlaceholders = countPlaceholders(maybeQuery);
 
         context.report({
           node: maybeNode,
@@ -98,12 +103,12 @@ export const mysqlNoSQLInjections = createRule<never[], MessageIds>({
             {
               messageId: MessageIds.ESCAPE_FIX_VALUES,
               fix: (fixer: TSESLint.RuleFixer) =>
-                escapeQueryValuesFix(fixer, maybeNode, idLeft),
+                escapeQueryValuesFix(fixer, maybeNode, escapeIdentifier),
             },
             {
               messageId: MessageIds.ESCAPE_FIX_IDENTIFIERS,
               fix: (fixer: TSESLint.RuleFixer) =>
-                escapeQueryIdentifiersFix(fixer, maybeNode, idLeft),
+                escapeQueryIdentifiersFix(fixer, maybeNode, escapeIdentifier),
             } /* 
             // @TODO: Count numbers of occourences of an identifier
             // in the query to place it correctly in the array.
@@ -143,12 +148,12 @@ export const mysqlNoSQLInjections = createRule<never[], MessageIds>({
 function* escapeQueryValuesFix(
   fixer: TSESLint.RuleFixer,
   node: TSESTree.Node,
-  escapeIdentifier: TSESTree.Identifier | undefined
+  escapeIdentifier: string
 ): Generator<TSESLint.RuleFix> {
-  if (!escapeIdentifier) {
+  if (!(escapeIdentifier.length > 0)) {
     return;
   }
-  const leftString = escapeIdentifier.name + ".escape(";
+  const leftString = escapeIdentifier + ".escape(";
   yield fixer.insertTextBefore(node, leftString);
   yield fixer.insertTextAfter(node, ")");
 }
@@ -156,12 +161,12 @@ function* escapeQueryValuesFix(
 function* escapeQueryIdentifiersFix(
   fixer: TSESLint.RuleFixer,
   node: TSESTree.Node,
-  escapeIdentifier: TSESTree.Identifier | undefined
+  escapeIdentifier: string
 ): Generator<TSESLint.RuleFix> {
-  if (!escapeIdentifier) {
+  if (!(escapeIdentifier.length > 0)) {
     return;
   }
-  const leftString = escapeIdentifier.name + ".escapeId(";
+  const leftString = escapeIdentifier + ".escapeId(";
   yield fixer.insertTextBefore(node, leftString);
   yield fixer.insertTextAfter(node, ")");
 }
