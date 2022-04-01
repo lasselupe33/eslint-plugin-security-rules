@@ -19,6 +19,7 @@ import { handleFunctionExpression } from "./function-expression";
 import { handleIdentifier } from "./identifier";
 import { handleImportDeclaration } from "./import-declaration";
 import { handleImportDefaultSpecifier } from "./import-default-specifier";
+import { handleImportExpression } from "./import-expression";
 import { handleImportNamespaceSpecifier } from "./import-namespace-specifier";
 import { handleImportSpecifier } from "./import-specifier";
 import { handleLiteral } from "./literal";
@@ -65,6 +66,7 @@ export function handleNode(
       [AST_NODE_TYPES.Identifier]: handleIdentifier,
       [AST_NODE_TYPES.ImportDeclaration]: handleImportDeclaration,
       [AST_NODE_TYPES.ImportDefaultSpecifier]: handleImportDefaultSpecifier,
+      [AST_NODE_TYPES.ImportExpression]: handleImportExpression,
       [AST_NODE_TYPES.ImportNamespaceSpecifier]: handleImportNamespaceSpecifier,
       [AST_NODE_TYPES.ImportSpecifier]: handleImportSpecifier,
       [AST_NODE_TYPES.Literal]: handleLiteral,
