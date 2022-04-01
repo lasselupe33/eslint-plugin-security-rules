@@ -18,7 +18,12 @@ export function isPackageAndFunction(
   const importModules = getIdentifierImportModule(context, _functionNames, id);
 
   for (const [name, value] of importModules) {
-    if (name === packageName && value === true) {
+    if (
+      (name === packageName ||
+        name === "Unable to resolve related parameter" ||
+        name.includes(packageName)) &&
+      value === true
+    ) {
       return true;
     }
   }
