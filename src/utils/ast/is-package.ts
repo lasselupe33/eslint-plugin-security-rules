@@ -9,11 +9,11 @@ export function isPackage(
 ): boolean {
   const importModules = getIdentifierImportModule(context, [], id);
 
-  for (const [name] of importModules) {
+  for (const { pathOrImport } of importModules) {
     if (
-      name === packageName ||
-      name.includes(packageName) ||
-      name === "Unable to resolve related parameter"
+      pathOrImport === packageName ||
+      pathOrImport?.includes(packageName) ||
+      typeof pathOrImport === "undefined" // If we're unable to trace due to a parameter, we allow the rules to continue.
     ) {
       return true;
     }

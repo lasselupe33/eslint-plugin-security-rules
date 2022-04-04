@@ -5,24 +5,21 @@ import { getIdentifierImportModule } from "./get-identifier-import-module";
 export function isPackageAndFunction(
   context: Readonly<TSESLint.RuleContext<string, unknown[]>>,
   packageName: string,
-  functionNames: string[] | string,
+  functionNamesParam: string[] | string,
   id?: TSESTree.Node
 ): boolean {
-  let _functionNames = [];
-  if (!Array.isArray(functionNames)) {
-    _functionNames = [functionNames];
-  } else {
-    _functionNames = functionNames;
-  }
+  const functionNames = Array.isArray(functionNamesParam)
+    ? functionNamesParam
+    : [functionNamesParam];
 
-  const importModules = getIdentifierImportModule(context, _functionNames, id);
+  const importModules = getIdentifierImportModule(context, functionNames, id);
 
-  for (const [name, value] of importModules) {
+  for (const { pathOrImport, didMatchFunctionName } of importModules) {
     if (
-      (name === packageName ||
-        name === "Unable to resolve related parameter" ||
-        name.includes(packageName)) &&
-      value === true
+      (pathOrImport === packageName ||
+        pathOrImport?.includes(packageName) ||
+        typeof pathOrImport === "undefined") &&
+      didMatchFunctionName === true
     ) {
       return true;
     }

@@ -6,25 +6,28 @@ import {
   isImportTerminalNode,
   isUnresolvedTerminalNode,
 } from "../tracing/types/nodes";
-import { printTrace } from "../tracing/utils/print-trace";
 import { getNodeModule } from "../types/get-node-module";
 import { getTypeProgram } from "../types/get-type-program";
 
 import { isCallExpression, isImportDeclaration, isLiteral } from "./guards";
 
+type ReturnType = Array<{
+  pathOrImport?: string;
+  didMatchFunctionName: boolean;
+}>;
+
 export function getIdentifierImportModule(
   context: Readonly<TSESLint.RuleContext<string, unknown[]>>,
   functionName: string[],
   node?: TSESTree.Node
-): [string, boolean][] {
-  const result: [string, boolean][] = [];
+): ReturnType {
+  const result: ReturnType = [];
 
   if (!node) {
     return result;
   }
 
   // If type information is available, use it to find the module
-
   const typeProgram = getTypeProgram(context);
   if (typeProgram) {
     const { modulePath, functionName: originalName } = getNodeModule(
@@ -32,15 +35,15 @@ export function getIdentifierImportModule(
       isCallExpression(node) ? node.callee : node
     );
 
-    let didMatchOriginalFunctionName = false;
-    for (const name of functionName) {
-      if (name === originalName) {
-        didMatchOriginalFunctionName = true;
-      }
-    }
+    const didMatchOriginalFunctionName = functionName.some(
+      (name) => name === originalName
+    );
 
     if (modulePath && originalName) {
-      result.push([modulePath, didMatchOriginalFunctionName]);
+      result.push({
+        pathOrImport: modulePath,
+        didMatchFunctionName: didMatchOriginalFunctionName,
+      });
       return result;
     }
   }
@@ -62,17 +65,23 @@ export function getIdentifierImportModule(
             isImportDeclaration(finalASTNode) &&
             isLiteral(finalASTNode.source)
           ) {
-            let matchedFunction = false;
-            for (const f of functionName) {
-              if (finalTraceNode.imported === f) {
-                matchedFunction = true;
-              }
-            }
-            result.push([finalASTNode.source.value, matchedFunction]);
+            const matchedFunction = functionName.some(
+              (name) => name === finalTraceNode.imported
+            );
+
+            result.push({
+              pathOrImport: finalASTNode.source.value,
+              didMatchFunctionName: matchedFunction,
+            });
           }
         } else if (isUnresolvedTerminalNode(finalTraceNode)) {
-          if (finalTraceNode.reason === "Unable to resolve related parameter") {
-            result.push([finalTraceNode.reason, false]);
+          if (finalTraceNode.kind === "parameter") {
+            // Returning didMatchFunctioName as false to avoid an abundance of
+            // false positives.
+            result.push({
+              pathOrImport: undefined,
+              didMatchFunctionName: false,
+            });
           }
         }
       },
