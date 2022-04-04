@@ -22,6 +22,27 @@ To include the recommended `eslint-plugin-security-rules` to your ruleset add th
 {
   "extends": [
     "plugin:security-rules/recommended"
+  ],
+  // Please include the environments that you use when using this plugin. Doing
+  // so will enhance the tracing algorithm greatly.
+  "env": { 
+    "node": true,
+    "browser": true,
+    "es6": true
+  },
+  "overrides": [
+    {
+      "files": ["*.ts", "*.tsx"],
+      "extends": ["plugin:@typescript-eslint/recommended"],
+      // If you would like to improve the accuracy of the tracing algorithm
+      // when using typescript, then please include the "project" configuration
+      // for the @typescript-eslint/parser.
+      // See more at 
+      // https://github.com/typescript-eslint/typescript-eslint/tree/main/packages/parser#parseroptionsproject
+      "parserOptions": {
+        "project": ["./tsconfig.json"]
+      }
+    },
   ]
 }
 ```
