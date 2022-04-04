@@ -30,9 +30,12 @@ export type GlobalTerminalNode = BaseTerminalNode & {
   name: string;
 };
 
+type UnresolvedTypes = "parameter" | "unknown";
+
 export type UnresolvedTerminalNode = BaseTerminalNode & {
   type: "unresolved";
   reason: string;
+  kind: UnresolvedTypes;
 };
 
 export type NodeTerminalNode = BaseTerminalNode & {
@@ -99,12 +102,15 @@ export function makeGlobalTerminalNode(
 }
 
 export function makeUnresolvedTerminalNode(
-  node: Omit<UnresolvedTerminalNode, "type" | "__isTerminalNode">
+  node: Omit<UnresolvedTerminalNode, "type" | "__isTerminalNode" | "kind"> & {
+    kind?: UnresolvedTypes;
+  }
 ): UnresolvedTerminalNode {
   return {
     __isTerminalNode: true,
     type: "unresolved",
     ...node,
+    kind: node.kind ?? "unknown",
   };
 }
 

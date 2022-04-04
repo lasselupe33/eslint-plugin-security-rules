@@ -63,6 +63,7 @@ export function visitParameter(
     return [
       makeUnresolvedTerminalNode({
         reason: "Unable to resolve related parameter",
+        kind: "parameter",
         astNodes: ctx.connection.astNodes,
         connection: ctx.connection,
         meta: ctx.meta,

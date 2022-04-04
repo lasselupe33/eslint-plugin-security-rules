@@ -9,10 +9,9 @@ ESLint security rules to help harden your project as early as possible.
 - Requires Node.js `>=14`
 - Requires ESLint `>=8`
 
-```
+```bash
 yarn add --dev eslint-plugin-security-rules
 ```
-
 
 ## Usage
 
