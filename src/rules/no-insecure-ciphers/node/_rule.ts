@@ -3,9 +3,9 @@
  *  [x] Detection
  *  [x] Automatic fix / Suggestions
  *  [x] Reduction of false positives
- *  [ ] Fulfilling unit testing
+ *  [/] Fulfilling unit testing
  *  [x] Extensive documentation
- *  [ ] Fulfilling configuration options
+ *  [/] Fulfilling configuration options
  */
 
 import { TSESLint } from "@typescript-eslint/utils";
@@ -19,15 +19,23 @@ import { isAlgorithmSafe } from "../_utils/is-algorithm-safe";
 
 import { MessageIds, errorMessages } from "./utils/messages";
 
+type Config = {
+  alg: string | undefined;
+};
+
 export type HandlingContext = {
   ruleContext: Readonly<TSESLint.RuleContext<MessageIds, unknown[]>>;
 };
 
 const createRule = RuleCreator(resolveDocsRoute);
 
-export const cipherNoInsecureCiphers = createRule<never[], MessageIds>({
+export const cipherNoInsecureCiphers = createRule<[Config], MessageIds>({
   name: "node/no-insecure-ciphers",
-  defaultOptions: [],
+  defaultOptions: [
+    {
+      alg: undefined,
+    },
+  ],
   meta: {
     type: "problem",
     fixable: "code",
@@ -38,9 +46,16 @@ export const cipherNoInsecureCiphers = createRule<never[], MessageIds>({
       suggestion: true,
     },
     hasSuggestions: true,
-    schema: {},
+    schema: [
+      {
+        type: "object",
+        items: {
+          alg: { type: "string", required: false },
+        },
+      },
+    ],
   },
-  create: (context) => {
+  create: (context, [config]) => {
     return {
       CallExpression: (node) => {
         const FUNCTION_NAME = "createCipheriv";
@@ -72,6 +87,15 @@ export const cipherNoInsecureCiphers = createRule<never[], MessageIds>({
           node: troubleNode,
           messageId: MessageIds.INSECURE_CIPHER,
           suggest: [
+            {
+              messageId: MessageIds.SAFE_ALGORITHM_CONFIG_FIX,
+              data: { alg: troubleNode.value, fix: config.alg },
+              fix: (fixer: TSESLint.RuleFixer) => {
+                if (config.alg) {
+                  return fixer.replaceText(troubleNode, '"' + config.alg + '"');
+                } else return null;
+              },
+            },
             {
               messageId: MessageIds.SAFE_ALGORITHM_FIX_128,
               data: { alg: troubleNode.value },
