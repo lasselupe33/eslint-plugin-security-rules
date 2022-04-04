@@ -57,7 +57,7 @@ In order to tailor this rule to your specific project a couple of parameters can
 
 Firstly, in case you wish to **use a library other than ```dompurify```** you can configure this as follows:
 
-```json
+```JSONC
 "rules": {
   "security-rules/browser/no-xss": ["error", {
     "sanitation": {
@@ -75,7 +75,7 @@ Wherein you insert values matching your desired sanitaiton library.
 
 Secondly, you can **specify domains that are known to be safe** to reduce the amount of false positives:
 
-```json
+```JSONC
 "rules": {
   "security-rules/browser/no-xss": ["error", {
     "trusted": ["https://my-site.com"]

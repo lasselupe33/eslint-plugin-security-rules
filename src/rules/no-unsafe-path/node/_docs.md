@@ -88,7 +88,7 @@ In case you are certain that you have encountered a false positive, then you can
 
 This rule supports several configuration options to tailor to specific projects, following the format below:
 
-```json
+```JSONC
 "rules": {
   "security-rules/node/no-unsafe-path": ["error", {
     "sanitation": {

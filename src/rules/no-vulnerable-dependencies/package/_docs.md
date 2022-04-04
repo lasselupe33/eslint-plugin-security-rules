@@ -6,7 +6,7 @@ If this rule has flagged an issues in your code then this means that the given d
 
 **NB:** In order for this rule to work inside VSCode then you must enable ESLint in `package.json` files manually by adding the following configuration entry in your VSCode editor:
 
-```json
+```JSONC
 "eslint.validate": [
   "javascript",
   "javascriptreact",
