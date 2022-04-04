@@ -62,7 +62,7 @@ In case you are certain that you have encountered a false positive, then you can
 
 ## Attributes
 
-- [X] ✅ Recommended for ```.js,.jsx,.ts,.tsx```
+- [ ] ✅ Recommended for ```.js,.jsx,.ts,.tsx```
 - [ ] 🔧 Provides suggestion
 - [ ] 💭 Enchanced with type information
 - [ ] 🌩 Requires type information
