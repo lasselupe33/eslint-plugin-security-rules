@@ -135,11 +135,11 @@ different forms, specifying different data based on the type of the terminal.
 
 In particular the following Terminal Nodes exist:
 
-* ConstantTerminalNode
-* ImportTerminalNode
-* GlobalTerminalNode
-* UnresolvedTerminalNode
-* NodeTerminalNode
+* `ConstantTerminalNode`
+* `ImportTerminalNode`
+* `GlobalTerminalNode`
+* `UnresolvedTerminalNode`
+* `NodeTerminalNode`
 
 ### Root Node
 
@@ -178,10 +178,63 @@ We are currently aware of the follwing limitations:
 
 ## Implementation details
 
-High level overview
+The goal of the tracer is to trace from an initial ESTree Node following as many
+relevant ESTree Variables as possible.
+
+Overall the method uses a simple FIFO-queue on which new ESTree Variables that
+should be followed can be pushed into. This means that we first trace
+depth-first. Every time a variable (or terminal) is consumed in the FIFO-queue
+the `onNodeVisted` callback of the external API is triggered. When the queue is
+empty the algorithm ends triggering the `onFinished` callback.
+
+For each Variable the we encounter we use [Visitor](#visitors) functions to
+determine how we should trace the given variable (i.e. which ESTree nodes we
+should be looking at). Once determined these *Visitors* transfer the
+responsibility of how individual TSESTree Nodes should be handled to our
+[Handler](#handlers) functions.
+
+Finally, it may at times be required to override the default behaviour of how
+function calls, literals and import statements are handled and in these cases
+our [Override](#overrides) functions take over.
 
 ### Visitors
 
+Visitor functions describe how variables should be handled to allow further
+tracing. This could be specifications of how `Parameter`s should be handled,
+`Import bindings` and `Global Variables`.
+
+Once the proper path has been determined the Visitors delegate the
+responsibility to our [Handlers](#handlers) which in turn attempts to trace
+(through ESTree Nodes) to the next ESTree Variable (or terminal) that should be
+added to the queue.
+
 ### Handlers
 
+Handler functions describe how we should handle a given `ESTree Node` in order
+to continue the trace. Examples of handlers could be specifications of how
+`Call Expression`s, `Import Specifier`s and `Literal`s should be handled in order
+to continue the trace.
+
+These functions will either continue the trace (by returning a new call to
+`handleNode`) on its relevant properties or, if it can be mapped to an ESTree
+Variable or a terminal, the handled will return a [Trace Node](#trace-nodes).
+
 ### Overrides
+
+Since we do not handle tracing into external packages (included the default
+JavaScript library) it is at times necessary to define overrides specifying how
+to handle specific ESTree Nodes.
+
+As an example consider the following call:
+
+```ts
+document.body.innerHTML = [1, 2, 3].concat([4, 5, 6]).join("");
+```
+
+Due to our domain knowledge we know that the following will resolve to the string `123456`, however the default tracing algorithm has no way of inferring what the function invocations above will return. Thus, the above without any overrides, would not have been able to include the context of the array inside the `concat()` invocation.
+
+Overrides may occur at three different stages:
+
+* At `Import Bindings` *(e.g.`React.useState() -> ...`)*
+* At `Call Expressions` *(e.g. `arr.concat(arr2) -> arr + arr2`)*
+* At `Literals` *(e.g. `__dirname -> "__dirname"`)*
