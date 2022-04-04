@@ -62,7 +62,7 @@ In case you're certain that you want to continue using an unsafe algorithm, you 
 
 - [X] ✅ Recommended for ```.js,.jsx,.ts,.tsx```
 - [X] 🔧 Provides suggestion
-- [ ] 💭 Enchanced with type information
+- [X] 💭 Enchanced with type information
 - [ ] 🌩 Requires type information
 
 ## Banned Algorithms

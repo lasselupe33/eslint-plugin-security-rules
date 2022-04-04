@@ -128,6 +128,11 @@ function retrieveNameAndValues(
 
 function isPasswordName(testString: string): boolean {
   // i: ignoreCase
-  const reg = new RegExp(/^pass(wd|word|code|phrase)?/, "i");
+  // (?<!^) - negative lookbehind -it matches if the string does not match
+  // (?!) is a negative lookahead
+  const reg = new RegExp(
+    /^(?<!.*(length|len|limit|lim))pass(wd|word|code|phrase)?(?!.*(length|len|limit|lim))/,
+    "i"
+  );
   return reg.test(testString);
 }
