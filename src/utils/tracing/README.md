@@ -135,11 +135,11 @@ different forms, specifying different data based on the type of the terminal.
 
 In particular the following Terminal Nodes exist:
 
-* ConstantTerminalNode
-* ImportTerminalNode
-* GlobalTerminalNode
-* UnresolvedTerminalNode
-* NodeTerminalNode
+* `ConstantTerminalNode`
+* `ImportTerminalNode`
+* `GlobalTerminalNode`
+* `UnresolvedTerminalNode`
+* `NodeTerminalNode`
 
 ### Root Node
 
