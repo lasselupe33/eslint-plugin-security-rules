@@ -6,6 +6,7 @@ const MAX_ALLOWED_CYCLES = 100;
 
 export function isCycle(
   encounteredMap: WeakMap<Scope.Variable, number>,
+  maxCycles = MAX_ALLOWED_CYCLES,
   connection: Connection
 ) {
   let currentConnection: Connection | undefined = connection;
@@ -15,9 +16,7 @@ export function isCycle(
       return false;
     }
 
-    if (
-      (encounteredMap.get(currentConnection.variable) ?? 0) > MAX_ALLOWED_CYCLES
-    ) {
+    if ((encounteredMap.get(currentConnection.variable) ?? 0) > maxCycles) {
       return true;
     }
 

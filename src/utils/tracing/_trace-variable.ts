@@ -45,7 +45,10 @@ export type TraceCallbacks = {
  */
 export function traceVariable(
   ctx: TraceContext,
-  { onNodeVisited, onFinished }: TraceCallbacks = {}
+  { onNodeVisited, onFinished }: TraceCallbacks = {},
+  interalConfig?: {
+    maxCycles?: number;
+  }
 ) {
   if (!ctx.node) {
     return;
@@ -136,7 +139,13 @@ export function traceVariable(
       meta,
     };
 
-    if (isCycle(encounteredMap, handlingContext.connection)) {
+    if (
+      isCycle(
+        encounteredMap,
+        interalConfig?.maxCycles,
+        handlingContext.connection
+      )
+    ) {
       onNodeVisited?.(
         makeUnresolvedTerminalNode({
           reason: "Encountered cycle",

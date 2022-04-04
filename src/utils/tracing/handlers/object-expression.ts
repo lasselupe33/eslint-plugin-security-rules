@@ -83,7 +83,10 @@ export function handleObjectExpression(
               objects.push(finalNode);
             }
           },
-        })
+        }),
+        {
+          maxCycles: 5,
+        }
       );
 
       const matches = objects

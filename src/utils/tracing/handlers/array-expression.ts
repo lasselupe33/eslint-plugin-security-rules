@@ -68,7 +68,10 @@ export function handleArrayExpression(
               )
                 arrays.push(finalNode.astNode);
             },
-          })
+          }),
+          {
+            maxCycles: 5,
+          }
         );
 
         // In case we were not able to resolve the spread element, then we
