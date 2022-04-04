@@ -18,7 +18,7 @@ yarn add --dev eslint-plugin-security-rules
 
 To include the recommended `eslint-plugin-security-rules` to your ruleset add the following to your `.eslintrc` configuration:
 
-```json
+```JSONC
 {
   "extends": [
     "plugin:security-rules/recommended"
