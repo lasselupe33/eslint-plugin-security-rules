@@ -66,6 +66,7 @@ connection.query(query, (err, rows) => {
 In case you do not wish to use the provided suggestion, you must sanitize the variable in the query with a placeholder or the escape function. It is important to first identify whether the vulnerable variable is an [identifier or a value](#apply-the-provided-eslint-suggestion-semi-automatic-fix).
 
 #### Escape function
+
 The [mysql](https://github.com/mysqljs/mysql#escaping-query-values) package provides two escape functions that one can apply to a variable to safely sanitize it. One can use `mysql.escape(value)`, `connection.escape(value)` or `pool.escape(value)` to escape values.
 
 To escape identifiers, one instead need to use `mysql.escapeId(identifier)`, `connection.escapeId(identifier)` or `pool.escapeId(identifier)` As such, the vulnerable query from [earlier](#apply-the-provided-eslint-suggestion-semi-automatic-fix), is escaped as follows:
@@ -102,7 +103,7 @@ In case you are certain that you have encountered a false positive, then you can
 
 - [X] ✅ Recommended for ```.js,.jsx,.ts,.tsx```
 - [X] 🔧 Provides suggestion
-- [ ] 💭 Enhanced with type information
+- [X] 💭 Enhanced with type information
 - [ ] 🌩 Requires type information
 
 ## Background

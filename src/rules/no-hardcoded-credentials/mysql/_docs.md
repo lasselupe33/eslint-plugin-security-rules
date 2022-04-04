@@ -73,7 +73,7 @@ In case you are certain that you have encountered a false positive, then you can
 
 - [X] ✅ Recommended for ```.js,.jsx,.ts,.tsx```
 - [ ] 🔧 Provides suggestion
-- [ ] 💭 Enchanced with type information
+- [X] 💭 Enchanced with type information
 - [ ] 🌩 Requires type information
 
 ## Background
