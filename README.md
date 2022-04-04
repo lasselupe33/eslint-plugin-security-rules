@@ -62,7 +62,7 @@ To include the recommended `eslint-plugin-security-rules` to your ruleset add th
 
 | **Name** | **Description** | ✅ | 🔧 | 💭 | 🌩 |
 |:--------|:------------|:--:|:--:|:--:|:----:|
-| [security-rules/universal/no-hardcoded-credentials](https://github.com/lasselupe33/eslint-plugin-security-rules/blob/master/src/rules/no-hardcoded-credentials/universal/_docs.md) | Detects hardcoded secrets in a file | ✅ | | | |
+| [security-rules/universal/no-hardcoded-credentials](https://github.com/lasselupe33/eslint-plugin-security-rules/blob/master/src/rules/no-hardcoded-credentials/universal/_docs.md) | Detects hardcoded secrets in a file |  | | | |
 | [security-rules/universal/no-vulnerable-dependencies](https://github.com/lasselupe33/eslint-plugin-security-rules/blob/master/src/rules/no-vulnerable-dependencies/universal/_docs.md) | Determines if import statements exist in a vulnerable version | ✅ | | | |
 
 ### Package.json
@@ -86,11 +86,11 @@ The following ruleset are related to specific popular packages, scanning for vul
 | **Name** | **Description** | ✅ | 🔧 | 💭 | 🌩 |
 |:--------|:------------|:--:|:--:|:--:|:----:|
 | [security-rules/pg/no-sql-injections](https://github.com/lasselupe33/eslint-plugin-security-rules/blob/master/src/rules/no-sql-injections/pg/_docs.md) | Detects queries vulnerable to SQL Injections | ✅ | 🔧 | 💭 | |
-| [security-rules/pg/no-hardcoded-credentials](https://github.com/lasselupe33/eslint-plugin-security-rules/blob/master/src/rules/no-hardcoded-credentials/pg/_docs.md) | Detects hardcoded secrets in a file  | ✅ | | | |
+| [security-rules/pg/no-hardcoded-credentials](https://github.com/lasselupe33/eslint-plugin-security-rules/blob/master/src/rules/no-hardcoded-credentials/pg/_docs.md) | Detects hardcoded secrets in a file  | ✅ | | 💭 | |
 
 #### MySQL
 
 | **Name** | **Description** | ✅ | 🔧 | 💭 | 🌩 |
 |:--------|:------------|:--:|:--:|:--:|:----:|
 | [security-rules/mysql/no-sql-injections](https://github.com/lasselupe33/eslint-plugin-security-rules/blob/master/src/rules/no-sql-injections/mysql/_docs.md) | Detects queries vulnerable to SQL Injections | ✅ | 🔧 | 💭 | |
-| [security-rules/mysql/no-hardcoded-credentials](https://github.com/lasselupe33/eslint-plugin-security-rules/blob/master/src/rules/no-hardcoded-credentials/mysql/_docs.md) | Detects hardcoded secrets in a file  | ✅ | | | |
+| [security-rules/mysql/no-hardcoded-credentials](https://github.com/lasselupe33/eslint-plugin-security-rules/blob/master/src/rules/no-hardcoded-credentials/mysql/_docs.md) | Detects hardcoded secrets in a file  | ✅ | | 💭 | |
