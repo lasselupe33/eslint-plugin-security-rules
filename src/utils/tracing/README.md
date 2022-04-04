@@ -235,6 +235,6 @@ Due to our domain knowledge we know that the following will resolve to the strin
 
 Overrides may occur at three different stages:
 
-* At `Import Bindings` *(e.g. React.useState() -> ...)*
-* At `Call Expressions` *(e.g. arr.concat(arr2) -> arr + arr2)*
-* At `Literals` *(e.g. __dirname -> "__dirname")*
+* At `Import Bindings` *(e.g.`React.useState() -> ...`)*
+* At `Call Expressions` *(e.g. `arr.concat(arr2) -> arr + arr2`)*
+* At `Literals` *(e.g. `__dirname -> "__dirname"`)*
