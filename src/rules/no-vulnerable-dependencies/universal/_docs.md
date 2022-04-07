@@ -12,7 +12,7 @@ Thus it is crucial to frequently manage your dependencies to ensure that they st
 
 ## Actions
 
-In order to mitigate the issue you should locate that `package.json` that has installed the vulnerable dependency and upgrade to at least the version reported by this rule.
+In order to mitigate the issue you should locate the `package.json` that has installed the vulnerable dependency and upgrade to at least the version reported by this rule.
 
 Once you have located this file, then our rule [no-vulnerable-dependencies/package](https://github.com/lasselupe33/eslint-plugin-security-rules/blob/master/src/rules/no-vulnerable-dependencies/package/_docs.md) can assist you in the upgrade process.
 

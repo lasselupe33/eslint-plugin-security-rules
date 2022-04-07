@@ -10,6 +10,11 @@ import { isConstantTerminalNode } from "../../../../utils/tracing/types/nodes";
 
 import { CallExpressionSink } from "./types";
 
+/**
+ * Checks to see if the matched call expression is relevant to any of the
+ * potential sinks provided, by checking if the call matches any of the sink
+ * predicates.
+ */
 export function isCallRelevant(
   context: RuleContext<string, unknown[]>,
   args: TSESTree.CallExpressionArgument[],

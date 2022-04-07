@@ -27,8 +27,8 @@ const createRule = RuleCreator(resolveDocsRoute);
  * Scans import statements to determine if any of the installed dependencies
  * exist in a vulnerable version.
  *
- * The intent of this is to allow developers to
- * act quickly once vulnerable dependencies are identified.
+ * The intent of this is to allow developers to act quickly once vulnerable
+ * dependencies are identified.
  */
 export const noUniversalVulnerableDependencies = createRule<[], MessageIds>({
   name: "no-vulnerable-dependencies/universal",
@@ -102,6 +102,7 @@ export const noUniversalVulnerableDependencies = createRule<[], MessageIds>({
 
             for (const node of nodes) {
               for (const advisory of advisoriesForDep.advisories) {
+                // Extracts the GHSA ID from the URL for pretty error reporting.
                 const idArr = advisory.url.split("/");
 
                 context.report({

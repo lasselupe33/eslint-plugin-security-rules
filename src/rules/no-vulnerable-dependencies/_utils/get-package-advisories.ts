@@ -21,12 +21,12 @@ export type Advisory = {
 type BulkAdvisoryRequest = Record<string, string[]>;
 export type BulkAdvisoryResponse = Record<string, Advisory[]>;
 
-const CACHE_TTL = 1000 * 60 * 60 * 2; // 2 Hours
+const CACHE_TTL_MS = 1000 * 60 * 60 * 2; // 2 Hours
 
 const advisoryCache = createCache<{
   advisories: BulkAdvisoryResponse;
-  packageModifiedAt: number;
-  fetchedAt: number;
+  packageModifiedAtMs: number;
+  fetchedAtMs: number;
 }>({ useFileSystem: true });
 
 /**
@@ -47,9 +47,9 @@ export function getPackageAdvisories({
   // In case we have a cache entry that is still up to date with the current
   // package, then we can simply return our cached result.
   if (
-    cacheEntry?.packageModifiedAt &&
-    cacheEntry.packageModifiedAt === packagePath.modifiedAt &&
-    cacheEntry.fetchedAt + CACHE_TTL > Date.now()
+    cacheEntry?.packageModifiedAtMs &&
+    cacheEntry.packageModifiedAtMs === packagePath.modifiedAt &&
+    cacheEntry.fetchedAtMs + CACHE_TTL_MS > Date.now()
   ) {
     return cacheEntry.advisories;
   }
@@ -59,8 +59,8 @@ export function getPackageAdvisories({
   if (response !== undefined) {
     advisoryCache.set(packagePath.path, {
       advisories: response,
-      packageModifiedAt: packagePath.modifiedAt,
-      fetchedAt: Date.now(),
+      packageModifiedAtMs: packagePath.modifiedAt,
+      fetchedAtMs: Date.now(),
     });
   }
 

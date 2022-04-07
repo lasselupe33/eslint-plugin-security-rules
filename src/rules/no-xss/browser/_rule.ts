@@ -1,6 +1,5 @@
 import { TSESTree } from "@typescript-eslint/utils";
 import { RuleCreator } from "@typescript-eslint/utils/dist/eslint-utils";
-import { RuleFixer } from "@typescript-eslint/utils/dist/ts-eslint";
 
 import { isNewExpression } from "../../../utils/ast/guards";
 import { resolveDocsRoute } from "../../../utils/resolve-docs-route";
@@ -54,7 +53,7 @@ export const noBrowserXSSRule = createRule<NoXssOptions, MessageIds>({
     fixable: "code",
     messages: {
       [MessageIds.VULNERABLE_SINK]:
-        "This assignment may vulnerable to XSS attacks",
+        "This assignment may be vulnerable to XSS attacks due to external/unknown source",
       [MessageIds.ADD_SANITATION_FIX]:
         "Add sanitation before assigning unsafe value",
     },
@@ -114,7 +113,7 @@ export const noBrowserXSSRule = createRule<NoXssOptions, MessageIds>({
           },
           suggest: [
             {
-              fix: (fixer: RuleFixer) =>
+              fix: (fixer) =>
                 addSanitazionAtSink(
                   context,
                   sanitationOptions,
@@ -140,6 +139,11 @@ export const noBrowserXSSRule = createRule<NoXssOptions, MessageIds>({
           return;
         }
 
+        // Based on the sink configuration we need to access a particular
+        // argument.
+        // Given a number we must access the argument at the given index, if
+        // given "last" we should access the final element and finally if given
+        // "any" we return undefined, meaning we should check all arguments.
         const index =
           typeof sink.paramterIndex === "number"
             ? sink.paramterIndex
@@ -165,33 +169,26 @@ export const noBrowserXSSRule = createRule<NoXssOptions, MessageIds>({
           return;
         }
 
-        context.report({
-          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-          node: vulnerableNodes[0]!,
-          messageId: MessageIds.VULNERABLE_SINK,
-          data: {
-            sinkType: sink.type,
-          },
-          suggest: [
-            {
-              fix: function* fixer(fixer: RuleFixer) {
-                for (const node of vulnerableNodes) {
-                  if (!node) {
-                    return;
-                  }
+        for (const vulnerableNode of vulnerableNodes) {
+          if (!vulnerableNode) {
+            continue;
+          }
 
-                  yield* addSanitazionAtSink(
-                    context,
-                    sanitationOptions,
-                    fixer,
-                    node
-                  );
-                }
-              },
-              messageId: MessageIds.ADD_SANITATION_FIX,
+          context.report({
+            node: vulnerableNode,
+            messageId: MessageIds.VULNERABLE_SINK,
+            data: {
+              sinkType: sink.type,
             },
-          ],
-        });
+            suggest: [
+              {
+                fix: (fixer) =>
+                  addSanitazionAtSink(context, sanitationOptions, fixer, node),
+                messageId: MessageIds.ADD_SANITATION_FIX,
+              },
+            ],
+          });
+        }
       },
     };
   },

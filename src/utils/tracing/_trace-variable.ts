@@ -9,7 +9,6 @@ import {
   isParameter,
 } from "../ast/guards";
 
-import { getRelevantReferences } from "./get-relevant-references";
 import { handleNode } from "./handlers/_handle-node";
 import { HandlingContext } from "./types/context";
 import {
@@ -18,6 +17,7 @@ import {
   makeUnresolvedTerminalNode,
   TraceNode,
 } from "./types/nodes";
+import { getRelevantReferences } from "./utils/get-relevant-references";
 import { isCycle } from "./utils/is-cycle";
 import { visitClassName } from "./visitors/class-name";
 import { visitFunctionName } from "./visitors/function-name";
@@ -157,7 +157,7 @@ export function traceVariable(
       continue;
     }
 
-    // In case we've encountered a parameter, then we cannot handle it simply be
+    // In case we've encountered a parameter, then we cannot handle it simply by
     // tracing its references since we need to be context aware in this case.
     if (isParameter(variable.defs[0])) {
       remainingVariables.unshift(

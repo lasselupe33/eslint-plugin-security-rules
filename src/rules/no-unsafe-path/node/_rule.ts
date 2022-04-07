@@ -61,8 +61,9 @@ export const noNodeUnsafePath = createRule<[Config], MessageIds>({
     fixable: "code",
     messages: {
       [MessageIds.VULNERABLE_PATH]:
-        "Paths from unknown sources must be sanitized before usage",
-      [MessageIds.ADD_SANITATION_FIX]: "Add sanitation of path value",
+        "Paths from potentially unknown sources should be sanitized before usage",
+      [MessageIds.ADD_SANITATION_FIX]:
+        "Sanitation path before usage using function located {{ location }}",
     },
     docs: {
       description: `Avoids usage of unsafe paths when interacting with the file-system using the NodeJS "fs"-package`,
@@ -91,6 +92,8 @@ export const noNodeUnsafePath = createRule<[Config], MessageIds>({
   create: (context, [config]) => {
     return {
       CallExpression: (node) => {
+        // CallExpression can take two forms: fs.readFile() or readFile(),
+        // handle extraction of identifiers in both cases.
         const identifier =
           isMemberExpression(node.callee) && isIdentifier(node.callee.property)
             ? node.callee.property
@@ -103,7 +106,8 @@ export const noNodeUnsafePath = createRule<[Config], MessageIds>({
         }
 
         // Most fs methods have synchronous analogues postfixed with 'Sync',
-        // check if any of these have been used!
+        // check if any of these have been used! (these are not explicitly
+        // included in the map 'fsSinks')
         const argumentsToCheck =
           fsSinks.get(identifier.name) ??
           fsSinks.get(identifier.name.replace("Sync", ""));
@@ -126,6 +130,9 @@ export const noNodeUnsafePath = createRule<[Config], MessageIds>({
             context.report({
               node: unsafeArgument,
               messageId: MessageIds.VULNERABLE_PATH,
+              data: {
+                location: config.sanitation.location,
+              },
               suggest: [
                 {
                   messageId: MessageIds.ADD_SANITATION_FIX,

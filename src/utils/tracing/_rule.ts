@@ -17,7 +17,8 @@ export enum MessageIds {
 const createRule = RuleCreator(resolveDocsRoute);
 
 /**
- * ...
+ * Allows the tracer to run on the value that the variable "start" is assigned
+ * to. This allows for easy creating of unit-tests for the tracer.
  */
 export const traceTestRule = createRule<[], MessageIds>({
   name: "tracing/test",

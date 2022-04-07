@@ -8,7 +8,6 @@ import {
 import { deepMerge } from "../../deep-merge";
 import { traceVariable } from "../_trace-variable";
 import { withTrace } from "../callbacks/with-trace";
-import { getNodeName } from "../get-node-name";
 import { HandlingContext } from "../types/context";
 import {
   isNodeTerminalNode,
@@ -18,6 +17,7 @@ import {
   NodeTerminalNode,
   TraceNode,
 } from "../types/nodes";
+import { getNodeName } from "../utils/get-node-name";
 
 import { handleNode } from "./_handle-node";
 

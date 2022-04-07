@@ -10,7 +10,7 @@ import {
 
 import { getFinalRange } from "../../../../utils/ast/get-final-range";
 import { isFunctionDeclaration } from "../../../../utils/ast/guards";
-import { createImportFix } from "../../../../utils/ast/import-fix";
+import { createImportStatementFix } from "../../../../utils/ast/import-fix";
 import { getTypeProgram } from "../../../../utils/types/get-type-program";
 import { Config } from "../_rule";
 
@@ -23,9 +23,9 @@ import { resolveConfigPath } from "./resolve-config-path";
  * ({{inplace}}), then we must also include the template to the sanitation
  * method in the bottom of the file.
  *
- * If the sanitation method exists in another file, then we simply add an
- * import to it instead (either relative or absolute depending on
- * configuration.)
+ * If the sanitation method exists in another file ({{root}} or {{abs}}), then
+ * we simply add an import to it instead (either relative or absolute depending
+ * on configuration.)
  */
 export function* addSanitationFix(
   config: Config,
@@ -40,15 +40,17 @@ export function* addSanitationFix(
     cwd
   );
 
+  // In case no import path was available, then it means that the sanitization
+  // method should be inserted into the same file (i.e. {{inplace}})
   if (!importPath) {
     const finalRange = getFinalRange(ctx.getSourceCode());
 
-    yield createImportFix(
+    yield createImportStatementFix(
       ctx,
       { package: "path", method: "path" },
       { asDefault: true }
     );
-    yield createImportFix(
+    yield createImportStatementFix(
       ctx,
       { package: "sanitize-filename", method: "sanitizeFilename" },
       {
@@ -63,7 +65,7 @@ export function* addSanitationFix(
       );
     }
   } else {
-    yield createImportFix(
+    yield createImportStatementFix(
       ctx,
       { package: importPath, method: config.sanitation.method },
       {

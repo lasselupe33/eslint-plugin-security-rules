@@ -7,7 +7,7 @@ import { RawSink } from "./types";
 
 /**
  * Iterates through all the remaining possible sinks and returns the remaining
- * sinks that the is still a part of.
+ * sinks that currentIdentifierName is still a part of.
  */
 export function isSinkRelevant<Sink extends RawSink>(
   typeProgram: TypeProgram,

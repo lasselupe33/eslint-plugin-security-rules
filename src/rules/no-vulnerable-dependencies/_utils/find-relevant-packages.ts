@@ -99,19 +99,19 @@ export function findRelevantPackages(
     let pkg: Package | undefined;
 
     do {
-      if (fs.existsSync(sanitizePath(__dirname, "../../../../", packagePath))) {
+      const sanitizedPath = sanitizePath(
+        __dirname,
+        "../../../../",
+        packagePath
+      );
+
+      if (fs.existsSync(sanitizedPath)) {
         paths.unshift({
           path: packagePath,
-          modifiedAt: fs.statSync(
-            sanitizePath(__dirname, "../../../../", packagePath)
-          ).mtimeMs,
+          modifiedAt: fs.statSync(sanitizedPath).mtimeMs,
         });
-        pkg = JSON.parse(
-          fs.readFileSync(
-            sanitizePath(__dirname, "../../../../", packagePath),
-            "utf8"
-          )
-        );
+
+        pkg = JSON.parse(fs.readFileSync(sanitizedPath, "utf8"));
 
         for (const dependency of remainingDependencies) {
           if (

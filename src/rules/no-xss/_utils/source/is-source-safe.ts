@@ -11,7 +11,6 @@ import {
   isNodeTerminalNode,
   isVariableNode,
 } from "../../../../utils/tracing/types/nodes";
-import { printTrace } from "../../../../utils/tracing/utils/print-trace";
 import { SanitationOptions } from "../options";
 import { SinkTypes } from "../sink/types";
 
@@ -49,7 +48,6 @@ export function isSourceSafe(
     },
     withTrace({
       onTraceFinished: (trace) => {
-        printTrace(trace);
         const finalNode = trace[trace.length - 1];
 
         // Once we encounter a modification connection in the current
@@ -77,7 +75,7 @@ export function isSourceSafe(
 
         // We assume that all traces that have been explicitly deemed safe are
         // safe. Or, in the case that a trace ends with a constant value we
-        // assume the trace to be safe as well (due to the belief that the
+        // assume the trace to be safe as well (due to the assumption that the
         // developer herself would not explicitly include XSS in their code).
         //
         // However, for execution sinks, only string inputs should be considered

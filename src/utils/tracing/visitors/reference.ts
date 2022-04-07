@@ -1,7 +1,7 @@
-import { WriteableReference } from "../get-relevant-references";
 import { handleNode } from "../handlers/_handle-node";
 import { HandlingContext } from "../types/context";
 import { makeUnresolvedTerminalNode, TraceNode } from "../types/nodes";
+import { WriteableReference } from "../utils/get-relevant-references";
 
 export function visitReference(
   ctx: HandlingContext,

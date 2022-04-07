@@ -3,7 +3,7 @@ import { RuleContext, RuleFix } from "@typescript-eslint/utils/dist/ts-eslint";
 import { getModuleScope } from "./get-module-scope";
 import { hasImportDeclaration } from "./has-import-declaration";
 
-export function createImportFix(
+export function createImportStatementFix(
   context: RuleContext<string, unknown[]>,
   toImport: { package: string; method: string },
   { asDefault }: { asDefault: boolean } = { asDefault: false }

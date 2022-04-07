@@ -27,7 +27,7 @@ import { upgradeDependency } from "./fixes/upgrade-dependency";
  *  [X] Detection
  *  [X] Automatic fix / Suggestions
  *  [X] Reduction of false positives
- *  [X] Fulfilling unit testing
+ *  [-] Fulfilling unit testing
  *  [X] Extensive documentation
  *  [/] Fulfilling configuration options
  */
@@ -176,6 +176,9 @@ function reportAdvisories(
       const advisoryFixedAt = coerce(
         advisory.vulnerable_versions.split("<")[1]
       );
+
+      // Extracts the GHSA ID from the URL for pretty error
+      // reporting.
       const idArr = advisory.url.split("/");
 
       // In case we're already at a safe version, then there is no need to
@@ -212,11 +215,10 @@ function reportAdvisories(
               upgradeDependency(fixer, node, highestVulnerableVersion ?? ""),
           },
         ];
+        hasSuggestedFix = true;
       }
 
       context.report(report);
-
-      hasSuggestedFix = true;
     }
   }
 }

@@ -2,7 +2,7 @@
 
 This rule attempts to avoid usage of unsafe paths when interacting with the file-system using the NodeJS "fs"-package.
 
-If this rules has raised an error in your project it likely means that you have used external input that has not been sanitized to access a specific file on the file-system. The expected sanitization method can be [configured](#configuration).
+If this rules has raised an error in your project it likely means that you have used external input that has not been sanitized to access a specific file on the file-system. The expected sanitization method should be [configured](#configuration).
 
 In order to reduce the amount of false positives reported by this rule we attempt to trace the value used as a path back to its definition. During this trace, if we can observe that the value has been properly sanitized before insertion *(but after modification!)* or if the inserted data is a simple JavaScript primitive an error will not be reported.
 

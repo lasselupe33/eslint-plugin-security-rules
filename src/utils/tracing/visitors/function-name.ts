@@ -6,6 +6,7 @@ import { deepMerge } from "../../deep-merge";
 import { handleNode } from "../handlers/_handle-node";
 import { HandlingContext } from "../types/context";
 import {
+  makeConstantTerminalNode,
   makeNodeTerminalNode,
   makeUnresolvedTerminalNode,
   TraceNode,
@@ -70,8 +71,10 @@ export function visitFunctionName(
   }
 
   return [
-    makeNodeTerminalNode({
-      astNode: functionName.node,
+    // If we encounter a function that returns void, the value is theoretically
+    // nothing.
+    makeConstantTerminalNode({
+      value: "",
       connection: nextCtx.connection,
       astNodes: nextCtx.connection.astNodes,
       meta: nextCtx.meta,

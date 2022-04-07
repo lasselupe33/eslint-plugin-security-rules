@@ -8,7 +8,7 @@ import { mapNodeToHandler } from "../../ast/map-node-to-handler";
  * whether or not they're reachable from the function itself.
  */
 export function getReturnStatements(
-  body: (TSESTree.Node | null | undefined)[]
+  body: Array<TSESTree.Node | null | undefined>
 ): TSESTree.ReturnStatement[] {
   return body
     .flatMap((it) => {

@@ -5,7 +5,7 @@ import {
   RuleFixer,
 } from "@typescript-eslint/utils/dist/ts-eslint";
 
-import { createImportFix } from "../../../../utils/ast/import-fix";
+import { createImportStatementFix } from "../../../../utils/ast/import-fix";
 import { SanitationOptions } from "../options";
 
 export function* addSanitazionAtSink(
@@ -19,5 +19,5 @@ export function* addSanitazionAtSink(
 
   yield fixer.insertTextBefore(unsafeNode, toInsertBefore);
   yield fixer.insertTextAfter(unsafeNode, toInsertAfter);
-  yield createImportFix(context, options.sanitation);
+  yield createImportStatementFix(context, options.sanitation);
 }
