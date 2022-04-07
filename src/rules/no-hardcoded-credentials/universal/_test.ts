@@ -7,7 +7,10 @@ import { getCode } from "../../../utils/testing/get-code";
 import { uniNoHardcodedCredentials } from "./_rule";
 import { MessageIds } from "./utils/messages";
 
-enum validTests {}
+enum validTests {
+  PASSIVE_WORD = "allow-passive-word",
+  PASSWORD_LENGTH_LIMIT = "allow-password-length-limit",
+}
 
 enum invalidTests {
   NO_PASSWORD_ARRAY_VARIABLE_DECLARATION = "error-no-password-array-variable-declaration",
@@ -32,9 +35,12 @@ ruleTester.run(
   uniNoHardcodedCredentials,
   {
     valid: [
-      // {
-      //   code: getCode(__dirname, validTests.CREATECONNECTION_PROCESS_ENV),
-      // },
+      {
+        ...getCode(__dirname, validTests.PASSIVE_WORD),
+      },
+      {
+        ...getCode(__dirname, validTests.PASSWORD_LENGTH_LIMIT),
+      },
     ],
     invalid: [
       {

@@ -3,10 +3,9 @@ import { TSESLint, TSESTree } from "@typescript-eslint/utils";
 import { traceVariable } from "../../../utils/tracing/_trace-variable";
 import { withTrace } from "../../../utils/tracing/callbacks/with-trace";
 import { isConstantTerminalNode } from "../../../utils/tracing/types/nodes";
-import { printTrace } from "../../../utils/tracing/utils/print-trace";
 
 export function isSafeValue(
-  context: Readonly<TSESLint.RuleContext<string, []>>,
+  context: Readonly<TSESLint.RuleContext<string, unknown[]>>,
   node: TSESTree.Node
 ): boolean {
   if (!node) {
@@ -22,9 +21,10 @@ export function isSafeValue(
     },
     withTrace({
       onTraceFinished: (trace) => {
-        // printTrace(trace);
         const finalNode = trace[trace.length - 1];
 
+        // Naive allowlist implementation with the potential to be improved with
+        // more safe values.
         const safeValues = /^test/;
 
         const isTraceSafe =
