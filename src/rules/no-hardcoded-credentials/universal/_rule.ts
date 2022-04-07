@@ -1,4 +1,5 @@
-import { TSESLint, TSESTree } from "@typescript-eslint/utils";
+import { TSESTree } from "@typescript-eslint/utils";
+import { RuleCreator } from "@typescript-eslint/utils/dist/eslint-utils";
 
 import {
   isArrayExpression,
@@ -6,6 +7,7 @@ import {
   isIdentifier,
   isLiteral,
 } from "../../../utils/ast/guards";
+import { resolveDocsRoute } from "../../../utils/resolve-docs-route";
 import { isSafeValue } from "../_utils/is-safe-value";
 
 import { errorMessages, MessageIds } from "./utils/messages";
@@ -13,29 +15,28 @@ import { errorMessages, MessageIds } from "./utils/messages";
 /**
  * Progress
  *  [-] Detection
- *  [ ] Automatic fix / Suggestions
- *  [ ] Reduction of false positives
+ *      [ ] Secrets - A generic secret or trusted data
+ *      [ ] Credentials - A user name or other account informations
+ *      [x] Password: A password or authorization key
+ *      [ ] Certificate: A certificate or authorization key
+ *  [/] Automatic fix / Suggestions
+ *  [-] Reduction of false positives
  *  [-] Fulfilling unit testing
  *  [x] Extensive documentation
- *  [ ] Fulfilling configuration options
+ *  [/] Fulfilling configuration options
  */
 
-/**
- * There exists a wide array of secrets. These can be defined into the
- * following:
- * - secret: A generic secret or trusted data
- * - id: a user name or other account information
- * - password: a password or authorization key
- * - certificate: a certificate
- */
+const createRule = RuleCreator(resolveDocsRoute);
 
-export const uniNoHardcodedCredentials: TSESLint.RuleModule<MessageIds> = {
+export const uniNoHardcodedCredentials = createRule<never[], MessageIds>({
+  name: "uni/no-hardcoded-credentials",
+  defaultOptions: [],
   meta: {
     type: "problem",
     messages: errorMessages,
     docs: {
       recommended: "error",
-      description: "Description",
+      description: "Naively attempts to identifies hardcoded passwords in code",
     },
     schema: {},
   },
@@ -89,7 +90,7 @@ export const uniNoHardcodedCredentials: TSESLint.RuleModule<MessageIds> = {
       },
     };
   },
-};
+});
 
 function retrieveNameAndValues(
   nodeId: TSESTree.ArrayPattern,
@@ -110,11 +111,13 @@ function retrieveNameAndValues(
 
   for (let i = 0; i < match.length; i++) {
     const element = nodeInit.elements[i];
+
     if (isLiteral(element)) {
       const innerArray = match[i];
+
       if (innerArray != null) {
         innerArray.val = element;
-      } // No else - val is already null
+      }
     }
   }
 
@@ -131,7 +134,7 @@ function isPasswordName(testString: string): boolean {
   // (?<!^) - negative lookbehind -it matches if the string does not match
   // (?!) is a negative lookahead
   const reg = new RegExp(
-    /^(?<!.*(length|len|limit|lim))pass(wd|word|code|phrase)?(?!.*(length|len|limit|lim))/,
+    /^(?<!.*(length|len|limit|lim))pass(wd|word|code|phrase)?(?!.*(length|len|limit|lim|ive|passive))/,
     "i"
   );
   return reg.test(testString);
