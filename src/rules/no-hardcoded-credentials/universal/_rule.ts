@@ -9,8 +9,7 @@ import {
 } from "../../../utils/ast/guards";
 import { resolveDocsRoute } from "../../../utils/resolve-docs-route";
 import { isSafeValue } from "../_utils/is-safe-value";
-
-import { errorMessages, MessageIds } from "./utils/messages";
+import { errorMessages, MessageIds } from "../_utils/messages";
 
 /**
  * Progress
@@ -46,7 +45,6 @@ export const uniNoHardcodedCredentials = createRule<never[], MessageIds>({
       context.report({
         node,
         messageId: MessageIds.HARDCODED_CREDENTIAL,
-        data: { node },
       });
     }
 

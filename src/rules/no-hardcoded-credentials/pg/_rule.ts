@@ -1,4 +1,5 @@
 import { TSESLint } from "@typescript-eslint/utils";
+import { RuleCreator } from "@typescript-eslint/utils/dist/eslint-utils";
 
 import {
   isIdentifier,
@@ -8,32 +9,35 @@ import {
 import { isPackage } from "../../../utils/ast/is-package";
 import { resolveDocsRoute } from "../../../utils/resolve-docs-route";
 import { isSafeValue } from "../_utils/is-safe-value";
+import { MessageIds, errorMessages } from "../_utils/messages";
 
-import { handleArgs } from "./handlers/handleArgs";
-import { MessageIds, errorMessages } from "./utils/messages";
+import { extractPGConfig } from "./utils/extract-pg-config";
 
 /**
  * Progress
  *  [x] Detection
- *  [ ] Automatic fix / Suggestions -- Can't be implemented?
+ *  [/] Automatic fix / Suggestions
  *  [x] Reduction of false positives
  *  [x] Fulfilling unit testing
  *  [x] Extensive documentation
- *  [ ] Fulfilling configuration options
+ *  [/] Fulfilling configuration options
  */
 
 export type HandlingContext = {
-  ruleContext: Readonly<TSESLint.RuleContext<MessageIds, []>>;
+  ruleContext: Readonly<TSESLint.RuleContext<MessageIds, never[]>>;
 };
 
-export const pgNoHardcodedCredentials: TSESLint.RuleModule<MessageIds> = {
+const createRule = RuleCreator(resolveDocsRoute);
+
+export const pgNoHardcodedCredentials = createRule<never[], MessageIds>({
+  name: "pg/no-hardcoded-credentials",
+  defaultOptions: [],
   meta: {
     type: "problem",
     messages: errorMessages,
     docs: {
       recommended: "error",
-      description: "disallow hardcoded passwords",
-      url: resolveDocsRoute(__dirname),
+      description: "Disallow hardcoded passwords",
     },
     schema: {},
   },
@@ -56,9 +60,9 @@ export const pgNoHardcodedCredentials: TSESLint.RuleModule<MessageIds> = {
         }
 
         const arg = node.arguments[0];
-        const argNode = handleArgs({ ruleContext: context }, arg);
+        const argNode = extractPGConfig({ ruleContext: context }, arg);
 
-        // @TODO: Handle literal
+        // @TODO: Handle literal (URI expressions)
         if (!argNode) {
           return;
         }
@@ -72,6 +76,7 @@ export const pgNoHardcodedCredentials: TSESLint.RuleModule<MessageIds> = {
             ) {
               continue;
             }
+
             if (!isSafeValue(context, property.value)) {
               context.report({
                 node: property,
@@ -84,4 +89,4 @@ export const pgNoHardcodedCredentials: TSESLint.RuleModule<MessageIds> = {
       },
     };
   },
-};
+});

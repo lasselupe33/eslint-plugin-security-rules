@@ -3,8 +3,9 @@ import path from "path";
 import { ESLintUtils } from "@typescript-eslint/utils";
 
 import { getCode } from "../../../utils/testing/get-code";
+import { MessageIds } from "../_utils/messages";
 
-import { mysqlNoHardcodedCredentials, MessageIds } from "./_rule";
+import { mysqlNoHardcodedCredentials } from "./_rule";
 
 enum validTests {
   CREATECONNECTION_HARDCODED_EMPTY_PASSWORD = "allow-createconnection-hardcoded-empty-password",

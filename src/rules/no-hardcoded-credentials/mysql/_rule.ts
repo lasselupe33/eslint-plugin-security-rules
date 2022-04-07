@@ -1,18 +1,20 @@
 import { TSESLint, TSESTree } from "@typescript-eslint/utils";
+import { RuleCreator } from "@typescript-eslint/utils/dist/eslint-utils";
 
+import { extractIdentifier } from "../../../utils/ast/extract-identifier";
 import { isPackage } from "../../../utils/ast/is-package";
 import { resolveDocsRoute } from "../../../utils/resolve-docs-route";
-import { extractIdentifier } from "../_utils/extract-identifier";
+import { errorMessages, MessageIds } from "../_utils/messages";
 
 import { checkArgumentsForPassword } from "./utils/check-arguments-for-password";
 import { extractObjectProperties } from "./utils/extract-object-properties";
 
-// TODO : Check on AST properties instead of only type properties
-
 /**
  * Progress
  *  [-] Detection
- *  [ ] Automatic fix / Suggestions -- Can't be implemented?
+ *    - [ ] Detection of URI connection strings
+ *    - [ ] Detection of hardcoded SSL options
+ *  [/] Automatic fix / Suggestions
  *  [x] Reduction of false positives
  *  [-] Fulfilling unit testing
  *  [x] Extensive documentation
@@ -20,24 +22,20 @@ import { extractObjectProperties } from "./utils/extract-object-properties";
  */
 
 export type HandlingContext = {
-  ruleContext: Readonly<TSESLint.RuleContext<MessageIds, []>>;
+  ruleContext: Readonly<TSESLint.RuleContext<MessageIds, never[]>>;
 };
 
-export enum MessageIds {
-  HARDCODED_CREDENTIAL = "hardcoded-credentail",
-}
+const createRule = RuleCreator(resolveDocsRoute);
 
-export const mysqlNoHardcodedCredentials: TSESLint.RuleModule<MessageIds> = {
+export const mysqlNoHardcodedCredentials = createRule<never[], MessageIds>({
+  name: "mysql/no-hardcoded-credentials",
+  defaultOptions: [],
   meta: {
     type: "problem",
-    messages: {
-      [MessageIds.HARDCODED_CREDENTIAL]:
-        "Credentials shouldn't be hardcoded into {{ id }}.",
-    },
+    messages: errorMessages,
     docs: {
       recommended: "error",
-      description: "disallow hardcoded passwords",
-      url: resolveDocsRoute(__dirname),
+      description: "Disallow hardcoded passwords",
     },
     schema: {},
   },
@@ -45,7 +43,8 @@ export const mysqlNoHardcodedCredentials: TSESLint.RuleModule<MessageIds> = {
   create: (context) => {
     return {
       CallExpression: (node) => {
-        const id = extractIdentifier(node);
+        const identifiers = extractIdentifier(node);
+        const id = identifiers[identifiers.length - 1];
 
         const didMatchIdentifierName =
           id?.name === "createConnection" || id?.name === "createPool";
@@ -60,7 +59,7 @@ export const mysqlNoHardcodedCredentials: TSESLint.RuleModule<MessageIds> = {
       },
     };
   },
-};
+});
 
 export function report(
   id: TSESTree.Identifier,

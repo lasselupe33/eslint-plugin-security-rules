@@ -3,9 +3,9 @@ import path from "path";
 import { ESLintUtils } from "@typescript-eslint/utils";
 
 import { getCode } from "../../../utils/testing/get-code";
+import { MessageIds } from "../_utils/messages";
 
 import { pgNoHardcodedCredentials } from "./_rule";
-import { MessageIds } from "./utils/messages";
 
 enum validTests {
   CREATECLIENT_EMPTY = "allow-createclient-empty",

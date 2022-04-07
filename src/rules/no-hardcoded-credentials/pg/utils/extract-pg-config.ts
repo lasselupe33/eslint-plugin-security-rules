@@ -7,10 +7,13 @@ import {
   isConstantTerminalNode,
   isNodeTerminalNode,
 } from "../../../../utils/tracing/types/nodes";
-import { printTrace } from "../../../../utils/tracing/utils/print-trace";
 import { HandlingContext } from "../_rule";
 
-export function handleArgs(
+/**
+ * Iterates through traces to determine whether or not the function contains
+ * a raw password property.
+ */
+export function extractPGConfig(
   context: HandlingContext,
   node: TSESTree.Node | undefined
 ): TSESTree.Node | undefined {
@@ -19,10 +22,7 @@ export function handleArgs(
   }
 
   let finalAstNode: TSESTree.Node | undefined = undefined;
-  /**
-   * Iterates through traces to determine whether or not the function contains
-   * a raw password property.
-   */
+
   traceVariable(
     {
       context: context.ruleContext,
@@ -40,8 +40,6 @@ export function handleArgs(
             finalAstNode = finalTraceNode.astNode;
           }
         }
-
-        // printTrace(trace);
       },
     })
   );
