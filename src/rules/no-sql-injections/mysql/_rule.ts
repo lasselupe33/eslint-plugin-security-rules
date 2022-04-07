@@ -2,10 +2,7 @@ import { TSESLint, TSESTree } from "@typescript-eslint/utils";
 import { RuleCreator } from "@typescript-eslint/utils/dist/eslint-utils";
 
 import { extractIdentifier } from "../../../utils/ast/extract-identifier";
-import {
-  isArrowFunctionExpression,
-  isCallExpression,
-} from "../../../utils/ast/guards";
+import { isArrowFunctionExpression } from "../../../utils/ast/guards";
 import { isPackage } from "../../../utils/ast/is-package";
 import { resolveDocsRoute } from "../../../utils/resolve-docs-route";
 import { extractValuesArray } from "../_utils/extract-values-array";
@@ -21,7 +18,7 @@ import { isQuerySafe } from "./utils/is-query-safe";
  *  [x] Reduction of false positives
  *  [-] Fulfilling unit testing
  *  [x] Extensive documentation
- *  [ ] Fulfilling configuration options
+ *  [/] Fulfilling configuration options
  */
 
 export type HandlingContext = {
@@ -39,7 +36,7 @@ export const mysqlNoSQLInjections = createRule<never[], MessageIds>({
     messages: errorMessages,
     docs: {
       recommended: "error",
-      description: "Description",
+      description: "Detects possible SQL injections in MySQL queries",
       suggestion: true,
     },
     hasSuggestions: true,
@@ -48,8 +45,6 @@ export const mysqlNoSQLInjections = createRule<never[], MessageIds>({
   create: (context) => {
     return {
       CallExpression: (node) => {
-        // We need to extract connection as well, as users may
-        // have defined some other name for it.
         // connection.query | this.connection.query
 
         const identifiers = extractIdentifier(node);
@@ -58,32 +53,31 @@ export const mysqlNoSQLInjections = createRule<never[], MessageIds>({
         const escapeIdentifier = idsLeft.map((id) => id.name).join(".");
 
         const didMatchIdentifierName = idRight?.name === "query";
+
         // Assuming that query is always the first argument
         const query = node.arguments[0];
 
         if (
           !didMatchIdentifierName ||
           !query ||
-          !idRight?.parent?.parent ||
-          !isCallExpression(idRight.parent.parent) ||
           !isPackage(context, "mysql", node)
         ) {
           return;
         }
 
-        const [isCurrentQuerySafe, maybeNode, maybeQuery] = isQuerySafe(
-          { ruleContext: context },
-          query
-        );
+        const {
+          isSafe: isCurrentQuerySafe,
+          troubleNode: maybeNode,
+          queryUpToNode: maybeQuery,
+        } = isQuerySafe({ ruleContext: context }, query);
 
-        // Bail out early
         if (isCurrentQuerySafe || !maybeNode) {
           return;
         }
 
         let valuesArray: TSESTree.ArrayExpression | undefined = undefined;
 
-        const queryValues = idRight?.parent?.parent.arguments[1];
+        const queryValues = node.arguments[1];
 
         if (!isArrowFunctionExpression(queryValues) && queryValues) {
           valuesArray = extractValuesArray(
@@ -150,11 +144,11 @@ function* escapeQueryValuesFix(
   node: TSESTree.Node,
   escapeIdentifier: string
 ): Generator<TSESLint.RuleFix> {
-  if (!(escapeIdentifier.length > 0)) {
+  if (escapeIdentifier.length === 0) {
     return;
   }
-  const leftString = escapeIdentifier + ".escape(";
-  yield fixer.insertTextBefore(node, leftString);
+
+  yield fixer.insertTextBefore(node, escapeIdentifier + ".escape(");
   yield fixer.insertTextAfter(node, ")");
 }
 
@@ -163,11 +157,11 @@ function* escapeQueryIdentifiersFix(
   node: TSESTree.Node,
   escapeIdentifier: string
 ): Generator<TSESLint.RuleFix> {
-  if (!(escapeIdentifier.length > 0)) {
+  if (escapeIdentifier.length === 0) {
     return;
   }
-  const leftString = escapeIdentifier + ".escapeId(";
-  yield fixer.insertTextBefore(node, leftString);
+
+  yield fixer.insertTextBefore(node, escapeIdentifier + ".escapeId(");
   yield fixer.insertTextAfter(node, ")");
 }
 

@@ -15,19 +15,20 @@ import {
   isNodeTerminalNode,
   isVariableNode,
 } from "../../../../utils/tracing/types/nodes";
-import { printTrace } from "../../../../utils/tracing/utils/print-trace";
 import { HandlingContext } from "../_rule";
 
-/**
- * @returns {Array} boolean of whether the query is safe and the last node
- * variable that caused the issue
- */
+type ReturnType = {
+  isSafe: boolean;
+  troubleNode?: TSESTree.Node;
+  queryUpToNode?: string;
+};
+
 export function isQuerySafe(
   context: HandlingContext,
   node: TSESTree.Node
-): [boolean, TSESTree.Node | undefined, string] {
+): ReturnType {
   if (!node) {
-    return [true, undefined, ""];
+    return { isSafe: false };
   }
 
   let isSafe = true;
@@ -71,7 +72,6 @@ export function isQuerySafe(
       },
       onTraceFinished: (trace) => {
         const finalNode = trace[trace.length - 1];
-        // printTrace(trace);
 
         const isTraceSafe =
           isConstantTerminalNode(finalNode) || isCurrentTraceSafe;
@@ -121,8 +121,8 @@ export function isQuerySafe(
 
   // Typescript is stupid and doesn't recognize the type of maybeNode :(!
   if (isNode(maybeNode)) {
-    return [isSafe, maybeNode, maybeQuery];
+    return { isSafe, troubleNode: maybeNode, queryUpToNode: maybeQuery };
   } else {
-    return [isSafe, undefined, maybeQuery];
+    return { isSafe, queryUpToNode: maybeQuery };
   }
 }

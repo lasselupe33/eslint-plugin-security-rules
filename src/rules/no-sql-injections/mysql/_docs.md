@@ -77,6 +77,7 @@ const query = `SELECT ${connection.escapeId(selectStatement)}
 ```
 
 #### Parameterization
+
 The [mysql](https://github.com/mysqljs/mysql#escaping-query-values) also allow for the usage of placeholder values instead. Under the hood, the package calls the [escape](#escape-function) functions.
 
 Once again, you need to identify whether the vulnerable varaiable is a [value or identifier]((#apply-the-provided-eslint-suggestion-semi-automatic-fix)).
