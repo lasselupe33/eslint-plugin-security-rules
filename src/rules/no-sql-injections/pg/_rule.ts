@@ -1,13 +1,3 @@
-/**
- * Progress
- *  [x] Detection
- *  [x] Automatic fix / Suggestions
- *  [-] Reduction of false positives
- *  [-] Fulfilling unit testing
- *  [x] Extensive documentation
- *  [ ] Fulfilling configuration options
- */
-
 import { TSESLint, TSESTree } from "@typescript-eslint/utils";
 import { RuleCreator } from "@typescript-eslint/utils/dist/eslint-utils";
 
@@ -28,6 +18,16 @@ import { MessageIds, errorMessages } from "../_utils/messages";
 import { countPlaceholders } from "./utils/count-placeholders";
 import { isQuerySafe } from "./utils/is-query-safe";
 
+/**
+ * Progress
+ *  [x] Detection
+ *  [x] Automatic fix / Suggestions
+ *  [-] Reduction of false positives
+ *  [-] Fulfilling unit testing
+ *  [x] Extensive documentation
+ *  [/] Fulfilling configuration options
+ */
+
 export type HandlingContext = {
   ruleContext: Readonly<TSESLint.RuleContext<MessageIds, unknown[]>>;
 };
@@ -43,7 +43,7 @@ export const pgNoSQLInjections = createRule<never[], MessageIds>({
     messages: errorMessages,
     docs: {
       recommended: "error",
-      description: "Description",
+      description: "Detects possible SQL injections in PostgreSQL queries",
       suggestion: true,
     },
     hasSuggestions: true,
@@ -55,17 +55,12 @@ export const pgNoSQLInjections = createRule<never[], MessageIds>({
         const identifiers = extractIdentifier(node);
         const idRight = identifiers[identifiers.length - 1];
 
-        if (
-          !idRight ||
-          !idRight.parent?.parent ||
-          !isCallExpression(idRight.parent.parent)
-        ) {
+        if (!idRight) {
           return;
         }
 
         const didMatchIdentifierName = idRight.name === "query";
-        const queryArgs = idRight.parent.parent.arguments[0];
-        const isP = isPackage(context, "pg", node);
+        const queryArgs = node.arguments[0];
 
         if (
           !didMatchIdentifierName ||
@@ -82,6 +77,7 @@ export const pgNoSQLInjections = createRule<never[], MessageIds>({
 
         let valuesArray: TSESTree.ArrayExpression | undefined = undefined;
         const objNode = isObjectExpression(maybeNode) ? maybeNode : undefined;
+
         // Handle the specific case, where the query is stored in an object
         if (isObjectExpression(maybeNode)) {
           for (const property of maybeNode.properties) {
@@ -101,13 +97,13 @@ export const pgNoSQLInjections = createRule<never[], MessageIds>({
           }
         }
 
-        // Bail out early
         if (isCurrentQuerySafe || !maybeNode) {
           return;
         }
 
+        // If not extracted in object, we need to extract it now
         if (!valuesArray) {
-          const queryValues = idRight.parent.parent.arguments[1];
+          const queryValues = node.arguments[1];
           if (!isArrowFunctionExpression(queryValues) && queryValues) {
             valuesArray = extractValuesArray(
               { ruleContext: context },
@@ -115,6 +111,7 @@ export const pgNoSQLInjections = createRule<never[], MessageIds>({
             );
           }
         }
+
         const totalPlaceholders = countPlaceholders(maybeQuery);
 
         context.report({
@@ -141,17 +138,10 @@ export const pgNoSQLInjections = createRule<never[], MessageIds>({
     };
   },
 });
+
 /**
  * Fixes the unsafe query by replacing the unsafe value with a placeholder
  * string, and moving the unsafe value into an array.
- * @param ctx The context of the linted file
- * @param fixer A fixer from the report function
- * @param totalPlaceholders The total amount of placeholders so far in the query
- * @param queryNode The node containing the query.
- * @param objNode Optional: The node containing the object expression
- * @param arrayNode Optional: If arrayNode exists. If totalPlaceholders are
- * larger than one, this is required.
- * @param replaceNode The unsafe value that is to be paramterized.
  */
 function* paramterizeQueryFix(
   ctx: HandlingContext,
@@ -159,40 +149,40 @@ function* paramterizeQueryFix(
   totalPlaceholders: number,
   queryNode: TSESTree.CallExpression,
   objNode?: TSESTree.ObjectExpression,
-  arrayNode?: TSESTree.ArrayExpression,
-  replaceNode?: TSESTree.Node
+  placeholderValuesNode?: TSESTree.ArrayExpression,
+  unsafeNode?: TSESTree.Node
 ): Generator<TSESLint.RuleFix> {
   const queryLocation = queryNode.arguments[0];
-  if (!replaceNode || !queryLocation) {
+  if (!unsafeNode || !queryLocation) {
     return;
   }
 
-  if (totalPlaceholders > 0 && !arrayNode) {
+  if (totalPlaceholders > 0 && !placeholderValuesNode) {
     return;
   }
 
-  const nodeText = ctx.ruleContext.getSourceCode().getText(replaceNode);
+  const nodeText = ctx.ruleContext.getSourceCode().getText(unsafeNode);
 
   // Parameterization
-  const [startR, endR] = replaceNode.range;
-  if (isTemplateLiteral(replaceNode.parent)) {
+  const [startR, endR] = unsafeNode.range;
+  // If node is of the form ${adr}, we need to strip the ${}
+  if (isTemplateLiteral(unsafeNode.parent)) {
     yield fixer.replaceTextRange(
       [startR - 2, endR + 1],
-      "$" + (totalPlaceholders + 1).toString()
+      `$${totalPlaceholders + 1}`
     );
   } else {
-    yield fixer.replaceTextRange(
-      [startR, endR],
-      '"$' + (totalPlaceholders + 1).toString() + '"'
-    );
+    yield fixer.replaceTextRange([startR, endR], `"$${totalPlaceholders + 1}"`);
   }
 
   // No array and not in an object
-  if (!arrayNode && !objNode) {
+  // Create a new array for placeholder values
+  if (!placeholderValuesNode && !objNode) {
     yield fixer.insertTextAfter(queryLocation, ", [" + nodeText + "]");
   }
   // No array and in an object
-  else if (!arrayNode && objNode) {
+  // Create a new array for placeholder values in the object
+  else if (!placeholderValuesNode && objNode) {
     const rangeStart = objNode.range[1] - 1;
     yield fixer.insertTextBeforeRange(
       [rangeStart, 0],
@@ -200,15 +190,20 @@ function* paramterizeQueryFix(
     );
   }
   // Existing placeholder array and existing element
-  else if (arrayNode && arrayNode.elements.length >= totalPlaceholders) {
-    const overwriteNode = arrayNode.elements[totalPlaceholders];
+  // Overwrite the existing value on the placeholder spot
+  else if (
+    placeholderValuesNode &&
+    placeholderValuesNode.elements.length >= totalPlaceholders
+  ) {
+    const overwriteNode = placeholderValuesNode.elements[totalPlaceholders];
     if (overwriteNode) {
       yield fixer.replaceText(overwriteNode, nodeText);
     }
   }
   // Existing placeholder array
-  else if (arrayNode) {
-    const rangeEnd = arrayNode.range[1] - 1;
+  // Append to the end of the array
+  else if (placeholderValuesNode) {
+    const rangeEnd = placeholderValuesNode.range[1] - 1;
     yield fixer.insertTextAfterRange([0, rangeEnd], ", " + nodeText);
   }
 }
