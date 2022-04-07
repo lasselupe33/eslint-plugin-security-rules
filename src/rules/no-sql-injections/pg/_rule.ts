@@ -122,15 +122,13 @@ export const pgNoSQLInjections = createRule<never[], MessageIds>({
             {
               messageId: MessageIds.PARAMTERIZED_FIX_VALUES,
               fix: (fixer: TSESLint.RuleFixer) =>
-                paramterizeQueryFix(
-                  { ruleContext: context },
-                  fixer,
+                paramterizeQueryFix(context, fixer, {
                   totalPlaceholders,
-                  node,
+                  queryNode: node,
                   objNode,
-                  valuesArray,
-                  maybeNode
-                ),
+                  placeholderValuesNode: valuesArray,
+                  unsafeNode: maybeNode,
+                }),
             },
           ],
         });
@@ -139,18 +137,28 @@ export const pgNoSQLInjections = createRule<never[], MessageIds>({
   },
 });
 
+type FixParams = {
+  totalPlaceholders: number;
+  queryNode: TSESTree.CallExpression;
+  objNode?: TSESTree.ObjectExpression;
+  placeholderValuesNode?: TSESTree.ArrayExpression;
+  unsafeNode?: TSESTree.Node;
+};
+
 /**
  * Fixes the unsafe query by replacing the unsafe value with a placeholder
  * string, and moving the unsafe value into an array.
  */
 function* paramterizeQueryFix(
-  ctx: HandlingContext,
+  ctx: Readonly<TSESLint.RuleContext<MessageIds, unknown[]>>,
   fixer: TSESLint.RuleFixer,
-  totalPlaceholders: number,
-  queryNode: TSESTree.CallExpression,
-  objNode?: TSESTree.ObjectExpression,
-  placeholderValuesNode?: TSESTree.ArrayExpression,
-  unsafeNode?: TSESTree.Node
+  {
+    totalPlaceholders,
+    queryNode,
+    objNode,
+    placeholderValuesNode,
+    unsafeNode,
+  }: FixParams
 ): Generator<TSESLint.RuleFix> {
   const queryLocation = queryNode.arguments[0];
   if (!unsafeNode || !queryLocation) {
@@ -161,7 +169,7 @@ function* paramterizeQueryFix(
     return;
   }
 
-  const nodeText = ctx.ruleContext.getSourceCode().getText(unsafeNode);
+  const nodeText = ctx.getSourceCode().getText(unsafeNode);
 
   // Parameterization
   const [startR, endR] = unsafeNode.range;
