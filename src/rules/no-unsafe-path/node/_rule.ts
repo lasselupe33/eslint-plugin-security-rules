@@ -62,8 +62,7 @@ export const noNodeUnsafePath = createRule<[Config], MessageIds>({
     messages: {
       [MessageIds.VULNERABLE_PATH]:
         "Paths from potentially unknown sources should be sanitized before usage",
-      [MessageIds.ADD_SANITATION_FIX]:
-        "Sanitation path before usage using function located {{ location }}",
+      [MessageIds.ADD_SANITATION_FIX]: `Sanitize path by using "{{ method }}" located at "{{ location }}"`,
     },
     docs: {
       description: `Avoids usage of unsafe paths when interacting with the file-system using the NodeJS "fs"-package`,
@@ -130,12 +129,13 @@ export const noNodeUnsafePath = createRule<[Config], MessageIds>({
             context.report({
               node: unsafeArgument,
               messageId: MessageIds.VULNERABLE_PATH,
-              data: {
-                location: config.sanitation.location,
-              },
               suggest: [
                 {
                   messageId: MessageIds.ADD_SANITATION_FIX,
+                  data: {
+                    method: config.sanitation.method,
+                    location: config.sanitation.location,
+                  },
                   fix(fixer) {
                     return addSanitationFix(
                       config,
