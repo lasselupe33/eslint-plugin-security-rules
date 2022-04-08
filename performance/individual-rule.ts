@@ -81,7 +81,12 @@ export async function performanceTest(
 
     calculateAverages(stats);
 
-    const outDir = path.join(__dirname, "results", `${jsLoC?.[4]}`);
+    const outDir = path.join(
+      __dirname,
+      "results",
+      "individual",
+      `${jsLoC?.[4]}`
+    );
     fs.mkdirpSync(outDir);
 
     fs.writeFileSync(
