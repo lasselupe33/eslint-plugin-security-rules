@@ -1,7 +1,7 @@
 import { mysqlNoHardcodedCredentials } from "./rules/no-hardcoded-credentials/mysql/_rule";
 import { pgNoHardcodedCredentials } from "./rules/no-hardcoded-credentials/pg/_rule";
 import { uniNoHardcodedCredentials } from "./rules/no-hardcoded-credentials/universal/_rule";
-import { cipherNoInsecureCiphers } from "./rules/no-insecure-ciphers/node/_rule";
+import { nodeNoInsecureCiphers } from "./rules/no-insecure-ciphers/node/_rule";
 import { mysqlNoSQLInjections } from "./rules/no-sql-injections/mysql/_rule";
 import { pgNoSQLInjections } from "./rules/no-sql-injections/pg/_rule";
 import { noNodeUnsafePath } from "./rules/no-unsafe-path/node/_rule";
@@ -12,7 +12,7 @@ import { noReactXSSRule } from "./rules/no-xss/react/_rule";
 
 export const rules = {
   "node/no-unsafe-path": noNodeUnsafePath,
-  "node/no-insecure-ciphers": cipherNoInsecureCiphers,
+  "node/no-insecure-ciphers": nodeNoInsecureCiphers,
   "browser/no-xss": noBrowserXSSRule,
   "react/no-xss": noReactXSSRule,
   "universal/no-hardcoded-credentials": uniNoHardcodedCredentials,

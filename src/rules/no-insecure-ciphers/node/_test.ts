@@ -4,7 +4,7 @@ import { ESLintUtils } from "@typescript-eslint/utils";
 
 import { getCode } from "../../../utils/testing/get-code";
 
-import { cipherNoInsecureCiphers } from "./_rule";
+import { nodeNoInsecureCiphers } from "./_rule";
 import { MessageIds } from "./utils/messages";
 
 enum validTests {
@@ -29,7 +29,7 @@ const ruleTester = new ESLintUtils.RuleTester({
   },
 });
 
-ruleTester.run("node/no-insecure-ciphers", cipherNoInsecureCiphers, {
+ruleTester.run("node/no-insecure-ciphers", nodeNoInsecureCiphers, {
   valid: [
     getCode(__dirname, validTests.SECURE_ALG),
     getCode(__dirname, validTests.UNKNOWN_ALG),
