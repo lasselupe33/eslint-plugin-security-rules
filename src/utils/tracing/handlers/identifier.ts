@@ -66,6 +66,7 @@ function isReservedObjectIdentifier(
 ): boolean {
   return (
     ctx.meta.memberPath.length > 0 &&
+    Object.hasOwn(reservedObjects, identifier.name) &&
     !!reservedObjects[identifier.name]?.includes(
       ctx.meta.memberPath[ctx.meta.memberPath.length - 1] ?? ""
     )
