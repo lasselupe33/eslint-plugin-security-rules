@@ -1,11 +1,17 @@
 {
   "name": "eslint-plugin-security-rules",
-  "version": "0.3.3",
+  "version": "0.3.5",
   "description": "",
   "main": "./lib/index.js",
   "files": [
     "lib/**"
   ],
+  "private": true,
+  "workspaces": {
+    "packages": [
+      "./dummy"
+    ]
+  },
   "license": "MIT",
   "keywords": [
     "eslint",
@@ -27,7 +33,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git@github.com:lasselupe33/eslint-plugin-security-rules.git"
+    "url": "https://github.com/lasselupe33/eslint-plugin-security-rules.git"
   },
   "devDependencies": {
     "@commitlint/cli": "^16.2.3",
