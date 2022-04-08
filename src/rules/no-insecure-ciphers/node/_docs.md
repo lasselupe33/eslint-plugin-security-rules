@@ -47,16 +47,29 @@ import * as crypto from "crypto";
 export const iv = crypto.randomBytes(12);
 export const key = Buffer.from(crypto.randomBytes(16));
 
-crypto.createCipheriv("DES", key, iv); // Safe
+crypto.createCipheriv("AES-128-GCM", key, iv); // Safe
 ```
 
 When changing your algorithm, you should consider the size of the keys you are using. Currently, AES supports keys of sizes 16 bytes (128 bits), 24 bytes (192 bits) and 32 bytes (256 bits).
 
 ### Ignore (Manual)
 
-In case you're certain that you want to continue using an unsafe algorithm, you can simply ignore this report. 
+In case you're certain that you want to continue using an unsafe algorithm, you can simply ignore this report.
 
 ## Configuration
+
+Your project may rely on a specific cipher algorithm and the rule therefore allows you to add this to the list of suggestions.
+
+This can be configured in ESLint configuration file e.g. as follows:
+
+```JSONC
+"rules": {
+  "security-rules/node/no-unsafe-path": ["error", {
+    "alg": "AES-128-CBC",
+    "turnOffDefault": true
+  }],
+},
+```
 
 ## Attributes
 

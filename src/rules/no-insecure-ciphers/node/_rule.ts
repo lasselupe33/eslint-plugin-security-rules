@@ -1,13 +1,3 @@
-/**
- * Progress
- *  [x] Detection
- *  [x] Automatic fix / Suggestions
- *  [x] Reduction of false positives
- *  [/] Fulfilling unit testing
- *  [x] Extensive documentation
- *  [/] Fulfilling configuration options
- */
-
 import { TSESLint } from "@typescript-eslint/utils";
 import { RuleCreator } from "@typescript-eslint/utils/dist/eslint-utils";
 
@@ -19,8 +9,19 @@ import { isAlgorithmSafe } from "../_utils/is-algorithm-safe";
 
 import { MessageIds, errorMessages } from "./utils/messages";
 
+/**
+ * Progress
+ *  [x] Detection
+ *  [x] Automatic fix / Suggestions
+ *  [x] Reduction of false positives
+ *  [/] Fulfilling unit testing
+ *  [x] Extensive documentation
+ *  [x] Fulfilling configuration options
+ */
+
 type Config = {
   alg: string | undefined;
+  turnOffDefault: boolean | undefined;
 };
 
 export type HandlingContext = {
@@ -29,11 +30,12 @@ export type HandlingContext = {
 
 const createRule = RuleCreator(resolveDocsRoute);
 
-export const cipherNoInsecureCiphers = createRule<[Config], MessageIds>({
+export const nodeNoInsecureCiphers = createRule<[Config], MessageIds>({
   name: "node/no-insecure-ciphers",
   defaultOptions: [
     {
       alg: undefined,
+      turnOffDefault: false,
     },
   ],
   meta: {
@@ -42,7 +44,7 @@ export const cipherNoInsecureCiphers = createRule<[Config], MessageIds>({
     messages: errorMessages,
     docs: {
       recommended: "error",
-      description: "Description",
+      description: "Detects unsafe cipher algorithms",
       suggestion: true,
     },
     hasSuggestions: true,
@@ -51,6 +53,7 @@ export const cipherNoInsecureCiphers = createRule<[Config], MessageIds>({
         type: "object",
         items: {
           alg: { type: "string", required: false },
+          turnOffDefault: { type: "boolean", required: false },
         },
       },
     ],
@@ -77,9 +80,9 @@ export const cipherNoInsecureCiphers = createRule<[Config], MessageIds>({
           return;
         }
 
-        const [isAlgSafe, troubleNode] = isAlgorithmSafe(context, alg);
+        const { isSafe, troubleNode } = isAlgorithmSafe(context, alg);
 
-        if (isAlgSafe || !troubleNode || !isLiteral(troubleNode)) {
+        if (isSafe || !troubleNode || !isLiteral(troubleNode)) {
           return;
         }
 
@@ -93,28 +96,42 @@ export const cipherNoInsecureCiphers = createRule<[Config], MessageIds>({
               fix: (fixer: TSESLint.RuleFixer) => {
                 if (config.alg) {
                   return fixer.replaceText(troubleNode, '"' + config.alg + '"');
-                } else return null;
+                } else {
+                  return null;
+                }
               },
             },
             {
               messageId: MessageIds.SAFE_ALGORITHM_FIX_128,
               data: { alg: troubleNode.value },
               fix: (fixer: TSESLint.RuleFixer) => {
-                return fixer.replaceText(troubleNode, '"AES-128-GCM"');
+                if (!config.turnOffDefault) {
+                  return fixer.replaceText(troubleNode, '"AES-128-GCM"');
+                } else {
+                  return null;
+                }
               },
             },
             {
               messageId: MessageIds.SAFE_ALGORITHM_FIX_192,
               data: { alg: troubleNode.value },
               fix: (fixer: TSESLint.RuleFixer) => {
-                return fixer.replaceText(troubleNode, '"AES-192-GCM"');
+                if (!config.turnOffDefault) {
+                  return fixer.replaceText(troubleNode, '"AES-192-GCM"');
+                } else {
+                  return null;
+                }
               },
             },
             {
               messageId: MessageIds.SAFE_ALGORITHM_FIX_256,
               data: { alg: troubleNode.value },
               fix: (fixer: TSESLint.RuleFixer) => {
-                return fixer.replaceText(troubleNode, '"AES-256-GCM"');
+                if (!config.turnOffDefault) {
+                  return fixer.replaceText(troubleNode, '"AES-256-GCM"');
+                } else {
+                  return null;
+                }
               },
             },
           ],

@@ -8,69 +8,67 @@ import {
   isConstantTerminalNode,
   isTerminalNode,
 } from "../../../utils/tracing/types/nodes";
-import { printTrace } from "../../../utils/tracing/utils/print-trace";
 import { bannedAlgs } from "../node/utils/banned-algorithms";
+
+type ReturnType = {
+  isSafe: boolean;
+  troubleNode?: TSESTree.Node;
+};
 
 export function isAlgorithmSafe(
   context: Readonly<TSESLint.RuleContext<string, unknown[]>>,
   node: TSESTree.Node
-): [boolean, TSESTree.Node | undefined] {
-  if (!node) {
-    return [true, undefined];
+): ReturnType {
+  if (!node || isLiteral(node)) {
+    return { isSafe: true };
   }
 
   let maybeNode: TSESTree.Node | undefined = undefined;
   let hitImport = false;
   let isSafe = true;
 
-  if (isLiteral(node)) {
-    traceVariable(
-      {
-        context,
-        node,
+  traceVariable(
+    {
+      context,
+      node,
+    },
+    withTrace({
+      onNodeVisited: (trace, traceNode) => {
+        const testNode = traceNode.astNodes[0];
+        // If we hit an import statement, the node we return will no longer be
+        // valid, as it's no longer in the linted file.
+        if (testNode && isImportSpecifier(testNode)) {
+          hitImport = true;
+        }
+
+        if (isVariableNode(traceNode)) {
+          if (!hitImport) {
+            maybeNode = traceNode?.astNodes[traceNode.astNodes.length - 1];
+          }
+        }
       },
-      withTrace({
-        onNodeVisited: (trace, traceNode) => {
-          const testNode = traceNode.astNodes[0];
-          // If we hit an import statement, the node we return will no longer be
-          // valid, as it's no longer in the linted file.
-          if (testNode && isImportSpecifier(testNode)) {
-            hitImport = true;
-          }
+      onTraceFinished: (trace) => {
+        const finalNode = trace[trace.length - 1];
 
-          if (isVariableNode(traceNode)) {
-            if (!hitImport) {
-              maybeNode = traceNode?.astNodes[traceNode.astNodes.length - 1];
-            }
-          }
-        },
-        onTraceFinished: (trace) => {
-          const finalNode = trace[trace.length - 1];
-          printTrace(trace);
+        const isTraceSafe =
+          isConstantTerminalNode(finalNode) &&
+          !bannedAlgs.has(finalNode.value.toUpperCase());
 
-          const isTraceSafe =
-            isConstantTerminalNode(finalNode) &&
-            !bannedAlgs.has(finalNode.value.toUpperCase());
+        // Reset hitImport for next trace.
+        hitImport = false;
 
-          // Reset hitImport for next trace.
-          hitImport = false;
+        const finalAstNode = finalNode?.astNodes[finalNode.astNodes.length - 1];
 
-          const finalAstNode =
-            finalNode?.astNodes[finalNode.astNodes.length - 1];
+        if (isTerminalNode(finalNode) && isLiteral(finalAstNode)) {
+          maybeNode = finalAstNode;
+        }
+        if (!isTraceSafe) {
+          isSafe = false;
+          return { halt: true };
+        }
+      },
+    })
+  );
 
-          if (isTerminalNode(finalNode) && isLiteral(finalAstNode)) {
-            maybeNode = finalAstNode;
-          }
-          if (!isTraceSafe) {
-            isSafe = false;
-            return { halt: true };
-          }
-        },
-      })
-    );
-  } else {
-    isSafe = true;
-  }
-
-  return [isSafe, maybeNode];
+  return { isSafe, troubleNode: maybeNode };
 }
