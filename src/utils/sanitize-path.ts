@@ -36,5 +36,5 @@ export function sanitizePath(
 
       return "";
     },
-  }).replaceAll(tempSep, path.sep);
+  }).replace(/__sep__/g, path.sep);
 }

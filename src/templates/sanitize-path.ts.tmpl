@@ -32,5 +32,5 @@ function {{methodName}}(
 
       return "";
     },
-  }).replaceAll(tempSep, path.sep);
+  }).replace(/__sep__/g, path.sep);
 }

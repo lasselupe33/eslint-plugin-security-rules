@@ -20,7 +20,10 @@ export function isAlgorithmSafe(
   node: TSESTree.Node
 ): ReturnType {
   if (!node || isLiteral(node)) {
-    return { isSafe: true };
+    return {
+      isSafe: !bannedAlgs.has(String(node.value).toUpperCase()),
+      troubleNode: node,
+    };
   }
 
   let maybeNode: TSESTree.Node | undefined = undefined;
