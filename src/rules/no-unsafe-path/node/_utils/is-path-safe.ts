@@ -46,7 +46,7 @@ export function isPathSafe(
     },
     withTrace({
       onTraceFinished: (trace) => {
-        printTrace(trace);
+        printTrace(context, trace);
         const finalNode = trace[trace.length - 1];
 
         // Once we encounter a modification connection in the current

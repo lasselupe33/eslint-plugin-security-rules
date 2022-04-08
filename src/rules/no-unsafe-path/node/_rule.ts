@@ -168,6 +168,8 @@ function isFsImport(
     },
     withTrace({
       onTraceFinished: (trace) => {
+        printTrace(context, trace);
+
         const finalNode = trace[trace.length - 1];
 
         if (
@@ -176,7 +178,6 @@ function isFsImport(
         ) {
           isFsImport = true;
         }
-        printTrace(trace);
       },
     })
   );

@@ -1,3 +1,5 @@
+import { RuleContext } from "@typescript-eslint/utils/dist/ts-eslint";
+
 import { Trace } from "../callbacks/with-trace";
 import {
   isConstantTerminalNode,
@@ -11,9 +13,14 @@ import {
   TraceNode,
 } from "../types/nodes";
 
-export function printTrace(trace: Trace): void {
-  console.warn(trace.map(nodeToString).join(" --> "));
-  console.warn();
+export function printTrace(
+  context: RuleContext<string, unknown[]>,
+  trace: Trace
+): void {
+  if (context.settings["debug-trace"]) {
+    console.warn(trace.map(nodeToString).join(" --> "));
+    console.warn();
+  }
 }
 
 function nodeToString(node: TraceNode | RootNode): string {
