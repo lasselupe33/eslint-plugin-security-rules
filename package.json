@@ -6,6 +6,12 @@
   "files": [
     "lib/**"
   ],
+  "private": true,
+  "workspaces": {
+    "packages": [
+      "./dummy"
+    ]
+  },
   "license": "MIT",
   "keywords": [
     "eslint",
