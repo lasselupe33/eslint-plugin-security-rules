@@ -66,7 +66,7 @@ This can be configured in ESLint configuration file e.g. as follows:
 "rules": {
   "security-rules/node/no-unsafe-path": ["error", {
     "alg": "AES-128-CBC",
-    "turnOffDefault": true
+    "disableDefault": true
   }],
 },
 ```

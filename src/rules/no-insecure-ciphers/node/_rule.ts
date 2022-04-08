@@ -21,7 +21,7 @@ import { MessageIds, errorMessages } from "./utils/messages";
 
 type Config = {
   alg: string | undefined;
-  turnOffDefault: boolean | undefined;
+  disableDefault: boolean | undefined;
 };
 
 export type HandlingContext = {
@@ -35,7 +35,7 @@ export const nodeNoInsecureCiphers = createRule<[Config], MessageIds>({
   defaultOptions: [
     {
       alg: undefined,
-      turnOffDefault: false,
+      disableDefault: false,
     },
   ],
   meta: {
@@ -105,7 +105,7 @@ export const nodeNoInsecureCiphers = createRule<[Config], MessageIds>({
               messageId: MessageIds.SAFE_ALGORITHM_FIX_128,
               data: { alg: troubleNode.value },
               fix: (fixer: TSESLint.RuleFixer) => {
-                if (!config.turnOffDefault) {
+                if (!config.disableDefault) {
                   return fixer.replaceText(troubleNode, '"AES-128-GCM"');
                 } else {
                   return null;
@@ -116,7 +116,7 @@ export const nodeNoInsecureCiphers = createRule<[Config], MessageIds>({
               messageId: MessageIds.SAFE_ALGORITHM_FIX_192,
               data: { alg: troubleNode.value },
               fix: (fixer: TSESLint.RuleFixer) => {
-                if (!config.turnOffDefault) {
+                if (!config.disableDefault) {
                   return fixer.replaceText(troubleNode, '"AES-192-GCM"');
                 } else {
                   return null;
@@ -127,7 +127,7 @@ export const nodeNoInsecureCiphers = createRule<[Config], MessageIds>({
               messageId: MessageIds.SAFE_ALGORITHM_FIX_256,
               data: { alg: troubleNode.value },
               fix: (fixer: TSESLint.RuleFixer) => {
-                if (!config.turnOffDefault) {
+                if (!config.disableDefault) {
                   return fixer.replaceText(troubleNode, '"AES-256-GCM"');
                 } else {
                   return null;
