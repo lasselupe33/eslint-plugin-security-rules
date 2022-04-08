@@ -1,10 +1,6 @@
 import { TSESTree } from "@typescript-eslint/utils";
 
-import {
-  isIdentifier,
-  isMemberExpression,
-  isSpreadElement,
-} from "../../ast/guards";
+import { isIdentifier, isMemberExpression } from "../../ast/guards";
 import { deepMerge } from "../../deep-merge";
 import { handleNode } from "../handlers/_handle-node";
 import { HandlingContext } from "../types/context";

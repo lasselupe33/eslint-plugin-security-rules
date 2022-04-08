@@ -48,6 +48,7 @@ export function traceVariable(
   { onNodeVisited, onFinished }: TraceCallbacks = {},
   interalConfig?: {
     maxCycles?: number;
+    encounteredMap?: WeakMap<Scope.Variable, number>;
   }
 ) {
   if (!ctx.node) {
@@ -55,7 +56,8 @@ export function traceVariable(
   }
 
   const abortedMap: WeakMap<Scope.Variable, boolean> = new WeakMap();
-  const encounteredMap: WeakMap<Scope.Variable, number> = new WeakMap();
+  const encounteredMap: WeakMap<Scope.Variable, number> =
+    interalConfig?.encounteredMap ?? new WeakMap();
 
   // Bootstrap the tracing queue by handling the node passed by the integration.
   const remainingVariables = handleNode(
@@ -77,6 +79,7 @@ export function traceVariable(
         callCount: 0,
         encounteredSpreadElements: new WeakMap(),
       },
+      encounteredMap,
     },
     ctx.node
   );
@@ -137,6 +140,7 @@ export function traceVariable(
         prevConnection,
       },
       meta,
+      encounteredMap,
     };
 
     if (

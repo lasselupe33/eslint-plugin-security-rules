@@ -86,6 +86,7 @@ export function handleObjectExpression(
         }),
         {
           maxCycles: 5,
+          encounteredMap: ctx.encounteredMap,
         }
       );
 

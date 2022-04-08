@@ -4,9 +4,14 @@ import { isIdentifier } from "../../ast/guards";
 import { deepMerge } from "../../deep-merge";
 import { getNodeModule } from "../../types/get-node-module";
 import { getTypeProgram } from "../../types/get-type-program";
+import { traceVariable } from "../_trace-variable";
 import { handleNode } from "../handlers/_handle-node";
 import { HandlingContext } from "../types/context";
-import { isVariableNode, TraceNode } from "../types/nodes";
+import {
+  isImportTerminalNode,
+  isVariableNode,
+  TraceNode,
+} from "../types/nodes";
 
 /**
  * Helper to determine if the current call should result in a custom override.
@@ -25,12 +30,32 @@ function handlePathOverrides(
   calleeIdentifiers: TraceNode[]
 ): TraceNode[] | undefined {
   const typeProgram = getTypeProgram(ctx.ruleContext);
-  const { modulePath: moduleName } = getNodeModule(
-    typeProgram,
-    callExpression.callee
-  );
+  let isMatch = false;
 
-  if (!moduleName?.includes("@types/node/path")) {
+  if (typeProgram) {
+    const { modulePath: moduleName } = getNodeModule(
+      typeProgram,
+      callExpression.callee
+    );
+
+    isMatch = !!moduleName?.includes("@types/node/path");
+  } else {
+    traceVariable(
+      { node: callExpression.callee, context: ctx.ruleContext },
+      {
+        onNodeVisited: (node) => {
+          if (isImportTerminalNode(node) && node.source === "path") {
+            isMatch = true;
+
+            return { halt: true };
+          }
+        },
+      },
+      { maxCycles: 5, encounteredMap: ctx.encounteredMap }
+    );
+  }
+
+  if (!isMatch) {
     return;
   }
 

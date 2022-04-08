@@ -50,4 +50,5 @@ export type HandlingContext = {
   scope: Scope.Scope;
   rootScope: Scope.Scope;
   meta: Meta;
+  encounteredMap: WeakMap<Scope.Variable, number>;
 };

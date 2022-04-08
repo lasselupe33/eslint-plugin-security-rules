@@ -71,6 +71,7 @@ export function handleArrayExpression(
           }),
           {
             maxCycles: 5,
+            encounteredMap: ctx.encounteredMap,
           }
         );
 
