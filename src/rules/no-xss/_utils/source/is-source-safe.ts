@@ -11,6 +11,7 @@ import {
   isNodeTerminalNode,
   isVariableNode,
 } from "../../../../utils/tracing/types/nodes";
+import { printTrace } from "../../../../utils/tracing/utils/print-trace";
 import { SanitationOptions } from "../options";
 import { SinkTypes } from "../sink/types";
 
@@ -48,6 +49,8 @@ export function isSourceSafe(
     },
     withTrace({
       onTraceFinished: (trace) => {
+        printTrace(context, trace);
+
         const finalNode = trace[trace.length - 1];
 
         // Once we encounter a modification connection in the current

@@ -25,6 +25,9 @@
     "ecmaVersion": "latest",
     "es6": true
   },
+  "settings": {
+    "debug-trace": true
+  },
   "rules": {
     "security-rules/node/no-unsafe-path": ["error", {
       "sanitation": {

@@ -46,7 +46,7 @@ export function isAlgorithmSafe(
         },
         onTraceFinished: (trace) => {
           const finalNode = trace[trace.length - 1];
-          printTrace(trace);
+          printTrace(context, trace);
 
           const isTraceSafe =
             isConstantTerminalNode(finalNode) &&
