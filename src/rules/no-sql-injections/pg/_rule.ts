@@ -3,7 +3,6 @@ import { RuleCreator } from "@typescript-eslint/utils/dist/eslint-utils";
 
 import { extractIdentifier } from "../../../utils/ast/extract-identifier";
 import {
-  isCallExpression,
   isIdentifier,
   isObjectExpression,
   isArrowFunctionExpression,
