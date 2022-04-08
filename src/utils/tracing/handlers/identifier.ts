@@ -66,7 +66,9 @@ function isReservedObjectIdentifier(
 ): boolean {
   return (
     ctx.meta.memberPath.length > 0 &&
-    Object.hasOwn(reservedObjects, identifier.name) &&
+    // We need to support NodeJS >= 14. hasOwn() was not implemented until 16.9
+    // eslint-disable-next-line no-prototype-builtins
+    reservedObjects.hasOwnProperty(identifier.name) &&
     !!reservedObjects[identifier.name]?.includes(
       ctx.meta.memberPath[ctx.meta.memberPath.length - 1] ?? ""
     )
