@@ -24,7 +24,7 @@
     "useUnknownInCatchVariables": true,
     "target": "ES6",
   },
-  "include": ["typings/**/*", "src/**/*", "dummy/**/*", "performance/**/*", "file.tsx"],
+  "include": ["typings/**/*", "src/**/*", "dummy/**/*", "experiments/**/*", "file.tsx"],
   "exclude": [
     "**/lib",
     "**/node_modules"

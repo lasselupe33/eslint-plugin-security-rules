@@ -63,6 +63,14 @@ export const nodeNoInsecureCiphers = createRule<[Config], MessageIds>({
       CallExpression: (node) => {
         const FUNCTION_NAME = "createCipheriv";
         const MODULE_NAME = "crypto";
+
+        // createCipheriv must have at least 3 or 4 arguments based on its
+        // signature. In case we have encountered a call that does not match
+        // this then bail out in order to preserve performance.
+        if (node.arguments.length !== 3 && node.arguments.length !== 4) {
+          return;
+        }
+
         const identifiers = extractIdentifier(node);
         const idRight = identifiers[identifiers.length - 1];
 
