@@ -48,9 +48,15 @@ export function handleCallExpression(
 
   // In case overrides (of e.g. native API's such as arr.join()) has been
   // supplied, then we return these immediately.
-  const overrides =
-    handleNodeOverrides(nextCtx, callExpression, calleeIdentifiers) ??
-    handleVanillaOverrides(nextCtx, callExpression);
+  let overrides = handleNodeOverrides(
+    nextCtx,
+    callExpression,
+    calleeIdentifiers
+  );
+
+  if (overrides?.length === 0) {
+    overrides = handleVanillaOverrides(nextCtx, callExpression);
+  }
 
   if (overrides && overrides.length > 0) {
     return overrides;
