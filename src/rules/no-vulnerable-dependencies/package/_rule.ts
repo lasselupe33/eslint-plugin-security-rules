@@ -174,7 +174,8 @@ function reportAdvisories(
 
     for (const advisory of depAdvisories) {
       const advisoryFixedAt = coerce(
-        advisory.vulnerable_versions.split("<")[1]
+        advisory.vulnerable_versions.split("<")[1] ??
+          advisory.vulnerable_versions
       );
 
       // Extracts the GHSA ID from the URL for pretty error
