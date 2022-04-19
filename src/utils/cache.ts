@@ -35,9 +35,13 @@ export function createCache<T>({ useFileSystem }: Options = {}) {
 
       if (useFileSystem) {
         try {
-          fs.writeFile(path.join(fileSystemPath, key), JSON.stringify(value), {
-            encoding: "utf-8",
-          });
+          fs.writeFileSync(
+            path.join(fileSystemPath, key),
+            JSON.stringify(value),
+            {
+              encoding: "utf-8",
+            }
+          );
         } catch (err) {
           /* no-op */
         }

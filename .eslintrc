@@ -23,7 +23,11 @@
   },
   "parserOptions": {
     "ecmaVersion": "latest",
-    "es6": true
+    "es6": true,
+    "ecmaFeatures": {
+      "globalReturn": true,
+      "jsx": true
+    }
   },
   "settings": {
     "debug-trace": true
