@@ -200,7 +200,7 @@ function* paramterizeQueryFix(
   // Overwrite the existing value on the placeholder spot
   else if (
     placeholderValuesNode &&
-    placeholderValuesNode.elements.length >= totalPlaceholders
+    placeholderValuesNode.elements.length > totalPlaceholders
   ) {
     const overwriteNode = placeholderValuesNode.elements[totalPlaceholders];
     if (overwriteNode) {
