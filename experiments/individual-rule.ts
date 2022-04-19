@@ -7,9 +7,8 @@ type Stats = {
   rules: Record<string, { runsMs: number[]; avgMs: number }>;
 };
 
-export async function performanceTest(
+export async function entrypoint(
   files: string,
-  warmupIterations: number,
   iterations: number
 ): Promise<void> {
   const eslintConfig = {
@@ -27,6 +26,16 @@ export async function performanceTest(
       es6: true,
     },
     extends: ["plugin:security-rules/recommended"],
+    overrides: [
+      {
+        files: ["*.ts", "*.tsx"],
+        parser: "@typescript-eslint/parser",
+      },
+      {
+        files: ["*.json"],
+        parser: "jsonc-eslint-parser",
+      },
+    ],
   };
 
   const eslintConfigFile = path.join(
@@ -42,7 +51,12 @@ export async function performanceTest(
     const rawLoC = execSync(`cloc $(find ${files})`, { encoding: "utf-8" });
     const jsLoC = rawLoC
       .split("\n")
-      ?.filter((it) => it.includes("JavaScript") || it.includes("TypeScript"))
+      ?.filter(
+        (it) =>
+          it.includes("JavaScript") ||
+          it.includes("TypeScript") ||
+          it.includes("JSON")
+      )
       ?.map((it) => it.split(" ")?.filter((it) => !!it))
       ?.reduce<[string, number, number, number, number]>(
         (acc, curr) => [
@@ -58,7 +72,6 @@ export async function performanceTest(
     const stats = {
       rules: {},
       meta: {
-        warmupIterations,
         iterations,
         target: files,
         linesOfCode: {
@@ -69,10 +82,6 @@ export async function performanceTest(
         },
       },
     };
-
-    for (let i = 0; i < warmupIterations; i++) {
-      // execSync(command, { encoding: "utf-8" });
-    }
 
     for (let i = 0; i < iterations; i++) {
       const out = runESLint(eslintConfigFile, files);
@@ -101,12 +110,6 @@ export async function performanceTest(
     fs.unlinkSync(eslintConfigFile);
   }
 }
-
-performanceTest(
-  process.argv[4] as unknown as string,
-  process.argv[2] as unknown as number,
-  process.argv[3] as unknown as number
-);
 
 function addRun(stats: Stats, output: string) {
   const lines = output.trim().split("\n");
@@ -151,7 +154,7 @@ function runESLint(configFile: string, files: string): string {
     "eslint.js"
   );
 
-  const command = `TIMING=ALL node ${eslintPath} --no-inline-config --no-cache --no-eslintrc --config ${configFile} --no-error-on-unmatched-pattern "${files}"`;
+  const command = `TIMING=ALL node ${eslintPath} --no-inline-config --no-cache --no-eslintrc --config ${configFile} --no-error-on-unmatched-pattern "${files}/**/*.{json,js,jsx,ts,tsx}"`;
   try {
     return execSync(command, {
       encoding: "utf-8",
@@ -166,3 +169,8 @@ function runESLint(configFile: string, files: string): string {
     return typedErr.stdout;
   }
 }
+
+entrypoint(
+  process.argv[3] as unknown as string,
+  process.argv[2] as unknown as number
+);
