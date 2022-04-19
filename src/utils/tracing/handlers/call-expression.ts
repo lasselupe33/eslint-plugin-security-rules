@@ -52,7 +52,7 @@ export function handleCallExpression(
     handleNodeOverrides(nextCtx, callExpression, calleeIdentifiers) ??
     handleVanillaOverrides(nextCtx, callExpression);
 
-  if (overrides) {
+  if (overrides && overrides.length > 0) {
     return overrides;
   }
 

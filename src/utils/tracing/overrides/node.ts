@@ -29,6 +29,52 @@ function handlePathOverrides(
   callExpression: TSESTree.CallExpression,
   calleeIdentifiers: TraceNode[]
 ): TraceNode[] | undefined {
+  return calleeIdentifiers.flatMap((identifier) => {
+    const pathFunctionIdentifier =
+      identifier.astNodes[identifier.astNodes.length - 2];
+
+    if (
+      !isVariableNode(identifier) ||
+      !isIdentifier(pathFunctionIdentifier) ||
+      ![
+        "resolve",
+        "join",
+        "normalize",
+        "relative",
+        "dirname",
+        "basename",
+        "extname",
+        "parse",
+        "toNamespacedPath",
+      ].includes(pathFunctionIdentifier.name) ||
+      !isNodeJSPathCall(ctx, callExpression)
+    ) {
+      return [];
+    }
+
+    return callExpression.arguments.flatMap((it) =>
+      handleNode(
+        deepMerge(ctx, {
+          connection: {
+            astNodes: [...ctx.connection.astNodes, ...identifier.astNodes],
+          },
+        }),
+        it
+      )
+    );
+  });
+}
+
+const callCache = new WeakMap<TSESTree.CallExpression, boolean>();
+
+function isNodeJSPathCall(
+  ctx: HandlingContext,
+  callExpression: TSESTree.CallExpression
+) {
+  if (callCache.has(callExpression)) {
+    return callCache.get(callExpression);
+  }
+
   const typeProgram = getTypeProgram(ctx.ruleContext);
   let isMatch = false;
 
@@ -55,41 +101,6 @@ function handlePathOverrides(
     );
   }
 
-  if (!isMatch) {
-    return;
-  }
-
-  return calleeIdentifiers.flatMap((identifier) => {
-    const pathFunctionIdentifier =
-      identifier.astNodes[identifier.astNodes.length - 2];
-
-    if (
-      !isVariableNode(identifier) ||
-      !isIdentifier(pathFunctionIdentifier) ||
-      ![
-        "resolve",
-        "join",
-        "normalize",
-        "relative",
-        "dirname",
-        "basename",
-        "extname",
-        "parse",
-        "toNamespacedPath",
-      ].includes(pathFunctionIdentifier.name)
-    ) {
-      return [];
-    }
-
-    return callExpression.arguments.flatMap((it) =>
-      handleNode(
-        deepMerge(ctx, {
-          connection: {
-            astNodes: [...ctx.connection.astNodes, ...identifier.astNodes],
-          },
-        }),
-        it
-      )
-    );
-  });
+  callCache.set(callExpression, isMatch);
+  return isMatch;
 }
