@@ -79,6 +79,17 @@ export const pgNoSQLInjections = createRule<never[], MessageIds>({
 
         // Handle the specific case, where the query is stored in an object
         if (isObjectExpression(maybeNode)) {
+          // @TODO: Check to see if text exist in object - is this the right
+          // place to do so?
+          if (
+            !objNode?.properties.some(
+              (it) =>
+                isProperty(it) && isIdentifier(it.key) && it.key.name === "text"
+            )
+          ) {
+            return;
+          }
+
           for (const property of maybeNode.properties) {
             if (isProperty(property) && isIdentifier(property.key)) {
               if (property.key.name === "text") {
@@ -160,6 +171,7 @@ function* paramterizeQueryFix(
   }: FixParams
 ): Generator<TSESLint.RuleFix> {
   const queryLocation = queryNode.arguments[0];
+
   if (!unsafeNode || !queryLocation) {
     return;
   }
