@@ -126,7 +126,7 @@ export const noPackageVulnerableDependencies = createRule<[], MessageIds>({
               {
                 path: context.getPhysicalFilename?.() ?? context.getFilename(),
                 modifiedAt: fs.statSync(
-                  sanitizePath(__dirname, "../../../../", pkgPath)
+                  sanitizePath(__dirname, process.cwd(), pkgPath)
                 ).mtimeMs,
               },
             ],

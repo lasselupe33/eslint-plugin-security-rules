@@ -17,7 +17,7 @@ export function getCode(dirname: string, name: string) {
 
   return {
     code: fs.readFileSync(
-      sanitizePath(__dirname, "../../../", resolvedPath),
+      sanitizePath(__dirname, process.cwd(), resolvedPath),
       "utf-8"
     ),
     filename: resolvedPath,

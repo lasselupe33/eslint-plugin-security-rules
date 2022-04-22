@@ -70,7 +70,7 @@ function getPackageCacheEntry(key: string):
 
   for (const { path, modifiedAt } of entry.paths) {
     if (
-      fs.statSync(sanitizePath(__dirname, "../../../../", path)).mtimeMs !==
+      fs.statSync(sanitizePath(__dirname, process.cwd(), path)).mtimeMs !==
       modifiedAt
     ) {
       return { invalidated: true };
@@ -99,11 +99,7 @@ export function findRelevantPackages(
     let pkg: Package | undefined;
 
     do {
-      const sanitizedPath = sanitizePath(
-        __dirname,
-        "../../../../",
-        packagePath
-      );
+      const sanitizedPath = sanitizePath(__dirname, process.cwd(), packagePath);
 
       if (fs.existsSync(sanitizedPath)) {
         paths.unshift({

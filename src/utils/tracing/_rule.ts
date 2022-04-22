@@ -62,7 +62,7 @@ export const traceTestRule = createRule<[], MessageIds>({
                 .readFileSync(
                   sanitizePath(
                     __dirname,
-                    "../../../",
+                    process.cwd(),
                     context.getFilename().replace(/\.[^.]*$/, ".expected")
                   ),
                   "utf8"

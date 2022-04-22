@@ -5,6 +5,7 @@ import { isBlockStatement, isReturnStatement } from "../../ast/guards";
 import { deepMerge } from "../../deep-merge";
 import { HandlingContext } from "../types/context";
 import { makeNodeTerminalNode, TraceNode } from "../types/nodes";
+import { getReturnStatements } from "../utils/get-return-statements";
 
 import { handleNode } from "./_handle-node";
 
@@ -31,9 +32,7 @@ export function handleArrowFunctionExpression(
 
   const returnStatements = !isBlockStatement(arrowFunctionExpression.body)
     ? [arrowFunctionExpression.body]
-    : arrowFunctionExpression.body.body.filter(
-        (node): node is TSESTree.ReturnStatement => isReturnStatement(node)
-      );
+    : getReturnStatements(arrowFunctionExpression.body.body);
 
   return returnStatements.flatMap((returnStatement) =>
     handleNode(

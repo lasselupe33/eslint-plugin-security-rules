@@ -14,7 +14,7 @@ import { createImportStatementFix } from "../../../../utils/ast/import-fix";
 import { getTypeProgram } from "../../../../utils/types/get-type-program";
 import { Config } from "../_rule";
 
-import { resolveConfigPath } from "./resolve-config-path";
+import { resolveConfigPath, resolveRootPath } from "./resolve-config-path";
 
 /**
  * This fix wraps the vulnerable path inside a call to the sanitation method.
@@ -50,6 +50,7 @@ export function* addSanitationFix(
       { package: "path", method: "path" },
       { asDefault: true }
     );
+
     yield createImportStatementFix(
       ctx,
       { package: "sanitize-filename", method: "sanitizeFilename" },
@@ -76,11 +77,7 @@ export function* addSanitationFix(
 
   yield fixer.insertTextBefore(
     unsafeNode,
-    `${config.sanitation.method}(__dirname, "${resolveConfigPath(
-      config.root,
-      path.dirname(ctx.getPhysicalFilename?.() ?? ctx.getFilename()),
-      cwd
-    )}", `
+    `${config.sanitation.method}(__dirname, ${resolveRootPath(config.root)}, `
   );
   yield fixer.insertTextAfter(unsafeNode, `)`);
 }

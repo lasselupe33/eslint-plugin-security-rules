@@ -40,3 +40,15 @@ export function resolveConfigPath(
 
   return configPath;
 }
+
+export function resolveRootPath(
+  path: "{{root}}" | `{{root}}/${string}` | `{{abs}}:${string}`
+): string {
+  if (path === "{{root}}") {
+    return "process.cwd()";
+  } else if (path.startsWith("{{root}}")) {
+    return `\`\${process.cwd()}${path.replace("{{root}}", "")}\``;
+  }
+
+  return `"${path.replace("{{abs}}:", "")}"`;
+}
