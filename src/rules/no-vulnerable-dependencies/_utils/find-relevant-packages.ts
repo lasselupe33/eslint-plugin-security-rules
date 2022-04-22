@@ -70,8 +70,7 @@ function getPackageCacheEntry(key: string):
 
   for (const { path, modifiedAt } of entry.paths) {
     if (
-      fs.statSync(sanitizePath(__dirname, process.cwd(), path)).mtimeMs !==
-      modifiedAt
+      fs.statSync(sanitizePath(__dirname, "/", path)).mtimeMs !== modifiedAt
     ) {
       return { invalidated: true };
     }
