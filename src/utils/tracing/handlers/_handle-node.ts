@@ -42,7 +42,7 @@ import { handleUnaryExpression } from "./unary-expression";
 import { handleUpdateExpression } from "./update-expression";
 import { handleVariableDeclarator } from "./variable-declarator";
 
-const mapNodeToHandler = makeMapNodeToHandler({ withLogs: true });
+const mapNodeToHandler = makeMapNodeToHandler({ withLogs: false });
 
 export function handleNode(
   context: HandlingContext,
