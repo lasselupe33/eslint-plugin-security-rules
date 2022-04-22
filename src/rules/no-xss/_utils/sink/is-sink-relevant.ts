@@ -3,7 +3,7 @@ import { TSESTree } from "@typescript-eslint/utils";
 import { getNodeType } from "../../../../utils/types/get-node-type";
 import { TypeProgram } from "../../../../utils/types/get-type-program";
 
-import { RawSink } from "./types";
+import { IdentifierTypes, RawSink } from "./types";
 
 /**
  * Iterates through all the remaining possible sinks and returns the remaining
@@ -31,7 +31,7 @@ export function isSinkRelevant<Sink extends RawSink>(
     // to simply assuming the type matches (Prefer false positives over
     // false negatives)
     if (typeName === undefined) {
-      return true;
+      return relevantSinkIdentifier.type === IdentifierTypes.ANY_ELEMENT;
     }
 
     return (

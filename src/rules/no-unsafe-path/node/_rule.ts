@@ -174,7 +174,7 @@ function isFsImport(
 
         if (
           isImportTerminalNode(finalNode) &&
-          ["fs", "fs/promises"].includes(finalNode.source)
+          ["fs", "fs/promises", "fs-extra"].includes(finalNode.source)
         ) {
           isFsImport = true;
         }
