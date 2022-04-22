@@ -2,7 +2,12 @@ import { TSESLint, TSESTree } from "@typescript-eslint/utils";
 import { RuleCreator } from "@typescript-eslint/utils/dist/eslint-utils";
 
 import { extractIdentifier } from "../../../utils/ast/extract-identifier";
-import { isArrowFunctionExpression } from "../../../utils/ast/guards";
+import {
+  isArrowFunctionExpression,
+  isIdentifier,
+  isObjectExpression,
+  isProperty,
+} from "../../../utils/ast/guards";
 import { isPackage } from "../../../utils/ast/is-package";
 import { resolveDocsRoute } from "../../../utils/resolve-docs-route";
 import { extractValuesArray } from "../_utils/extract-values-array";
@@ -65,44 +70,81 @@ export const mysqlNoSQLInjections = createRule<never[], MessageIds>({
           return;
         }
 
-        const {
-          isSafe: isCurrentQuerySafe,
-          troubleNode: maybeNode,
-          queryUpToNode: maybeQuery,
-        } = isQuerySafe({ ruleContext: context }, query);
+        let valuesArray: TSESTree.ArrayExpression | undefined = undefined;
 
-        if (isCurrentQuerySafe || !maybeNode) {
+        let checkRes = isQuerySafe({ ruleContext: context }, query);
+
+        const objNode = isObjectExpression(checkRes.troubleNode)
+          ? checkRes.troubleNode
+          : undefined;
+
+        // Handle the specific case, where the query is stored in an
+        // object
+        if (objNode) {
+          let foundSql = false;
+
+          for (const property of objNode.properties) {
+            if (isProperty(property) && isIdentifier(property.key)) {
+              if (property.key.name === "sql") {
+                checkRes = isQuerySafe(
+                  { ruleContext: context },
+                  property.value
+                );
+                foundSql = true;
+              } else if (property.key.name === "values") {
+                valuesArray = extractValuesArray(
+                  { ruleContext: context },
+                  property.value
+                );
+              }
+            }
+          }
+
+          if (!foundSql) {
+            return;
+          }
+        }
+
+        if (checkRes.isSafe || !checkRes.troubleNode) {
           return;
         }
 
-        let valuesArray: TSESTree.ArrayExpression | undefined = undefined;
-
         const queryValues = node.arguments[1];
 
-        if (!isArrowFunctionExpression(queryValues) && queryValues) {
-          valuesArray = extractValuesArray(
-            { ruleContext: context },
-            queryValues
-          );
+        if (!valuesArray) {
+          if (!isArrowFunctionExpression(queryValues) && queryValues) {
+            valuesArray = extractValuesArray(
+              { ruleContext: context },
+              queryValues
+            );
+          }
         }
 
         // @TODO: Parameterization fix
         // const totalPlaceholders = countPlaceholders(maybeQuery);
 
         context.report({
-          node: maybeNode,
+          node: checkRes.troubleNode,
           messageId: MessageIds.VULNERABLE_QUERY,
-          data: { maybeNode },
+          data: { maybeNode: checkRes.troubleNode },
           suggest: [
             {
               messageId: MessageIds.ESCAPE_FIX_VALUES,
               fix: (fixer: TSESLint.RuleFixer) =>
-                escapeQueryValuesFix(fixer, maybeNode, escapeIdentifier),
+                escapeQueryValuesFix(
+                  fixer,
+                  escapeIdentifier,
+                  checkRes.troubleNode
+                ),
             },
             {
               messageId: MessageIds.ESCAPE_FIX_IDENTIFIERS,
               fix: (fixer: TSESLint.RuleFixer) =>
-                escapeQueryIdentifiersFix(fixer, maybeNode, escapeIdentifier),
+                escapeQueryIdentifiersFix(
+                  fixer,
+                  escapeIdentifier,
+                  checkRes.troubleNode
+                ),
             } /* 
             // @TODO: Count numbers of occourences of an identifier
             // in the query to place it correctly in the array.
@@ -141,10 +183,10 @@ export const mysqlNoSQLInjections = createRule<never[], MessageIds>({
 
 function* escapeQueryValuesFix(
   fixer: TSESLint.RuleFixer,
-  node: TSESTree.Node,
-  escapeIdentifier: string
+  escapeIdentifier: string,
+  node?: TSESTree.Node
 ): Generator<TSESLint.RuleFix> {
-  if (escapeIdentifier.length === 0) {
+  if (!node || escapeIdentifier.length === 0) {
     return;
   }
 
@@ -154,10 +196,10 @@ function* escapeQueryValuesFix(
 
 function* escapeQueryIdentifiersFix(
   fixer: TSESLint.RuleFixer,
-  node: TSESTree.Node,
-  escapeIdentifier: string
+  escapeIdentifier: string,
+  node?: TSESTree.Node
 ): Generator<TSESLint.RuleFix> {
-  if (escapeIdentifier.length === 0) {
+  if (!node || escapeIdentifier.length === 0) {
     return;
   }
 
