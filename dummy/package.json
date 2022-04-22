@@ -1,0 +1,20 @@
+{
+  "name": "dummy",
+  "version": "0.0.0",
+  "description": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/dompurify": "^2.3.3",
+    "@types/ejs": "^3.1.0",
+    "@types/jquery": "^3.5.14",
+    "@types/mysql": "^2.15.21",
+    "@types/pg": "^8.6.4",
+    "dompurify": "^2.3.6",
+    "ejs": "^3.1.6",
+    "isomorphic-dompurify": "^0.18.0",
+    "jquery": "^3.6.0",
+    "mysql": "^2.18.1",
+    "pg": "^8.7.3",
+    "react": "^17.0.2"
+  }
+}
