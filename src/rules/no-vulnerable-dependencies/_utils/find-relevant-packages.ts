@@ -99,7 +99,7 @@ export function findRelevantPackages(
     let pkg: Package | undefined;
 
     do {
-      const sanitizedPath = sanitizePath(__dirname, process.cwd(), packagePath);
+      const sanitizedPath = sanitizePath(__dirname, "/", packagePath);
 
       if (fs.existsSync(sanitizedPath)) {
         paths.unshift({
