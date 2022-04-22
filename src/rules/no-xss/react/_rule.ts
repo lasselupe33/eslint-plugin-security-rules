@@ -6,6 +6,7 @@ import {
 } from "@typescript-eslint/utils/dist/ts-eslint";
 
 import {
+  isCallExpression,
   isIdentifier,
   isJSXEmptyExpression,
   isJSXExpressionContainer,
@@ -16,7 +17,11 @@ import {
 import { resolveDocsRoute } from "../../../utils/resolve-docs-route";
 import { traceVariable } from "../../../utils/tracing/_trace-variable";
 import { withTrace } from "../../../utils/tracing/callbacks/with-trace";
-import { isNodeTerminalNode } from "../../../utils/tracing/types/nodes";
+import {
+  isImportTerminalNode,
+  isNodeTerminalNode,
+} from "../../../utils/tracing/types/nodes";
+import { printTrace } from "../../../utils/tracing/utils/print-trace";
 import { getTypeProgram } from "../../../utils/types/get-type-program";
 import { addSanitazionAtSink } from "../_utils/fixes/add-sanitation-sink";
 import { NoXssOptions } from "../_utils/options";
@@ -93,6 +98,60 @@ export const noReactXSSRule = createRule<NoXssOptions, MessageIds>({
     const typeProgram = getTypeProgram(context);
 
     return {
+      Property: (node) => {
+        // Handle React.createElement() cases
+        if (
+          !isIdentifier(node.key) ||
+          !isCallExpression(node.parent?.parent) ||
+          !isReactImport(context, node.parent?.parent.callee)
+        ) {
+          return;
+        }
+
+        const sink = getRelevantSinks(
+          typeProgram,
+          node.key,
+          ASSIGNMENT_SINKS
+        )[0];
+
+        if (!sink) {
+          return;
+        }
+
+        const value =
+          "property" in sink
+            ? getObjectProperty(context, node.value, sink.property)
+            : node.value;
+
+        if (!value) {
+          return;
+        }
+
+        const isSafe = isSourceSafe(value, {
+          context,
+          options: sanitationOptions,
+          sinkType: sink.type,
+        });
+
+        if (isSafe) {
+          return;
+        }
+
+        context.report({
+          node: node.value,
+          messageId: MessageIds.VULNERABLE_SINK,
+          data: {
+            sinkType: sink.type,
+          },
+          suggest: [
+            {
+              fix: (fixer: RuleFixer) =>
+                addSanitazionAtSink(context, sanitationOptions, fixer, value),
+              messageId: MessageIds.ADD_SANITATION_FIX,
+            },
+          ],
+        });
+      },
       JSXAttribute: (node) => {
         if (
           isJSXNamespacedName(node.name) ||
@@ -193,4 +252,31 @@ function getObjectProperty(
     (it): it is TSESTree.Property =>
       isProperty(it) && isIdentifier(it.key) && it.key.name === property
   )?.value;
+}
+
+function isReactImport(
+  context: RuleContext<string, unknown[]>,
+  node: TSESTree.Node | undefined
+): boolean {
+  let isReactImport = false;
+
+  traceVariable(
+    {
+      node,
+      context,
+    },
+    withTrace({
+      onTraceFinished: (trace) => {
+        printTrace(context, trace);
+
+        const finalNode = trace[trace.length - 1];
+
+        if (isImportTerminalNode(finalNode) && finalNode.source === "react") {
+          isReactImport = true;
+        }
+      },
+    })
+  );
+
+  return isReactImport;
 }

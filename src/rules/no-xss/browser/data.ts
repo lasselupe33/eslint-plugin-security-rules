@@ -90,6 +90,17 @@ export const CALL_EXPRESSION_SINKS: CallExpressionSink[] = [
     identifier: [{ name: "setInterval" }],
     paramterIndex: 0,
   },
+  {
+    type: SinkTypes.EXECUTION,
+    identifier: [{ name: "document" }, { name: "execCommand" }],
+    paramterIndex: 2,
+    if: { paramaterIndex: 0, equals: "inserthtml" },
+  },
+  {
+    type: SinkTypes.EXECUTION,
+    identifier: [{ name: "vm" }, { name: "runInNewContext" }],
+    paramterIndex: 0,
+  },
 
   {
     type: SinkTypes.DOCUMENT,

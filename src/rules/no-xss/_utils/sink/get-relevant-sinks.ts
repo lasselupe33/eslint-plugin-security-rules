@@ -42,6 +42,17 @@ export function getRelevantSinks<Sink extends RawSink>(
     isMemberExpression(expression) &&
     isIdentifier(expression.property)
   ) {
+    if ((matchIn.length === 1 && matchIn[0]?.identifier.length) ?? 0 <= 1) {
+      return (
+        findConclusionSink(
+          typeProgram,
+          expression,
+          expression.property.name,
+          matchIn
+        ) ?? []
+      );
+    }
+
     const remainingMatches = findMatchingSinks(
       typeProgram,
       expression,
