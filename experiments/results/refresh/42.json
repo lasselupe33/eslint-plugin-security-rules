@@ -1,0 +1,23 @@
+{
+  "base": {
+    "observations": [
+      4, 7, 6, 8, 8, 6, 6, 7, 7, 6, 7, 6, 5, 12, 8, 8, 8, 6, 8, 7, 6, 8, 8, 6, 7
+    ],
+    "avg": 7
+  },
+  "withRules": {
+    "observations": [
+      15, 13, 11, 11, 10, 10, 10, 11, 10, 12, 12, 17, 11, 9, 11, 10, 11, 9, 10,
+      10, 13, 10, 12, 10, 10
+    ],
+    "avg": 11.12
+  },
+  "meta": {
+    "iterations": 25,
+    "reports": 2,
+    "target": "./CVE-2020-27666/packages/strapi/lib/utils/run-checks.js",
+    "linesOfCode": {
+      "code": 42
+    }
+  }
+}
