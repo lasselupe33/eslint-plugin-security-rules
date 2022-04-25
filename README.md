@@ -77,6 +77,7 @@ To include the recommended `eslint-plugin-security-rules` to your ruleset add th
 | **Name** | **Description** | ✅ | 🔧 | 💭 | 🌩 |
 |:--------|:------------|:--:|:--:|:--:|:----:|
 | [security-rules/node/no-unsafe-path](https://github.com/lasselupe33/eslint-plugin-security-rules/blob/master/src/rules/no-unsafe-path/node/_docs.md) | Avoids usage of unsafe paths when interacting with the file-system using "fs" | ✅ | 🔧 | 💭 | |
+| [security-rules/node/no-insecure-ciphers](https://github.com/lasselupe33/eslint-plugin-security-rules/blob/master/src/rules/no-insecure-ciphers/node/_docs.md) | Detects unsafe ciphers algorithms that should not be used | ✅ | 🔧 | 💭 | |
 
 ### Universal
 
