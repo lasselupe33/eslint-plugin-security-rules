@@ -28,7 +28,7 @@ export type HandlingContext = {
 const createRule = RuleCreator(resolveDocsRoute);
 
 export const mysqlNoHardcodedCredentials = createRule<never[], MessageIds>({
-  name: "mysql/no-hardcoded-credentials",
+  name: "no-hardcoded-credentials/mysql",
   defaultOptions: [],
   meta: {
     type: "problem",

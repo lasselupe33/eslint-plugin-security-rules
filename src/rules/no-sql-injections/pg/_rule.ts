@@ -34,7 +34,7 @@ export type HandlingContext = {
 const createRule = RuleCreator(resolveDocsRoute);
 
 export const pgNoSQLInjections = createRule<never[], MessageIds>({
-  name: "pg/no-sql-injections",
+  name: "no-sql-injections/pg",
   defaultOptions: [],
   meta: {
     type: "problem",

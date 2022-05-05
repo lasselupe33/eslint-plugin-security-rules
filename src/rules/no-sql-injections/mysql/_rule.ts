@@ -33,7 +33,7 @@ export type HandlingContext = {
 const createRule = RuleCreator(resolveDocsRoute);
 
 export const mysqlNoSQLInjections = createRule<never[], MessageIds>({
-  name: "mysql/no-sql-injections",
+  name: "no-sql-injections/mysql",
   defaultOptions: [],
   meta: {
     type: "problem",
