@@ -1,6 +1,6 @@
 {
   "name": "eslint-plugin-security-rules",
-  "version": "0.6.5",
+  "version": "0.6.8",
   "description": "ESLint security rules to help harden your project as early as possible.",
   "main": "./lib/index.js",
   "files": [
@@ -21,6 +21,7 @@
   "scripts": {
     "dummy": "yarn workspace dummy",
     "build": "rm -rf ./lib && mkdir ./lib && mkdir ./lib/templates && cp -R ./src/templates/ ./lib/templates/ && tsc --project ./tsconfig.build.json",
+    "build:windows": "(if exist lib rd /s /q lib ) && mkdir lib\\templates && xcopy /E /I src\\templates lib\\templates && tsc --project ./tsconfig.build.json",
     "watch": "yarn build --watch",
     "prepublishOnly": "yarn build",
     "eslint:files": "eslint",

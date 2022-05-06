@@ -28,7 +28,7 @@ import { errorMessages, MessageIds } from "../_utils/messages";
 const createRule = RuleCreator(resolveDocsRoute);
 
 export const uniNoHardcodedCredentials = createRule<never[], MessageIds>({
-  name: "uni/no-hardcoded-credentials",
+  name: "no-hardcoded-credentials/uni",
   defaultOptions: [],
   meta: {
     type: "problem",

@@ -64,10 +64,12 @@ export function isQuerySafe(
           }
         }
 
-        if (isVariableNode(traceNode)) {
-          if (!hitImport) {
-            maybeNode = traceNode?.astNodes[traceNode.astNodes.length - 1];
-          }
+        if (
+          !hitImport &&
+          isVariableNode(traceNode) &&
+          traceNode.variable.defs.length > 0
+        ) {
+          maybeNode = traceNode?.astNodes[traceNode.astNodes.length - 1];
         }
       },
       onTraceFinished: (trace) => {
