@@ -236,7 +236,7 @@ function* paramterizeQueryFix(
   if (isTemplateLiteral(unsafeNode.parent)) {
     yield fixer.replaceTextRange([startR - 2, endR + 1], escapeIdentifier);
   } else {
-    yield fixer.replaceTextRange([startR, endR], `"$${escapeIdentifier}"`);
+    yield fixer.replaceTextRange([startR, endR], `"${escapeIdentifier}"`);
   }
 
   const nodeText = ctx.ruleContext.getSourceCode().getText(unsafeNode);
