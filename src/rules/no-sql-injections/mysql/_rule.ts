@@ -7,12 +7,14 @@ import {
   isIdentifier,
   isObjectExpression,
   isProperty,
+  isTemplateLiteral,
 } from "../../../utils/ast/guards";
 import { isPackage } from "../../../utils/ast/is-package";
 import { resolveDocsRoute } from "../../../utils/resolve-docs-route";
 import { extractValuesArray } from "../_utils/extract-values-array";
 import { MessageIds, errorMessages } from "../_utils/messages";
 
+import { unsafe } from "./tests/config-connection";
 import { countPlaceholders } from "./utils/count-placeholders";
 import { isQuerySafe } from "./utils/is-query-safe";
 
@@ -112,6 +114,8 @@ export const mysqlNoSQLInjections = createRule<never[], MessageIds>({
 
         const queryValues = node.arguments[1];
 
+        const totalPlaceholders = countPlaceholders(checkRes.queryUpToNode);
+
         if (!valuesArray) {
           if (!isArrowFunctionExpression(queryValues) && queryValues) {
             valuesArray = extractValuesArray(
@@ -130,6 +134,34 @@ export const mysqlNoSQLInjections = createRule<never[], MessageIds>({
           data: { maybeNode: checkRes.troubleNode },
           suggest: [
             {
+              messageId: MessageIds.PARAMTERIZED_FIX_VALUES,
+              fix: (fixer: TSESLint.RuleFixer) =>
+                paramterizeQueryFix(
+                  { ruleContext: context },
+                  fixer,
+                  "?",
+                  totalPlaceholders,
+                  query,
+                  objNode,
+                  valuesArray,
+                  checkRes.troubleNode
+                ),
+            },
+            {
+              messageId: MessageIds.PARAMTERIZED_FIX_IDENTIFIERS,
+              fix: (fixer: TSESLint.RuleFixer) =>
+                paramterizeQueryFix(
+                  { ruleContext: context },
+                  fixer,
+                  "??",
+                  totalPlaceholders,
+                  query,
+                  objNode,
+                  valuesArray,
+                  checkRes.troubleNode
+                ),
+            },
+            {
               messageId: MessageIds.ESCAPE_FIX_VALUES,
               fix: (fixer: TSESLint.RuleFixer) =>
                 escapeQueryValuesFix(
@@ -146,35 +178,7 @@ export const mysqlNoSQLInjections = createRule<never[], MessageIds>({
                   escapeIdentifier,
                   checkRes.troubleNode
                 ),
-            } /* 
-            // @TODO: Count numbers of occourences of an identifier
-            // in the query to place it correctly in the array.
-            {
-              messageId: MessageIds.PARAMTERIZED_FIX_VALUES,
-              fix: (fixer: TSESLint.RuleFixer) =>
-                paramterizeQueryFix(
-                  { ruleContext: context },
-                  fixer,
-                  totalPlaceholders,
-                  query,
-                  false,
-                  valuesArray,
-                  maybeNode
-                ),
             },
-            {
-              messageId: MessageIds.PARAMTERIZED_FIX_IDENTIFIERS,
-              fix: (fixer: TSESLint.RuleFixer) =>
-                paramterizeQueryFix(
-                  { ruleContext: context },
-                  fixer,
-                  totalPlaceholders,
-                  query,
-                  true,
-                  valuesArray,
-                  maybeNode
-                ),
-            }, */,
           ],
         });
       },
@@ -211,48 +215,61 @@ function* escapeQueryIdentifiersFix(
 function* paramterizeQueryFix(
   ctx: HandlingContext,
   fixer: TSESLint.RuleFixer,
+  escapeIdentifier: string,
   totalPlaceholders: number,
-  queryLocation: TSESTree.CallExpressionArgument,
-  identifierFix: boolean,
-  arrayNode?: TSESTree.ArrayExpression,
-  replaceNode?: TSESTree.Node
+  queryNode: TSESTree.CallExpressionArgument,
+  objNode?: TSESTree.ObjectExpression,
+  placeholderValuesNode?: TSESTree.ArrayExpression,
+  unsafeNode?: TSESTree.Node
 ): Generator<TSESLint.RuleFix> {
-  if (!replaceNode || !queryLocation) {
+  if (!unsafeNode || escapeIdentifier.length === 0) {
     return;
   }
 
-  if (totalPlaceholders > 0 && !arrayNode) {
+  if (totalPlaceholders > 0 && !placeholderValuesNode) {
     return;
   }
-
-  // Since index starts counting from 0 and not 1, we can just set it to
-  // placeholders.
-  const index = totalPlaceholders;
-
-  const nodeText = ctx.ruleContext.getSourceCode().getText(replaceNode);
 
   // Parameterization
-  if (identifierFix) {
-    yield fixer.replaceText(replaceNode, '"??"');
+  const [startR, endR] = unsafeNode.range;
+  // If node is of the form ${adr}, we need to strip the ${}
+  if (isTemplateLiteral(unsafeNode.parent)) {
+    yield fixer.replaceTextRange([startR - 2, endR + 1], escapeIdentifier);
   } else {
-    yield fixer.replaceText(replaceNode, '"?"');
+    yield fixer.replaceTextRange([startR, endR], `"$${escapeIdentifier}"`);
   }
 
-  // No array
-  if (!arrayNode) {
-    yield fixer.insertTextAfter(queryLocation, ", [" + nodeText + "]");
+  const nodeText = ctx.ruleContext.getSourceCode().getText(unsafeNode);
+
+  // No array and not in an object
+  // Create a new array for placeholder values
+  if (!placeholderValuesNode && !objNode) {
+    yield fixer.insertTextAfter(queryNode, ", [" + nodeText + "]");
   }
-  // If we need to replace an array element
-  else if (arrayNode.elements.length >= index) {
-    const elm = arrayNode.elements[index];
-    if (!elm) {
-      return;
+  // No array and in an object
+  // Create a new array for placeholder values in the object
+  else if (!placeholderValuesNode && objNode) {
+    const rangeStart = objNode.range[1] - 1;
+    yield fixer.insertTextBeforeRange(
+      [rangeStart, 0],
+      ", values: [" + nodeText + "] "
+    );
+  }
+  // Existing placeholder array and existing element
+  // Overwrite the existing value on the placeholder spot
+  else if (
+    placeholderValuesNode &&
+    placeholderValuesNode.elements.length > totalPlaceholders
+  ) {
+    const overwriteNode = placeholderValuesNode.elements[totalPlaceholders];
+    if (overwriteNode) {
+      yield fixer.replaceText(overwriteNode, nodeText);
     }
-    yield fixer.insertTextBefore(elm, nodeText + ", ");
   }
   // Existing placeholder array
-  else if (arrayNode) {
-    const rangeEnd = arrayNode.range[1] - 1;
+  // Append to the end of the array
+  else if (placeholderValuesNode) {
+    const rangeEnd = placeholderValuesNode.range[1] - 1;
     yield fixer.insertTextAfterRange([0, rangeEnd], ", " + nodeText);
   }
 }
