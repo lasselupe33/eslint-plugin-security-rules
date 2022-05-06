@@ -30,7 +30,7 @@ export type HandlingContext = {
 const createRule = RuleCreator(resolveDocsRoute);
 
 export const pgNoHardcodedCredentials = createRule<never[], MessageIds>({
-  name: "pg/no-hardcoded-credentials",
+  name: "no-hardcoded-credentials/pg",
   defaultOptions: [],
   meta: {
     type: "problem",
