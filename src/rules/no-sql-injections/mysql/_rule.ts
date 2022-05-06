@@ -64,6 +64,7 @@ export const mysqlNoSQLInjections = createRule<never[], MessageIds>({
 
         if (
           !didMatchIdentifierName ||
+          !(0 < node.arguments.length && node.arguments.length < 4) ||
           !query ||
           !isPackage(context, "mysql", node)
         ) {

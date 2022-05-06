@@ -63,6 +63,7 @@ export const pgNoSQLInjections = createRule<never[], MessageIds>({
 
         if (
           !didMatchIdentifierName ||
+          !(0 < node.arguments.length && node.arguments.length < 4) ||
           !queryArgs ||
           !isPackage(context, "pg", node)
         ) {
