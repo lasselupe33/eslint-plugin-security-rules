@@ -43,32 +43,38 @@ export function isQuerySafe(
     },
     withTrace({
       onNodeVisited: (trace, traceNode) => {
-        const testNode = traceNode.astNodes[0];
-        // If we hit an import statement, the node we return will no longer be
-        // valid, as it's no longer in the linted file.
-        if (testNode && isImportSpecifier(testNode)) {
-          hitImport = true;
-        }
-        if (isVariableNode(traceNode)) {
-          if (!hitImport) {
-            maybeNode = traceNode?.astNodes[traceNode.astNodes.length - 1];
+        // In case the trace is no longer deemed safe, we run the entire trace
+        // to get the entire query for the automatic fix.
+        if (isSafe) {
+          const testNode = traceNode.astNodes[0];
+          // If we hit an import statement, the node we return will no longer be
+          // valid, as it's no longer in the linted file.
+          if (testNode && isImportSpecifier(testNode)) {
+            hitImport = true;
+          }
+          if (isVariableNode(traceNode)) {
+            if (!hitImport) {
+              maybeNode = traceNode?.astNodes[traceNode.astNodes.length - 1];
+            }
           }
         }
       },
       onTraceFinished: (trace) => {
-        const finalNode = trace[trace.length - 1];
+        if (isSafe) {
+          const finalNode = trace[trace.length - 1];
 
-        const isTraceSafe = isConstantTerminalNode(finalNode);
+          const isTraceSafe = isConstantTerminalNode(finalNode);
 
-        // Reset hitImport for next trace.
-        hitImport = false;
+          // Reset hitImport for next trace.
+          hitImport = false;
 
-        if (isNodeTerminalNode(finalNode)) {
-          maybeNode = finalNode.astNode;
-        }
-        if (!isTraceSafe) {
-          isSafe = false;
-          return { halt: true };
+          if (isNodeTerminalNode(finalNode)) {
+            maybeNode = finalNode.astNode;
+          }
+          if (!isTraceSafe) {
+            isSafe = false;
+            // return { halt: true };
+          }
         }
       },
       onFinished: (terminalGroups) => {
