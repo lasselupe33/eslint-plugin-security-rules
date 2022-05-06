@@ -19,4 +19,8 @@ export const client = new Client({
   port: 3211,
 });
 
+export const userTables = {
+  verifyEmailToken: "verify_email_token",
+};
+
 export const unsafe = await (await fetch("https://malicious.site")).text();

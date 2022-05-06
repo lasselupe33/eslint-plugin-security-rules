@@ -12,6 +12,7 @@ enum validTests {
   PREPARED_STATEMENTS = "allow-prepared-statement",
   PROMISE_QUERY = "allow-promise-query",
   PROMISE = "allow-promise",
+  SAFE_EXTERNALS = "allow-safe-externals",
 }
 
 enum invalidTests {
@@ -43,6 +44,7 @@ ruleTester.run("pg/no-sql-injections", pgNoSQLInjections, {
     getCode(__dirname, validTests.PREPARED_STATEMENTS),
     getCode(__dirname, validTests.PROMISE),
     getCode(__dirname, validTests.PROMISE_QUERY),
+    getCode(__dirname, validTests.SAFE_EXTERNALS),
   ],
   invalid: [
     {
