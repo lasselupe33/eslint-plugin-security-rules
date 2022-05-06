@@ -49,13 +49,16 @@ export function isQuerySafe(
         if (testNode && isImportSpecifier(testNode)) {
           hitImport = true;
         }
-        if (isVariableNode(traceNode)) {
-          if (!hitImport) {
-            maybeNode = traceNode?.astNodes[traceNode.astNodes.length - 1];
-          }
+        if (
+          !hitImport &&
+          isVariableNode(traceNode) &&
+          traceNode.variable.defs.length > 0
+        ) {
+          maybeNode = traceNode?.astNodes[traceNode.astNodes.length - 1];
         }
       },
       onTraceFinished: (trace) => {
+        printTrace(context.ruleContext, trace);
         const finalNode = trace[trace.length - 1];
 
         const isTraceSafe = isConstantTerminalNode(finalNode);
