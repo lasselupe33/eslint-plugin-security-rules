@@ -109,18 +109,6 @@ export function isQuerySafe(
     })
   );
 
-  if (isObjectExpression(maybeNode)) {
-    for (const property of maybeNode.properties) {
-      if (
-        isProperty(property) &&
-        isIdentifier(property.key) &&
-        property.key.name === "sql"
-      ) {
-        return isQuerySafe(context, property.value);
-      }
-    }
-  }
-
   // Typescript is stupid and doesn't recognize the type of maybeNode :(!
   if (isNode(maybeNode)) {
     return { isSafe, troubleNode: maybeNode, queryUpToNode: maybeQuery };

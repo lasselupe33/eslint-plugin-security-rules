@@ -16,6 +16,7 @@ enum invalidTests {
   AES_128_ECB = "error-aes-128-ecb",
   CAPITALIZED_ALG_NAME = "error-capitalized-alg-name",
   DES = "error-des",
+  RENAMED_FUNCTION = "error-renamed-function",
 }
 
 const ruleTester = new ESLintUtils.RuleTester({
@@ -45,6 +46,10 @@ ruleTester.run("node/no-insecure-ciphers", nodeNoInsecureCiphers, {
     },
     {
       ...getCode(__dirname, invalidTests.DES),
+      errors: [{ messageId: MessageIds.INSECURE_CIPHER }],
+    },
+    {
+      ...getCode(__dirname, invalidTests.RENAMED_FUNCTION),
       errors: [{ messageId: MessageIds.INSECURE_CIPHER }],
     },
   ],

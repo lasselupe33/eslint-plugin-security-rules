@@ -1,5 +1,5 @@
 // Counts the number of placeholder signs up to the index given
-export function countPlaceholders(query: string): number {
+export function countPlaceholders(query?: string): number {
   if (!query) {
     return 0;
   }
