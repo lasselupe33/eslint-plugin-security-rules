@@ -207,7 +207,7 @@ function reportAdvisories(
           {
             messageId: MessageIds.UPGRADE_PACKAGE_FIX,
             data: {
-              minVersion: advisoryFixedAt?.version,
+              minVersion: highestVulnerableVersion,
               currentVersion: semverVersion,
               dependency,
               patch: diff(advisoryFixedAt ?? "", semverVersion ?? ""),
