@@ -1,6 +1,6 @@
 {
   "name": "eslint-plugin-security-rules",
-  "version": "0.7.0",
+  "version": "0.8.0",
   "description": "ESLint security rules to help harden your project as early as possible.",
   "main": "./lib/index.js",
   "files": [
