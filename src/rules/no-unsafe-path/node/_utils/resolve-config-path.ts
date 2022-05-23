@@ -23,17 +23,19 @@ export function resolveConfigPath(
     const targetSegments = configPath.replace("{{root}}", cwd).split(path.sep);
     const sourceSegments = dirname.split(path.sep);
 
-    const greatestMatchIndex =
-      sourceSegments.findIndex((it, index) => it !== targetSegments[index]) - 1;
+    const greatestMatchIndex = sourceSegments.findIndex(
+      (it, index) => it !== targetSegments[index]
+    );
+
+    if (greatestMatchIndex === -1) {
+      return `./${path.join(...targetSegments.slice(greatestMatchIndex))}`;
+    }
 
     const backtrack = `..${path.sep}`.repeat(
-      Math.max(0, sourceSegments.length - 1 - greatestMatchIndex)
+      Math.max(0, sourceSegments.length - greatestMatchIndex)
     );
 
-    return path.join(
-      backtrack,
-      ...targetSegments.slice(greatestMatchIndex + 1)
-    );
+    return path.join(backtrack, ...targetSegments.slice(greatestMatchIndex));
   } else if (configPath.startsWith("{{abs}}")) {
     return configPath.replace("{{abs}}:", "");
   }

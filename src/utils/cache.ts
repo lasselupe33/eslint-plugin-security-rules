@@ -3,6 +3,8 @@ import path from "path";
 
 import fs from "fs-extra";
 
+import { sanitizePath } from "./sanitize-path";
+
 const CACHE_PATH = path.join(path.dirname(__dirname), ".cache");
 
 type Options =
@@ -26,7 +28,9 @@ export function createCache<T>({ useFileSystem }: Options = {}) {
       memCache.delete(key);
 
       if (useFileSystem) {
-        fs.unlink(path.join(fileSystemPath, key));
+        fs.unlink(
+          sanitizePath(__dirname, __dirname, path.join(fileSystemPath, key))
+        );
       }
     },
     set: (rawKey: string, value: T): void => {
@@ -36,7 +40,7 @@ export function createCache<T>({ useFileSystem }: Options = {}) {
       if (useFileSystem) {
         try {
           fs.writeFileSync(
-            path.join(fileSystemPath, key),
+            sanitizePath(__dirname, __dirname, path.join(fileSystemPath, key)),
             JSON.stringify(value),
             {
               encoding: "utf-8",
@@ -56,7 +60,14 @@ export function createCache<T>({ useFileSystem }: Options = {}) {
       } else if (useFileSystem) {
         try {
           return JSON.parse(
-            fs.readFileSync(path.join(fileSystemPath, key), "utf-8")
+            fs.readFileSync(
+              sanitizePath(
+                __dirname,
+                __dirname,
+                path.join(fileSystemPath, key)
+              ),
+              "utf-8"
+            )
           ) as T;
         } catch (err) {
           // Silently fail since the file is not available and thus not cached

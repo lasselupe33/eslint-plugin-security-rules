@@ -3,6 +3,8 @@ import path from "path";
 
 import fs from "fs-extra";
 
+import { sanitizePath } from "../src/utils/sanitize-path";
+
 type Stats = {
   rules: Record<string, { runsMs: number[]; avgMs: number }>;
 };
@@ -99,9 +101,13 @@ export async function entrypoint(
     fs.mkdirpSync(outDir);
 
     fs.writeFileSync(
-      path.join(
-        outDir,
-        `${new Date().toISOString().replace(/[:.]/g, "-")}.json`
+      sanitizePath(
+        __dirname,
+        __dirname,
+        path.join(
+          outDir,
+          `${new Date().toISOString().replace(/[:.]/g, "-")}.json`
+        )
       ),
       JSON.stringify(stats, undefined, 2),
       { encoding: "utf-8" }

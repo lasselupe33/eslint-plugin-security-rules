@@ -7,10 +7,13 @@ import { withTrace } from "../../../../utils/tracing/callbacks/with-trace";
 import { ConnectionFlags } from "../../../../utils/tracing/types/connection";
 import {
   isConstantTerminalNode,
+  isGlobalTerminalNode,
   isVariableNode,
 } from "../../../../utils/tracing/types/nodes";
 import { printTrace } from "../../../../utils/tracing/utils/print-trace";
 import { Config } from "../_rule";
+
+const SAFE_GLOBALS = new Set(["Date"]);
 
 type Context = {
   context: RuleContext<string, unknown[]>;
@@ -76,7 +79,10 @@ export function isPathSafe(
         });
 
         const isTraceSafe =
-          isConstantTerminalNode(finalNode) || hasSanitationBeforeModification;
+          isConstantTerminalNode(finalNode) ||
+          (isGlobalTerminalNode(finalNode) &&
+            SAFE_GLOBALS.has(finalNode.name)) ||
+          hasSanitationBeforeModification;
 
         if (!isTraceSafe) {
           isSafe = false;
